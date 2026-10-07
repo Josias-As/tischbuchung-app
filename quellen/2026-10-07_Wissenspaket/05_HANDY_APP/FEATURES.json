@@ -1,0 +1,332 @@
+{
+  "app": "Handy-App Tischbuchung",
+  "auftrag": "AUFTRAG_MOBIL.md, Abschnitt 8",
+  "hinweis": "Die Beschreibungen sind wortgleich aus Abschnitt 8 des Auftrags uebernommen. Kein Kriterium wird entfernt, abgeschwaecht oder umformuliert. 'passes' wird erst auf true gesetzt, wenn unter 'beleg' ein konkreter Beleg steht.",
+  "stand": "2026-10-06 14:25",
+  "kriterien": [
+    {
+      "id": "A01",
+      "gruppe": "Grundlagen",
+      "beschreibung": "Die Handy-App ist eine eigene App mit eigenem Namen und eigener App-ID; die ID steht in ABNAHME.md.",
+      "pruefung": "App-ID aus dem Portal, Eintrag in ABNAHME.md",
+      "passes": true,
+      "beleg": "App 'Tischbuchung Handy' am 06.10.2026 um 14:46:21 angelegt. App-ID e218702e-35cb-4dc8-813a-b9fd860c7f72, belegt durch die Detailseite im Portal (URL .../apps/e218702e-35cb-4dc8-813a-b9fd860c7f72/details, Feld 'App-ID'). Eindeutig verschieden von der produktiven App d247d18b-d36f-4a44-975a-7839695b2f12. Lizenzbezeichnung 'Standard', also kein Premium-Konnektor noetig. Eintrag in ABNAHME.md folgt zum Abschluss.",
+      "nur_josias": false
+    },
+    {
+      "id": "A02",
+      "gruppe": "Grundlagen",
+      "beschreibung": "Die produktive App „Tischbuchung“ (d247d18b-…) ist nachweislich nicht verändert: Ihre Versionsliste (Details → Versionen) zeigt keine Version, die in deinem Arbeitszeitraum von dir gespeichert oder veröffentlicht wurde. Halte die Versionsliste zu Beginn und am Ende fest. (Achtung: Schon das Öffnen im Studio kann „Zuletzt geändert“ verschieben, das ist kein Beleg.)",
+      "pruefung": "Versionsliste zu Beginn und am Ende, Screenshots in screenshots\\",
+      "passes": false,
+      "beleg": "TEIL 1 von 2 erbracht: Ausgangsstand am 06.10.2026 ca. 14:35 Uhr festgehalten, hoechste Version = 23 (Screenshot screenshots\\A02_versionsliste_produktiv_BEGINN_2026-10-06_1435.jpg, Tabelle in FORTSCHRITT.md). Version 20 ist Live. Versionen 21 bis 23 stammen von Josias und entstanden vor meinem ersten Zugriff auf Power Apps. Teil 2 (Endstand, es darf keine Version 24 von mir geben) steht aus.",
+      "nur_josias": false
+    },
+    {
+      "id": "A03",
+      "gruppe": "Grundlagen",
+      "beschreibung": "Hochformat, Scale to fit aus, Ausrichtung gesperrt; die App füllt in der Geräteemulation 390 × 844 und 360 × 800 die Breite ohne horizontales Scrollen (Screenshots).",
+      "pruefung": "App-Einstellungen plus zwei Screenshots",
+      "passes": false,
+      "beleg": "Emulationstests bestanden: 390x844 (screenshots\\A03_A16_meine_390x844_korrekte_groessen.jpg) und 360x800 (screenshots\\A03_meine_360x800_kein_horizontales_scrollen.jpg), kein horizontales Scrollen. App-Layout 'Dynamisch' (= Scale to fit AUS), Hochformat (screenshots\\A03_app_layout_dynamisch.jpg). ABWEICHUNG: 'Ausrichtung gesperrt' ist bei dynamischem Layout in Power Apps ausgegraut und nicht setzbar (screenshots\\A03_anzeige_dynamisch_ausrichtung_gesperrt_deaktiviert.jpg). Beides zugleich ist nicht moeglich. ENTSCHEIDUNGEN.md E-04, Frage F-13. Bleibt false, weil ein Teil des Wortlauts nicht erfuellbar ist.",
+      "nur_josias": false
+    },
+    {
+      "id": "A04",
+      "gruppe": "Grundlagen",
+      "beschreibung": "Die letzte Kompilierung bzw. App-Prüfung zeigt 0 Fehler.",
+      "pruefung": "P1, Ausgabe zitiert",
+      "passes": false,
+      "beleg": "ZWISCHENSTAND 06.10.2026 16:20: App-Pruefung -> Formeln ohne Befund (nach dem Bau von Buchen). Endgueltiger Nachweis bei der Abschlusspruefung.",
+      "nur_josias": false
+    },
+    {
+      "id": "A05",
+      "gruppe": "Grundlagen",
+      "beschreibung": "Alle Delegationswarnungen sind aufgelistet und jede ist behoben oder begründet unkritisch.",
+      "pruefung": "P2, Liste in TESTPROTOKOLL.md",
+      "passes": false,
+      "beleg": "ZWISCHENSTAND 06.10.2026 16:20: keine Delegationswarnung. Sechs Warnungen beim ersten Einfuegen von Buchen gefunden und behoben (FORTSCHRITT.md). Drei Leistungshinweise begruendet unkritisch, Liste in TESTPROTOKOLL.md. Endgueltig bei der Abschlusspruefung.",
+      "nur_josias": false
+    },
+    {
+      "id": "A06",
+      "gruppe": "Header und Navigation",
+      "beschreibung": "Header mit Logo, App-Name, Initialen; Aktualisieren lädt die Daten neu und meldet das.",
+      "pruefung": "P3, Screenshot",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A07",
+      "gruppe": "Header und Navigation",
+      "beschreibung": "Tab-Leiste unten mit „Heute“, „Buchen“, „Meine Buchungen“; der aktive Tab ist erkennbar; Tabwechsel schließt offene Dialoge.",
+      "pruefung": "P3, Screenshots je Tab",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A08",
+      "gruppe": "Heute",
+      "beschreibung": "Zeigt genau die eigenen Buchungen von heute, die noch nicht vorbei sind, sortiert nach Startzeit.",
+      "pruefung": "P3 plus Abgleich mit SharePoint",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A09",
+      "gruppe": "Heute",
+      "beschreibung": "Status je Karte stimmt mit der Grundriss-Logik der Desktop-App überein (gleiche Buchung, gleicher Zeitpunkt, gleiches Ergebnis).",
+      "pruefung": "Vergleichstest Handy gegen Desktop mit derselben Buchung; Aufloesung der Mehrdeutigkeit in ENTSCHEIDUNGEN.md E-A09",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A10",
+      "gruppe": "Heute",
+      "beschreibung": "Einchecken ist nur im Zeitfenster V2 möglich, braucht einen Tipp, setzt die Check-in-Spalte in SharePoint (Nachlese) und kann durch einen zweiten Tipp nicht auschecken.",
+      "pruefung": "P3 plus P4 plus P5",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A11",
+      "gruppe": "Heute",
+      "beschreibung": "Keine Buchung heute: klarer Hinweis und direkter Weg zum Buchen.",
+      "pruefung": "P3, Screenshot im Leerzustand",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A12",
+      "gruppe": "Buchen",
+      "beschreibung": "Reihenfolge Datum → Uhrzeit → Tisch; die Tischauswahl zeigt nur Tische, die im gewählten Zeitraum frei sind, ohne Big Table.",
+      "pruefung": "P3 plus Gegenprobe gegen SharePoint",
+      "passes": true,
+      "beleg": "TESTPROTOKOLL.md T-33, 06.10.2026 16:15-16:20: Reihenfolge Datum -> Von/Bis -> Tisch im Bereich Buchen. Fuer heute 16:00-17:00 zeigt die Auswahl 30 Tische = 34 - 3 belegte - Big Table. Gegenprobe per SharePoint-REST: genau die 3 Zeilen ID 482 OG Desk 1, 483 OG Desk 8, 494 Quiet Desk 1 ueberlappen - identisch mit den in der App fehlenden Tischen. Big Table nie in der Liste. Belege screenshots\\A12_debug_frei_belegt_heute_1600_1700.png, A12_tischauswahl_sortiert.png.",
+      "nur_josias": false
+    },
+    {
+      "id": "A13",
+      "gruppe": "Buchen",
+      "beschreibung": "Eine Zusammenfassung zeigt vor dem Buchen Tisch, Tag und Zeit.",
+      "pruefung": "P3, Screenshot",
+      "passes": true,
+      "beleg": "lblZusammenfassung zeigt vor dem Buchen 'OG Desk 2 / Dienstag, 06.10.2026 / 16:00 bis 17:00 Uhr' (Vorschau 390 breit). Beleg screenshots\\A12_A13_buchen_390_zusammenfassung.png. Ist kein Tisch frei, steht dort rot 'Im gewaehlten Zeitraum ist kein Tisch frei' und der Buchen-Knopf ist gesperrt.",
+      "nur_josias": false
+    },
+    {
+      "id": "A14",
+      "gruppe": "Buchen",
+      "beschreibung": "Nach erfolgreicher Buchung steht der Eintrag korrekt in SharePoint (Person, Tisch, Start, Ende; Nachlese) und erscheint in „Heute“/„Meine“ und in der Desktop-App.",
+      "pruefung": "P4, Nachlese dokumentiert in TESTPROTOKOLL.md",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A15",
+      "gruppe": "Buchen",
+      "beschreibung": "Ungültige Eingaben (Ende ≤ Start, Vergangenheit, nach 22:00) werden verständlich abgewiesen.",
+      "pruefung": "P3, drei Testfälle",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A16",
+      "gruppe": "Meine Buchungen und Verwalten",
+      "beschreibung": "Zeigt alle eigenen kommenden Buchungen chronologisch mit Wochentag.",
+      "pruefung": "P3 plus Abgleich mit SharePoint",
+      "passes": true,
+      "beleg": "TESTPROTOKOLL.md T-01: Liste chronologisch mit ausgeschriebenem Wochentag (screenshots\\A03_A16_meine_390x844_korrekte_groessen.jpg). Vollstaendigkeit 06.10.2026 16:21: SharePoint-REST liefert 23 eigene kommende Buchungen; galMeine.AllItemsCount = 23 mit denselben IDs in derselben Reihenfolge (482, 483, 494, 480, ... 476). Beleg screenshots\\T01_meine_23_IDs_wie_sharepoint.png.",
+      "nur_josias": false
+    },
+    {
+      "id": "A17",
+      "gruppe": "Meine Buchungen und Verwalten",
+      "beschreibung": "Verlängern um +1/+2 Std prüft beim Speichern frisch und lehnt eine Kollision oder ein Ende nach 22:00 ab.",
+      "pruefung": "P3 plus P4 plus P5",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A18",
+      "gruppe": "Meine Buchungen und Verwalten",
+      "beschreibung": "„Jetzt beenden“ setzt die Endzeit, der Tisch ist danach in der Tischauswahl wieder frei.",
+      "pruefung": "P3 plus P4",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A19",
+      "gruppe": "Meine Buchungen und Verwalten",
+      "beschreibung": "Stornieren mit Bestätigung; eine bereits anderswo gelöschte Buchung führt zu einer verständlichen Meldung, nicht zu einem Netzwerkfehler.",
+      "pruefung": "P3 plus P4 plus Test mit vorher gelöschtem Datensatz",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A20",
+      "gruppe": "Doppelbuchungen",
+      "beschreibung": "D1 belegt (Abfrage mit Zeitgrenze, im Code gezeigt)",
+      "pruefung": "Formel zitiert",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A21",
+      "gruppe": "Doppelbuchungen",
+      "beschreibung": "D2: Tisch im Handy auswählen, dann am Desktop oder per zweitem Fenster denselben Tisch im selben Zeitraum buchen, dann am Handy buchen → abgelehnt, keine zweite Buchung in SharePoint",
+      "pruefung": "Test mit zwei Fenstern, Nachlese",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A22",
+      "gruppe": "Doppelbuchungen",
+      "beschreibung": "D3: Doppeltipp auf Buchen → genau eine Buchung",
+      "pruefung": "Test, Nachlese zählt genau eine Zeile",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A23",
+      "gruppe": "Doppelbuchungen",
+      "beschreibung": "D4 belegt",
+      "pruefung": "Code gezeigt: Dialog liest und schreibt denselben Datensatz",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A24",
+      "gruppe": "Doppelbuchungen",
+      "beschreibung": "D5: eigene Buchung 08–12 an Tisch A, dann 10–14 an Tisch B → abgelehnt",
+      "pruefung": "Test, Nachlese",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A25",
+      "gruppe": "Doppelbuchungen",
+      "beschreibung": "D6: siehe A14",
+      "pruefung": "P4 aus A14",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A26",
+      "gruppe": "Doppelbuchungen",
+      "beschreibung": "D7: Schutz umgesetzt, getestet, ehrlich bewertet; die Regel liegt als Frage in FRAGEN_AN_JOSIAS.md",
+      "pruefung": "Code, Test, Bewertung in ENTSCHEIDUNGEN.md, Frage in FRAGEN_AN_JOSIAS.md",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A27",
+      "gruppe": "Doppelbuchungen",
+      "beschreibung": "D8: jede Erfolgsmeldung stammt aus einer Nachlese, im Code gezeigt",
+      "pruefung": "Formeln zitiert",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A28",
+      "gruppe": "Doppelbuchungen",
+      "beschreibung": "Ein Prüf-Subagent in frischem Kontext hat alle schreibenden Formeln angegriffen; alle Korrektheitsbefunde sind behoben oder begründet zurückgewiesen.",
+      "pruefung": "P5, Fazit in ENTSCHEIDUNGEN.md",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A29",
+      "gruppe": "Robustheit",
+      "beschreibung": "Bei jedem Fehlerpfad verschwindet das Lade-Overlay wieder (mindestens getestet: Kollision, Fehler beim Schreiben, gelöschter Datensatz).",
+      "pruefung": "Drei Tests in TESTPROTOKOLL.md",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A30",
+      "gruppe": "Robustheit",
+      "beschreibung": "Kein Weg führt zu einer rohen englischen Fehlermeldung.",
+      "pruefung": "Durchsicht aller Schreibpfade plus Tests",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A31",
+      "gruppe": "Übergabe",
+      "beschreibung": "Alle Testbuchungen aus TESTDATEN.md sind gelöscht (Nachlese).",
+      "pruefung": "Nachlese am Ende",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A32",
+      "gruppe": "Übergabe",
+      "beschreibung": "Alle Dateien aus Abschnitt 5.4 existieren und sind aktuell; der letzte Git-Commit enthält den Endstand.",
+      "pruefung": "Dateiliste plus git log -1",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "A33",
+      "gruppe": "Übergabe",
+      "beschreibung": "ANLEITUNG_JOSIAS.md enthält den Link zur App (mit Umgebungs-ID), die Schritte zum Test auf iPhone und Android (Browser und Power Apps Mobile), zum Freigeben und zum Zurückrollen.",
+      "pruefung": "Datei vorhanden und vollständig",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": false
+    },
+    {
+      "id": "J1",
+      "gruppe": "Nur durch Josias",
+      "beschreibung": "Test auf einem echten iPhone und einem echten Android-Gerät",
+      "pruefung": "Checkliste in ANLEITUNG_JOSIAS.md",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": true
+    },
+    {
+      "id": "J2",
+      "gruppe": "Nur durch Josias",
+      "beschreibung": "Freigabe an eine Testgruppe",
+      "pruefung": "Checkliste in ANLEITUNG_JOSIAS.md",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": true
+    },
+    {
+      "id": "J3",
+      "gruppe": "Nur durch Josias",
+      "beschreibung": "Entscheidung zu V1–V9 und zur Regel aus D7",
+      "pruefung": "Checkliste in ANLEITUNG_JOSIAS.md, Fragen in FRAGEN_AN_JOSIAS.md",
+      "passes": false,
+      "beleg": "",
+      "nur_josias": true
+    }
+  ]
+}

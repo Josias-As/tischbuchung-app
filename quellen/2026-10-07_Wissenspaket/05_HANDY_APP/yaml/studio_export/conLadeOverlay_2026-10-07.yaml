@@ -1,0 +1,34 @@
+- conLadeOverlay:
+    Control: GroupContainer@1.5.0
+    Variant: ManualLayout
+    Properties:
+      Fill: =RGBA(0, 0, 0, 0.45)
+      Height: =Parent.Height
+      Visible: =varIsLoading
+      Width: =Parent.Width
+    Children:
+      - conLadeBox:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =190
+            RadiusBottomLeft: =28
+            RadiusBottomRight: =28
+            RadiusTopLeft: =28
+            RadiusTopRight: =28
+            Width: =460
+            X: =(Parent.Width - 460) / 2
+            Y: =(Parent.Height - 190) / 2
+          Children:
+            - lblLadeText:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Center
+                  Color: =RGBA(23, 20, 150, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =FontWeight.Semibold
+                  Height: =190
+                  Size: =30
+                  Text: ="Bitte warten ..."
+                  Width: =460

@@ -1,0 +1,66 @@
+Erzeugt von werkzeuge/paket_k_v2.py aus dem Export vom 07.10.2026 (veröffentlicht, enthält L2).
+54 Properties in 22 Schritten, 34 neue Variablen/Collections (vorher in der App unbenutzt: geprüft).
+Je Property geprüft: Steuerelement im Export, Property vorhanden (ersetzen) bzw. noch nicht vorhanden (neu),
+Klammern (englisch und deutsch), keine Kommentare, deutsch -> englisch ergibt wieder exakt die Vorlage,
+alle var/col-Namen bekannt, alle Steuerelement-Namen im Export, Reset nur auf vorhandene Steuerelemente.
+
+OK  0    App.OnStart                          ersetzen   106 Zeilen  +3/-0
+OK  A1   btnVerwalten.OnSelect                ersetzen    11 Zeilen  +7/-2
+OK  A2   btnVerwalten_2.OnSelect              ersetzen    16 Zeilen  +6/-0
+OK  A3   btnPlus1Std.DisplayMode              ersetzen     1 Zeilen  +1/-11
+OK  A3   btnPlus1Std.Fill                     ersetzen     9 Zeilen  +7/-15
+OK  A3   btnPlus2Std.DisplayMode              ersetzen     1 Zeilen  +1/-11
+OK  A3   btnPlus2Std.Fill                     ersetzen     9 Zeilen  +7/-15
+OK  A3   btnPlus3Std.DisplayMode              ersetzen     1 Zeilen  +1/-11
+OK  A3   btnPlus3Std.Fill                     ersetzen     9 Zeilen  +7/-16
+OK  A4   btnPlus1Std_1.DisplayMode            ersetzen     1 Zeilen  +1/-11
+OK  A4   btnPlus1Std_1.Fill                   ersetzen     9 Zeilen  +7/-15
+OK  A4   btnPlus2Std_1.DisplayMode            ersetzen     1 Zeilen  +1/-11
+OK  A4   btnPlus2Std_1.Fill                   ersetzen     9 Zeilen  +7/-15
+OK  A4   btnPlus3Std_1.DisplayMode            ersetzen     1 Zeilen  +1/-11
+OK  A4   btnPlus3Std_1.Fill                   ersetzen     9 Zeilen  +9/-1
+OK  A5   btnMinus1Std.DisplayMode             ersetzen     1 Zeilen  +1/-11
+OK  A5   btnMinus1Std.Fill                    ersetzen     9 Zeilen  +7/-16
+OK  A5   btnMinus2Std.DisplayMode             ersetzen     1 Zeilen  +1/-11
+OK  A5   btnMinus2Std.Fill                    ersetzen     9 Zeilen  +7/-16
+OK  A5   btnMinus3std.DisplayMode             ersetzen     1 Zeilen  +1/-11
+OK  A5   btnMinus3std.Fill                    ersetzen     9 Zeilen  +7/-16
+OK  A6   btnVerlängern.OnSelect               ersetzen    40 Zeilen  +38/-11
+OK  A6   btnVerlängern.DisplayMode            neu          1 Zeilen  +0/-0
+OK  A7   btnVerlängern_1.OnSelect             ersetzen    40 Zeilen  +37/-13
+OK  A7   btnVerlängern_1.DisplayMode          neu          1 Zeilen  +0/-0
+OK  A8   btnStornieren.OnSelect               ersetzen    24 Zeilen  +24/-2
+OK  A8   btnStornieren.DisplayMode            neu          1 Zeilen  +0/-0
+OK  A9   btnStornieren_1.OnSelect             ersetzen    24 Zeilen  +22/-9
+OK  A9   btnStornieren_1.DisplayMode          neu          1 Zeilen  +0/-0
+OK  A10  btnEinchecken.OnSelect               ersetzen    26 Zeilen  +26/-6
+OK  A10  btnEinchecken.DisplayMode            neu          1 Zeilen  +0/-0
+OK  B1   btnSpeichern.OnSelect                ersetzen   134 Zeilen  +130/-109
+OK  B1   btnSpeichern.DisplayMode             neu          1 Zeilen  +0/-0
+OK  B2   btnSpeichernTischePanel.OnSelect     ersetzen   142 Zeilen  +138/-105
+OK  B2   btnSpeichernTischePanel.DisplayMode  neu          1 Zeilen  +0/-0
+OK  C1   ddTischePanel.Items                  ersetzen    53 Zeilen  +53/-1
+OK  C1   ddTischePanel.Items.Value            ersetzen     1 Zeilen  +1/-1
+OK  C1   ddTischePanel.AllowEmptySelection    neu          1 Zeilen  +0/-0
+OK  C1   ddTischePanel.Default                neu          1 Zeilen  +0/-0
+OK  C2   btnTischHinzufügen.OnSelect          ersetzen    21 Zeilen  +2/-0
+OK  C3   btn5Std.DisplayMode                  ersetzen    23 Zeilen  +13/-5
+OK  C3   btn5Std.Fill                         ersetzen    27 Zeilen  +5/-5
+OK  C3   btn5Std.OnSelect                     ersetzen    22 Zeilen  +1/-1
+OK  C4   btn9Std.DisplayMode                  ersetzen    23 Zeilen  +13/-5
+OK  C4   btn9Std.Fill                         ersetzen    27 Zeilen  +5/-5
+OK  C4   btn9Std.OnSelect                     ersetzen    22 Zeilen  +1/-1
+OK  C5   Label14.Text                         ersetzen     5 Zeilen  +1/-1
+OK  D1   ddStockwerk.OnSelect                 ersetzen     9 Zeilen  +1/-1
+OK  D2   Icon1.OnSelect                       ersetzen     4 Zeilen  +2/-3
+OK  D2   Icon1_1.OnSelect                     ersetzen     4 Zeilen  +2/-3
+OK  D2   Image6.OnSelect                      ersetzen     4 Zeilen  +2/-3
+OK  D2   btnHitArea_1.OnSelect                ersetzen     4 Zeilen  +2/-3
+OK  D3   btnStornierenKlein.OnSelect          ersetzen    40 Zeilen  +39/-35
+OK  D4   btnAbbrechenTischePanel.OnSelect     ersetzen     3 Zeilen  +0/-1
+
+Gesamtprüfungen auf dem Stand NACH dem Paket:
+OK  Schreibstellen auf Tischbuchungen (8): alle mit Zweifach-Sperre und L2-Ladezeile: btnEinchecken.OnSelect, btnSpeichern.OnSelect, btnSpeichernTischePanel.OnSelect, btnStornieren.OnSelect, btnStornierenKlein.OnSelect, btnStornieren_1.OnSelect, btnVerlängern.OnSelect, btnVerlängern_1.OnSelect
+OK  Kein Steuerelement im Tab-Dialog (conVerwaltenDialog_1) liest noch varSelectedBuchung (Befund B0 geschlossen)
+OK  Kein Plus-/Minus-Knopf fragt noch Tischbuchungen ab (vorher 24 Properties mit eigener Abfrage)
+OK  Jede neue Variable wird mindestens einmal gesetzt; keine Property doppelt im Paket

@@ -1,0 +1,911 @@
+- conRoot:
+    Control: GroupContainer@1.5.0
+    Variant: AutoLayout
+    Properties:
+      Fill: =RGBA(247, 247, 247, 1)
+      Height: =Parent.Height
+      LayoutAlignItems: =LayoutAlignItems.Stretch
+      LayoutDirection: =LayoutDirection.Vertical
+      Width: =Parent.Width
+    Children:
+      - conHeader:
+          Control: GroupContainer@1.5.0
+          Variant: AutoLayout
+          Properties:
+            Fill: =RGBA(255, 255, 255, 1)
+            FillPortions: =0
+            Height: =170
+            LayoutAlignItems: =LayoutAlignItems.Center
+            LayoutDirection: =LayoutDirection.Horizontal
+            LayoutGap: =10
+            LayoutMinHeight: =0
+            PaddingLeft: =24
+            PaddingRight: =24
+          Children:
+            - imgLogo_1:
+                Control: Image@2.2.3
+                Properties:
+                  Height: =44
+                  Image: ="data:image/png;base64,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"
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  Width: =170
+            - lblKopfTitel_1:
+                Control: Label@2.5.1
+                Properties:
+                  Color: =RGBA(23, 20, 150, 1)
+                  FillPortions: =1
+                  Font: =Font.'Open Sans'
+                  FontWeight: =FontWeight.Semibold
+                  Height: =80
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  PaddingLeft: =10
+                  Size: =23
+                  Text: ="Tischbuchung"
+                  Wrap: =false
+            - icoAktualisieren_1:
+                Control: Classic/Icon@2.5.0
+                Properties:
+                  Color: =RGBA(23, 20, 150, 1)
+                  Height: =96
+                  Icon: =Icon.Sync
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  OnSelect: |-
+                    =Set(varIsLoading, true);
+                    Refresh(Tischbuchungen);
+                    Refresh(Tische);
+                    Set(varNeuLaden, varNeuLaden + 1);
+                    Set(varIsLoading, false);
+                    Notify("Aktualisiert.", NotificationType.Success)
+                  PaddingBottom: =24
+                  PaddingLeft: =24
+                  PaddingRight: =24
+                  PaddingTop: =24
+                  Tooltip: ="Daten aktualisieren"
+                  Width: =96
+            - btnInitialen_1:
+                Control: Classic/Button@2.2.0
+                Properties:
+                  BorderColor: =RGBA(23, 20, 150, 1)
+                  Color: =RGBA(255, 255, 255, 1)
+                  DisplayMode: =DisplayMode.View
+                  Fill: =RGBA(23, 20, 150, 1)
+                  Font: =Font.'Open Sans'
+                  Height: =96
+                  HoverColor: =RGBA(255, 255, 255, 1)
+                  HoverFill: =RGBA(23, 20, 150, 1)
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  PressedColor: =RGBA(255, 255, 255, 1)
+                  PressedFill: =RGBA(23, 20, 150, 1)
+                  RadiusBottomLeft: =48
+                  RadiusBottomRight: =48
+                  RadiusTopLeft: =48
+                  RadiusTopRight: =48
+                  Size: =26
+                  Text: |-
+                    =With(
+                      { teile: Split(User().FullName, " ") },
+                      Upper(Left(First(teile).Value, 1) & Left(Last(teile).Value, 1))
+                    )
+                  Tooltip: =User().FullName
+                  Width: =96
+      - conInhalt:
+          Control: GroupContainer@1.5.0
+          Variant: AutoLayout
+          Properties:
+            LayoutDirection: =LayoutDirection.Vertical
+          Children:
+            - conBuchen:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  Visible: =varTab = "buchen"
+                Children:
+                  - conBuchenForm:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        DropShadow: =DropShadow.None
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =14
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingBottom: =16
+                        PaddingLeft: =32
+                        PaddingRight: =32
+                      Children:
+                        - lblBuchenTitel:
+                            Control: Label@2.5.1
+                            Properties:
+                              Color: =RGBA(23, 20, 150, 1)
+                              Font: =Font.'Open Sans'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =110
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =34
+                              Text: ="Tisch buchen"
+                        - lblDatumL:
+                            Control: Label@2.5.1
+                            Properties:
+                              Color: =RGBA(90, 90, 90, 1)
+                              Font: =Font.'Open Sans'
+                              Height: =48
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =22
+                              Text: ="Datum"
+                              VerticalAlign: =VerticalAlign.Bottom
+                        - ddDatum:
+                            Control: Classic/DropDown@2.3.1
+                            Properties:
+                              AccessibleLabel: ="Datum"
+                              BorderColor: =RGBA(190, 190, 190, 1)
+                              ChevronBackground: =RGBA(23, 20, 150, 1)
+                              ChevronFill: =RGBA(255, 255, 255, 1)
+                              ChevronHoverBackground: =RGBA(23, 20, 150, 1)
+                              ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                              Color: =RGBA(32, 54, 71, 1)
+                              DisplayMode: =If(varIsLoading, DisplayMode.Disabled, DisplayMode.Edit)
+                              Font: =Font.'Open Sans'
+                              Height: =96
+                              HoverFill: =RGBA(230, 232, 245, 1)
+                              Items: |-
+                                =ForAll(
+                                  Sequence(60, If(Hour(Now()) >= 22, 1, 0)) As n,
+                                  {
+                                    Value: If(n.Value = 0, "Heute, ", n.Value = 1, "Morgen, ", "") & Text(DateAdd(Today(), n.Value, TimeUnit.Days), "dddd, dd.mm.yyyy"),
+                                    Tag: DateAdd(Today(), n.Value, TimeUnit.Days)
+                                  }
+                                )
+                              Items.Value: =Value
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingLeft: =20
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(23, 20, 150, 1)
+                              SelectionColor: =RGBA(255, 255, 255, 1)
+                              SelectionFill: =RGBA(23, 20, 150, 1)
+                              Size: =26
+                        - conZeiten:
+                            Control: GroupContainer@1.5.0
+                            Variant: AutoLayout
+                            Properties:
+                              DropShadow: =DropShadow.None
+                              FillPortions: =0
+                              Height: =160
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =24
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - conVon:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =14
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                  Children:
+                                    - lblVonL:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                          Color: =RGBA(90, 90, 90, 1)
+                                          Font: =Font.'Open Sans'
+                                          Height: =48
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =22
+                                          Text: ="Von"
+                                          VerticalAlign: =VerticalAlign.Bottom
+                                    - ddStart:
+                                        Control: Classic/DropDown@2.3.1
+                                        Properties:
+                                          AccessibleLabel: ="Beginn"
+                                          BorderColor: =RGBA(190, 190, 190, 1)
+                                          ChevronBackground: =RGBA(23, 20, 150, 1)
+                                          ChevronFill: =RGBA(255, 255, 255, 1)
+                                          ChevronHoverBackground: =RGBA(23, 20, 150, 1)
+                                          ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                                          Color: =RGBA(32, 54, 71, 1)
+                                          DisplayMode: =If(varIsLoading, DisplayMode.Disabled, DisplayMode.Edit)
+                                          Font: =Font.'Open Sans'
+                                          Height: =96
+                                          HoverFill: =RGBA(230, 232, 245, 1)
+                                          Items: |-
+                                            =With(
+                                              { ab: If(ddDatum.Selected.Tag = Today(), 30 * RoundDown((Hour(Now()) * 60 + Minute(Now())) / 30, 0), 8 * 60) },
+                                              ForAll(
+                                                Sequence(Max(0, (21 * 60 + 30 - ab) / 30 + 1), 0) As n,
+                                                {
+                                                  Value: Text(Time(RoundDown((ab + n.Value * 30) / 60, 0), Mod(ab + n.Value * 30, 60), 0), "hh:mm"),
+                                                  Min: ab + n.Value * 30
+                                                }
+                                              )
+                                            )
+                                          Items.Value: =Value
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingLeft: =20
+                                          PressedColor: =RGBA(255, 255, 255, 1)
+                                          PressedFill: =RGBA(23, 20, 150, 1)
+                                          SelectionColor: =RGBA(255, 255, 255, 1)
+                                          SelectionFill: =RGBA(23, 20, 150, 1)
+                                          Size: =26
+                              - conBis:
+                                  Control: GroupContainer@1.5.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    DropShadow: =DropShadow.None
+                                    LayoutAlignItems: =LayoutAlignItems.Stretch
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =14
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                  Children:
+                                    - lblBisL:
+                                        Control: Label@2.5.1
+                                        Properties:
+                                          Color: =RGBA(90, 90, 90, 1)
+                                          Font: =Font.'Open Sans'
+                                          Height: =48
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =22
+                                          Text: ="Bis"
+                                          VerticalAlign: =VerticalAlign.Bottom
+                                    - ddEnde:
+                                        Control: Classic/DropDown@2.3.1
+                                        Properties:
+                                          AccessibleLabel: ="Ende"
+                                          BorderColor: =RGBA(190, 190, 190, 1)
+                                          ChevronBackground: =RGBA(23, 20, 150, 1)
+                                          ChevronFill: =RGBA(255, 255, 255, 1)
+                                          ChevronHoverBackground: =RGBA(23, 20, 150, 1)
+                                          ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                                          Color: =RGBA(32, 54, 71, 1)
+                                          Default: =If(ddStart.Selected.Min < 17 * 60, "17:00", "")
+                                          DisplayMode: =If(varIsLoading, DisplayMode.Disabled, DisplayMode.Edit)
+                                          Font: =Font.'Open Sans'
+                                          Height: =96
+                                          HoverFill: =RGBA(230, 232, 245, 1)
+                                          Items: |-
+                                            =With(
+                                              { s: ddStart.Selected.Min },
+                                              ForAll(
+                                                Sequence(Max(0, (22 * 60 - s) / 30), 1) As n,
+                                                {
+                                                  Value: Text(Time(RoundDown((s + n.Value * 30) / 60, 0), Mod(s + n.Value * 30, 60), 0), "hh:mm"),
+                                                  Min: s + n.Value * 30
+                                                }
+                                              )
+                                            )
+                                          Items.Value: =Value
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          PaddingLeft: =20
+                                          PressedColor: =RGBA(255, 255, 255, 1)
+                                          PressedFill: =RGBA(23, 20, 150, 1)
+                                          SelectionColor: =RGBA(255, 255, 255, 1)
+                                          SelectionFill: =RGBA(23, 20, 150, 1)
+                                          Size: =26
+                        - lblTischL:
+                            Control: Label@2.5.1
+                            Properties:
+                              Color: =RGBA(90, 90, 90, 1)
+                              Font: =Font.'Open Sans'
+                              Height: =48
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =22
+                              Text: ="Freier Tisch in dieser Zeit"
+                              VerticalAlign: =VerticalAlign.Bottom
+                        - ddTisch:
+                            Control: Classic/DropDown@2.3.1
+                            Properties:
+                              AccessibleLabel: ="Freier Tisch"
+                              BorderColor: =RGBA(190, 190, 190, 1)
+                              ChevronBackground: =RGBA(23, 20, 150, 1)
+                              ChevronFill: =RGBA(255, 255, 255, 1)
+                              ChevronHoverBackground: =RGBA(23, 20, 150, 1)
+                              ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                              Color: =RGBA(32, 54, 71, 1)
+                              DisplayMode: =If(varIsLoading, DisplayMode.Disabled, DisplayMode.Edit)
+                              Font: =Font.'Open Sans'
+                              Height: =96
+                              HoverFill: =RGBA(230, 232, 245, 1)
+                              Items: |-
+                                =With(
+                                  { neuLaden: varNeuLaden },
+                                  With(
+                                    { belegt: ForAll(Filter(Tischbuchungen, Startzeit < DateAdd(ddDatum.Selected.Tag, ddEnde.Selected.Min, TimeUnit.Minutes) && Endzeit > DateAdd(ddDatum.Selected.Tag, ddStart.Selected.Min, TimeUnit.Minutes)), Tisch.Value) },
+                                    ForAll(
+                                      Sort(
+                                        Filter(colTische, !("big table" in Lower(Titel)) && !(Titel in belegt)),
+                                        Geschoss.Value & Left(Titel, Len(Titel) - Len(Last(Split(Titel, " ")).Value)) & Text(IfError(Value(Last(Split(Titel, " ")).Value), 0), "000")
+                                      ) As t,
+                                      { Value: t.Titel, ID: t.ID }
+                                    )
+                                  )
+                                )
+                              Items.Value: =Value
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingLeft: =20
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =RGBA(23, 20, 150, 1)
+                              SelectionColor: =RGBA(255, 255, 255, 1)
+                              SelectionFill: =RGBA(23, 20, 150, 1)
+                              Size: =26
+                        - lblZusammenfassung:
+                            Control: Label@2.5.1
+                            Properties:
+                              Color: =If(IsBlank(ddTisch.Selected.Value), RGBA(235, 57, 81, 1), RGBA(23, 20, 150, 1))
+                              Fill: =RGBA(238, 240, 250, 1)
+                              Font: =Font.'Open Sans'
+                              FontWeight: =FontWeight.Semibold
+                              Height: =170
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingLeft: =24
+                              PaddingRight: =24
+                              Size: =24
+                              Text: |-
+                                =If(
+                                  IsBlank(ddTisch.Selected.Value),
+                                  "Im gewählten Zeitraum ist kein Tisch frei. Bitte eine andere Zeit wählen.",
+                                  ddTisch.Selected.Value & Char(10) & Text(ddDatum.Selected.Tag, "dddd, dd.mm.yyyy") & Char(10) & ddStart.Selected.Value & " bis " & ddEnde.Selected.Value & " Uhr"
+                                )
+                        - btnBuchen:
+                            Control: Classic/Button@2.2.0
+                            Properties:
+                              BorderColor: =RGBA(0, 169, 107, 1)
+                              Color: =RGBA(255, 255, 255, 1)
+                              DisabledBorderColor: =RGBA(222, 222, 222, 1)
+                              DisabledColor: =RGBA(120, 120, 120, 1)
+                              DisabledFill: =RGBA(222, 222, 222, 1)
+                              DisplayMode: =If(varIsLoading || IsBlank(ddTisch.Selected.Value), DisplayMode.Disabled, DisplayMode.Edit)
+                              Fill: =RGBA(0, 169, 107, 1)
+                              Font: =Font.'Open Sans'
+                              Height: =110
+                              HoverColor: =RGBA(255, 255, 255, 1)
+                              HoverFill: =RGBA(0, 169, 107, 1)
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              OnSelect: |-
+                                =If(
+                                  !varIsLoading && Now() >= varSperreBis,
+                                  Set(varIsLoading, true);
+                                  Set(varBuchStart, DateAdd(ddDatum.Selected.Tag, ddStart.Selected.Min, TimeUnit.Minutes));
+                                  Set(varBuchEnde, DateAdd(ddDatum.Selected.Tag, ddEnde.Selected.Min, TimeUnit.Minutes));
+                                  Set(varTagesEnde, DateAdd(ddDatum.Selected.Tag, 22 * 60, TimeUnit.Minutes));
+                                  Set(varTischName, ddTisch.Selected.Value);
+                                  Set(varTischID, ddTisch.Selected.ID);
+                                  If(
+                                    IsBlank(varTischName) || IsBlank(varTischID) || IsBlank(ddStart.Selected.Min) || IsBlank(ddEnde.Selected.Min),
+                                    Notify("Bitte Datum, Uhrzeit und Tisch auswählen.", NotificationType.Warning),
+                                    varBuchEnde <= varBuchStart,
+                                    Notify("Das Ende muss nach dem Beginn liegen.", NotificationType.Warning),
+                                    varBuchStart < DateAdd(Today(), 30 * RoundDown((Hour(Now()) * 60 + Minute(Now())) / 30, 0), TimeUnit.Minutes),
+                                    Notify("Diese Zeit liegt in der Vergangenheit. Bitte eine spätere Zeit wählen.", NotificationType.Warning),
+                                    varBuchEnde > varTagesEnde,
+                                    Notify("Eine Buchung kann nicht nach 22:00 Uhr enden.", NotificationType.Warning),
+                                    !IsBlank(LookUp(Tischbuchungen, Tisch.Value = varTischName && Startzeit < varBuchEnde && Endzeit > varBuchStart).ID),
+                                    Notify("Der Tisch ist in dieser Zeit schon belegt. Bitte einen anderen Tisch wählen.", NotificationType.Warning),
+                                    !IsBlank(LookUp(Tischbuchungen, Person.Email = User().Email && Startzeit < varBuchEnde && Endzeit > varBuchStart).ID),
+                                    Notify("Du hast in dieser Zeit schon einen Tisch gebucht.", NotificationType.Warning),
+                                    IfError(
+                                      Patch(
+                                        Tischbuchungen,
+                                        Defaults(Tischbuchungen),
+                                        {
+                                          Tisch: { Id: varTischID, Value: varTischName },
+                                          Startzeit: varBuchStart,
+                                          Endzeit: varBuchEnde,
+                                          Person: {
+                                            Claims: "i:0#.f|membership|" & Lower(User().Email),
+                                            Department: "",
+                                            DisplayName: User().FullName,
+                                            Email: User().Email,
+                                            JobTitle: "",
+                                            Picture: ""
+                                          }
+                                        }
+                                      ),
+                                      Notify("Das Buchen ist fehlgeschlagen. Bitte erneut versuchen.", NotificationType.Error),
+                                      ClearCollect(colKollision, Filter(Tischbuchungen, Tisch.Value = varTischName && Startzeit < varBuchEnde && Endzeit > varBuchStart));
+                                      Set(varBuchung, LookUp(colKollision, Person.Email = User().Email && Startzeit = varBuchStart && Endzeit = varBuchEnde));
+                                      If(
+                                        IsBlank(varBuchung.ID),
+                                        Notify("Die Buchung ist nicht angekommen. Bitte unter „Meine“ prüfen.", NotificationType.Warning),
+                                        Set(varBuchungID, varBuchung.ID);
+                                        If(
+                                          !IsBlank(LookUp(colKollision, ID < varBuchungID).ID),
+                                          Notify("Achtung: Jemand hat diesen Tisch fast gleichzeitig vor dir gebucht. Bitte storniere deine Buchung unter „Meine“ und wähle einen anderen Tisch.", NotificationType.Error),
+                                          Notify("Gebucht: " & varTischName & ", " & Text(varBuchStart, "dd.mm.") & ", " & Text(varBuchStart, "hh:mm") & " bis " & Text(varBuchEnde, "hh:mm") & " Uhr", NotificationType.Success);
+                                          Set(varTab, If(varBuchStart < DateAdd(Today(), 1, TimeUnit.Days), "heute", "meine"))
+                                        )
+                                      )
+                                    )
+                                  );
+                                  Set(varNeuLaden, varNeuLaden + 1);
+                                  Set(varSperreBis, DateAdd(Now(), 2, TimeUnit.Seconds));
+                                  Set(varIsLoading, false)
+                                )
+                              PressedColor: =RGBA(0, 169, 107, 1)
+                              PressedFill: =RGBA(255, 255, 255, 1)
+                              RadiusBottomLeft: =16
+                              RadiusBottomRight: =16
+                              RadiusTopLeft: =16
+                              RadiusTopRight: =16
+                              Size: =28
+                              Text: ="Jetzt buchen"
+            - conMeine:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  Visible: =varTab = "meine"
+                Children:
+                  - lblMeineTitel:
+                      Control: Label@2.5.1
+                      Properties:
+                        Color: =RGBA(23, 20, 150, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =120
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingLeft: =32
+                        Size: =34
+                        Text: ="Meine Buchungen"
+                  - lblMeineLeer:
+                      Control: Label@2.5.1
+                      Properties:
+                        Color: =RGBA(90, 90, 90, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =110
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingLeft: =32
+                        Size: =26
+                        Text: ="Du hast keine kommenden Buchungen."
+                        Visible: =galMeine.AllItemsCount = 0
+                  - galMeine:
+                      Control: Gallery@2.15.0
+                      Variant: Vertical
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Items: |-
+                          =With(
+                            { neuLaden: varNeuLaden },
+                            SortByColumns(
+                              Filter(Tischbuchungen, Person.Email = User().Email && Endzeit >= Now()),
+                              "Startzeit",
+                              SortOrder.Ascending
+                            )
+                          )
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        ShowScrollbar: =false
+                        TemplatePadding: =0
+                        TemplateSize: =260
+                      Children:
+                        - conKarteM:
+                            Control: GroupContainer@1.5.0
+                            Variant: ManualLayout
+                            Properties:
+                              Fill: =RGBA(255, 255, 255, 1)
+                              Height: =236
+                              RadiusBottomLeft: =20
+                              RadiusBottomRight: =20
+                              RadiusTopLeft: =20
+                              RadiusTopRight: =20
+                              Width: =Parent.TemplateWidth - 48
+                              X: =24
+                              Y: =12
+                            Children:
+                              - lblTischM:
+                                  Control: Label@2.5.1
+                                  Properties:
+                                    Color: =RGBA(32, 54, 71, 1)
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =58
+                                    Size: =30
+                                    Text: =ThisItem.Tisch.Value
+                                    Width: =Parent.Width - 250
+                                    X: =28
+                                    Y: =18
+                              - lblTagM:
+                                  Control: Label@2.5.1
+                                  Properties:
+                                    Color: =RGBA(90, 90, 90, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =50
+                                    Size: =24
+                                    Text: =Text(ThisItem.Startzeit, "dddd, dd.mm.yyyy")
+                                    Width: =Parent.Width - 250
+                                    X: =28
+                                    Y: =78
+                              - lblZeitM:
+                                  Control: Label@2.5.1
+                                  Properties:
+                                    Color: =RGBA(23, 20, 150, 1)
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =58
+                                    Size: =28
+                                    Text: =Text(ThisItem.Startzeit, "hh:mm") & " bis " & Text(ThisItem.Endzeit, "hh:mm")
+                                    Width: =Parent.Width - 250
+                                    X: =28
+                                    Y: =132
+                              - btnVerwaltenM:
+                                  Control: Classic/Button@2.2.0
+                                  Properties:
+                                    BorderColor: =RGBA(23, 20, 150, 1)
+                                    Color: =RGBA(255, 255, 255, 1)
+                                    Fill: =RGBA(23, 20, 150, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =96
+                                    HoverColor: =RGBA(255, 255, 255, 1)
+                                    HoverFill: =RGBA(23, 20, 150, 1)
+                                    OnSelect: |-
+                                      =Set(varBuchung, ThisItem);
+                                      Set(varBuchungID, ThisItem.ID);
+                                      Set(varZeigeVerwalten, true)
+                                    PressedColor: =RGBA(23, 20, 150, 1)
+                                    PressedFill: =RGBA(255, 255, 255, 1)
+                                    RadiusBottomLeft: =14
+                                    RadiusBottomRight: =14
+                                    RadiusTopLeft: =14
+                                    RadiusTopRight: =14
+                                    Text: ="Verwalten"
+                                    Width: =200
+                                    X: =Parent.Width - 228
+                                    Y: =70
+            - conHeute:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  Visible: =varTab = "heute"
+                Children:
+                  - lblHeuteTitel:
+                      Control: Label@2.5.1
+                      Properties:
+                        Color: =RGBA(23, 20, 150, 1)
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =120
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingLeft: =32
+                        Size: =34
+                        Text: ="Heute, " & Text(Today(), "dddd dd.mm.")
+                  - conHeuteLeer:
+                      Control: GroupContainer@1.5.0
+                      Variant: AutoLayout
+                      Properties:
+                        FillPortions: =0
+                        Height: =300
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =24
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingLeft: =32
+                        PaddingRight: =32
+                        Visible: =galHeute.AllItemsCount = 0
+                      Children:
+                        - lblHeuteLeer:
+                            Control: Label@2.5.1
+                            Properties:
+                              Color: =RGBA(90, 90, 90, 1)
+                              Font: =Font.'Open Sans'
+                              Height: =120
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =26
+                              Text: ="Du hast heute keinen Tisch gebucht."
+                        - btnZumBuchen:
+                            Control: Classic/Button@2.2.0
+                            Properties:
+                              BorderColor: =RGBA(23, 20, 150, 1)
+                              Color: =RGBA(255, 255, 255, 1)
+                              Fill: =RGBA(23, 20, 150, 1)
+                              Font: =Font.'Open Sans'
+                              Height: =104
+                              HoverColor: =RGBA(255, 255, 255, 1)
+                              HoverFill: =RGBA(23, 20, 150, 1)
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              OnSelect: =Set(varTab, "buchen")
+                              PressedColor: =RGBA(23, 20, 150, 1)
+                              PressedFill: =RGBA(255, 255, 255, 1)
+                              RadiusBottomLeft: =16
+                              RadiusBottomRight: =16
+                              RadiusTopLeft: =16
+                              RadiusTopRight: =16
+                              Size: =26
+                              Text: ="Jetzt Tisch buchen"
+                  - galHeute:
+                      Control: Gallery@2.15.0
+                      Variant: Vertical
+                      Properties:
+                        BorderColor: =RGBA(0, 18, 107, 1)
+                        Items: |-
+                          =With(
+                            { neuLaden: varNeuLaden },
+                            SortByColumns(
+                              Filter(
+                                Tischbuchungen,
+                                Person.Email = User().Email && Startzeit >= Today() && Startzeit < DateAdd(Today(), 1, TimeUnit.Days) && Endzeit >= Now()
+                              ),
+                              "Startzeit",
+                              SortOrder.Ascending
+                            )
+                          )
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        ShowScrollbar: =false
+                        TemplatePadding: =0
+                        TemplateSize: =300
+                      Children:
+                        - conKarteH:
+                            Control: GroupContainer@1.5.0
+                            Variant: ManualLayout
+                            Properties:
+                              Fill: =RGBA(255, 255, 255, 1)
+                              Height: =276
+                              RadiusBottomLeft: =20
+                              RadiusBottomRight: =20
+                              RadiusTopLeft: =20
+                              RadiusTopRight: =20
+                              Width: =Parent.TemplateWidth - 48
+                              X: =24
+                              Y: =12
+                            Children:
+                              - lblTischH:
+                                  Control: Label@2.5.1
+                                  Properties:
+                                    Color: =RGBA(32, 54, 71, 1)
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =58
+                                    Size: =30
+                                    Text: =ThisItem.Tisch.Value
+                                    Width: =Parent.Width - 300
+                                    X: =28
+                                    Y: =16
+                              - lblStatusH:
+                                  Control: Label@2.5.1
+                                  Properties:
+                                    Align: =Align.Right
+                                    Color: =If(ThisItem.CheckedIn, RGBA(0, 169, 107, 1), RGBA(255, 165, 0, 1))
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =52
+                                    Text: =If(ThisItem.CheckedIn, "Eingecheckt", "Nicht eingecheckt")
+                                    Width: =302
+                                    Wrap: =false
+                                    X: =Parent.Width - 330
+                                    Y: =20
+                              - lblZeitH:
+                                  Control: Label@2.5.1
+                                  Properties:
+                                    Color: =RGBA(23, 20, 150, 1)
+                                    Font: =Font.'Open Sans'
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =58
+                                    Size: =28
+                                    Text: =Text(ThisItem.Startzeit, "hh:mm") & " bis " & Text(ThisItem.Endzeit, "hh:mm")
+                                    Width: =Parent.Width - 56
+                                    X: =28
+                                    Y: =76
+                              - btnEincheckenH:
+                                  Control: Classic/Button@2.2.0
+                                  Properties:
+                                    BorderColor: =RGBA(0, 169, 107, 1)
+                                    Color: =RGBA(255, 255, 255, 1)
+                                    DisabledBorderColor: =RGBA(222, 222, 222, 1)
+                                    DisabledColor: =RGBA(120, 120, 120, 1)
+                                    DisabledFill: =RGBA(222, 222, 222, 1)
+                                    DisplayMode: |-
+                                      =If(
+                                        ThisItem.CheckedIn,
+                                        DisplayMode.Disabled,
+                                        If(
+                                          varIsLoading,
+                                          DisplayMode.Disabled,
+                                          If(
+                                            Now() >= DateAdd(ThisItem.Startzeit, -30, TimeUnit.Minutes) && Now() <= ThisItem.Endzeit,
+                                            DisplayMode.Edit,
+                                            DisplayMode.Disabled
+                                          )
+                                        )
+                                      )
+                                    Fill: =RGBA(0, 169, 107, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =100
+                                    HoverColor: =RGBA(255, 255, 255, 1)
+                                    HoverFill: =RGBA(0, 169, 107, 1)
+                                    OnSelect: |-
+                                      =If(
+                                        !varIsLoading && Now() >= varSperreBis,
+                                        Set(varIsLoading, true);
+                                        Set(varBuchungID, ThisItem.ID);
+                                        With(
+                                          { frisch: LookUp(Tischbuchungen, ID = varBuchungID) },
+                                          If(
+                                            IsBlank(frisch.ID),
+                                            Notify("Diese Buchung gibt es nicht mehr. Bitte aktualisieren.", NotificationType.Warning),
+                                            If(
+                                              frisch.CheckedIn,
+                                              Notify("Du bist bereits eingecheckt.", NotificationType.Information),
+                                              If(
+                                                Now() < DateAdd(frisch.Startzeit, -30, TimeUnit.Minutes) || Now() > frisch.Endzeit,
+                                                Notify("Einchecken ist erst ab 30 Minuten vor Beginn und nur bis zum Ende moeglich.", NotificationType.Warning),
+                                                IfError(
+                                                  Patch(Tischbuchungen, frisch, { CheckedIn: true }),
+                                                  Notify("Einchecken fehlgeschlagen. Bitte erneut versuchen.", NotificationType.Error),
+                                                  If(
+                                                    LookUp(Tischbuchungen, ID = varBuchungID).CheckedIn,
+                                                    Notify("Eingecheckt.", NotificationType.Success),
+                                                    Notify("Der Check-in ist nicht angekommen. Bitte aktualisieren und erneut versuchen.", NotificationType.Warning)
+                                                  )
+                                                )
+                                              )
+                                            )
+                                          )
+                                        );
+                                        Set(varNeuLaden, varNeuLaden + 1);
+                                        Set(varSperreBis, DateAdd(Now(), 2, TimeUnit.Seconds));
+                                        Set(varIsLoading, false)
+                                      )
+                                    PressedColor: =RGBA(0, 169, 107, 1)
+                                    PressedFill: =RGBA(255, 255, 255, 1)
+                                    RadiusBottomLeft: =16
+                                    RadiusBottomRight: =16
+                                    RadiusTopLeft: =16
+                                    RadiusTopRight: =16
+                                    Text: =If(ThisItem.CheckedIn, "Eingecheckt", "Einchecken")
+                                    Width: =(Parent.Width - 80) / 2
+                                    X: =28
+                                    Y: =150
+                              - btnVerwaltenH:
+                                  Control: Classic/Button@2.2.0
+                                  Properties:
+                                    BorderColor: =RGBA(23, 20, 150, 1)
+                                    Color: =RGBA(255, 255, 255, 1)
+                                    Fill: =RGBA(23, 20, 150, 1)
+                                    Font: =Font.'Open Sans'
+                                    Height: =100
+                                    HoverColor: =RGBA(255, 255, 255, 1)
+                                    HoverFill: =RGBA(23, 20, 150, 1)
+                                    OnSelect: |-
+                                      =Set(varBuchung, ThisItem);
+                                      Set(varBuchungID, ThisItem.ID);
+                                      Set(varZeigeVerwalten, true)
+                                    PressedColor: =RGBA(23, 20, 150, 1)
+                                    PressedFill: =RGBA(255, 255, 255, 1)
+                                    RadiusBottomLeft: =16
+                                    RadiusBottomRight: =16
+                                    RadiusTopLeft: =16
+                                    RadiusTopRight: =16
+                                    Text: ="Verwalten"
+                                    Width: =(Parent.Width - 80) / 2
+                                    X: =Parent.Width - 28 - (Parent.Width - 80) / 2
+                                    Y: =150
+      - conTabLeiste:
+          Control: GroupContainer@1.5.0
+          Variant: AutoLayout
+          Properties:
+            Fill: =RGBA(255, 255, 255, 1)
+            FillPortions: =0
+            Height: =180
+            LayoutAlignItems: =LayoutAlignItems.Center
+            LayoutDirection: =LayoutDirection.Horizontal
+            LayoutMinHeight: =0
+            PaddingBottom: =12
+            PaddingTop: =12
+          Children:
+            - btnTabHeute:
+                Control: Classic/Button@2.2.0
+                Properties:
+                  BorderColor: =RGBA(220, 220, 220, 1)
+                  BorderThickness: =0
+                  Color: =If(varTab = "heute", RGBA(255, 255, 255, 1), RGBA(90, 90, 90, 1))
+                  Fill: =If(varTab = "heute", RGBA(23, 20, 150, 1), RGBA(255, 255, 255, 1))
+                  FillPortions: =1
+                  Font: =Font.'Open Sans'
+                  FontWeight: =If(varTab = "heute", FontWeight.Semibold, FontWeight.Normal)
+                  Height: =Parent.Height - 24
+                  HoverColor: =If(varTab = "heute", RGBA(255, 255, 255, 1), RGBA(90, 90, 90, 1))
+                  HoverFill: =If(varTab = "heute", RGBA(23, 20, 150, 1), RGBA(255, 255, 255, 1))
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  OnSelect: |-
+                    =Set(varTab, "heute");
+                    Set(varZeigeVerwalten, false);
+                    Set(varZeigeStorno, false)
+                  PressedColor: =RGBA(255, 255, 255, 1)
+                  PressedFill: =RGBA(23, 20, 150, 1)
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Size: =26
+                  Text: ="Heute"
+            - btnTabBuchen:
+                Control: Classic/Button@2.2.0
+                Properties:
+                  BorderColor: =RGBA(220, 220, 220, 1)
+                  BorderThickness: =0
+                  Color: =If(varTab = "buchen", RGBA(255, 255, 255, 1), RGBA(90, 90, 90, 1))
+                  Fill: =If(varTab = "buchen", RGBA(23, 20, 150, 1), RGBA(255, 255, 255, 1))
+                  FillPortions: =1
+                  Font: =Font.'Open Sans'
+                  FontWeight: =If(varTab = "buchen", FontWeight.Semibold, FontWeight.Normal)
+                  Height: =Parent.Height - 24
+                  HoverColor: =If(varTab = "buchen", RGBA(255, 255, 255, 1), RGBA(90, 90, 90, 1))
+                  HoverFill: =If(varTab = "buchen", RGBA(23, 20, 150, 1), RGBA(255, 255, 255, 1))
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  OnSelect: |-
+                    =Set(varTab, "buchen");
+                    Set(varZeigeVerwalten, false);
+                    Set(varZeigeStorno, false)
+                  PressedColor: =RGBA(255, 255, 255, 1)
+                  PressedFill: =RGBA(23, 20, 150, 1)
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Size: =26
+                  Text: ="Buchen"
+            - btnTabMeine:
+                Control: Classic/Button@2.2.0
+                Properties:
+                  BorderColor: =RGBA(220, 220, 220, 1)
+                  BorderThickness: =0
+                  Color: =If(varTab = "meine", RGBA(255, 255, 255, 1), RGBA(90, 90, 90, 1))
+                  Fill: =If(varTab = "meine", RGBA(23, 20, 150, 1), RGBA(255, 255, 255, 1))
+                  FillPortions: =1
+                  Font: =Font.'Open Sans'
+                  FontWeight: =If(varTab = "meine", FontWeight.Semibold, FontWeight.Normal)
+                  Height: =Parent.Height - 24
+                  HoverColor: =If(varTab = "meine", RGBA(255, 255, 255, 1), RGBA(90, 90, 90, 1))
+                  HoverFill: =If(varTab = "meine", RGBA(23, 20, 150, 1), RGBA(255, 255, 255, 1))
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  OnSelect: |-
+                    =Set(varTab, "meine");
+                    Set(varZeigeVerwalten, false);
+                    Set(varZeigeStorno, false)
+                  PressedColor: =RGBA(255, 255, 255, 1)
+                  PressedFill: =RGBA(23, 20, 150, 1)
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Size: =26
+                  Text: ="Meine"

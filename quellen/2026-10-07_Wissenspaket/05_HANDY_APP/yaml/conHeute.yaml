@@ -1,0 +1,254 @@
+- conHeute:
+    Control: GroupContainer@1.5.0
+    Variant: AutoLayout
+    Properties:
+      LayoutDirection: =LayoutDirection.Vertical
+      LayoutAlignItems: =LayoutAlignItems.Stretch
+      LayoutGap: =0
+      FillPortions: =1
+      LayoutMinWidth: =0
+      LayoutMinHeight: =0
+      Visible: =varTab = "heute"
+      PaddingLeft: =0
+      PaddingRight: =0
+      PaddingTop: =0
+      PaddingBottom: =0
+    Children:
+      - lblHeuteTitel:
+          Control: Label@2.5.1
+          Properties:
+            Text: ="Heute, " & Text(Today(), "dddd dd.mm.")
+            FillPortions: =0
+            LayoutMinWidth: =0
+            LayoutMinHeight: =0
+            Height: =120
+            Size: =34
+            FontWeight: =FontWeight.Semibold
+            Color: =RGBA(23, 20, 150, 1)
+            Font: =Font.'Open Sans'
+            PaddingLeft: =32
+            VerticalAlign: =VerticalAlign.Middle
+      - conHeuteLeer:
+          Control: GroupContainer@1.5.0
+          Variant: AutoLayout
+          Properties:
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutAlignItems: =LayoutAlignItems.Stretch
+            LayoutGap: =24
+            FillPortions: =0
+            LayoutMinWidth: =0
+            LayoutMinHeight: =0
+            Height: =300
+            Visible: =galHeute.AllItemsCount = 0
+            PaddingLeft: =32
+            PaddingRight: =32
+          Children:
+            - lblHeuteLeer:
+                Control: Label@2.5.1
+                Properties:
+                  Text: ="Du hast heute keinen Tisch gebucht."
+                  FillPortions: =0
+                  LayoutMinWidth: =0
+                  LayoutMinHeight: =0
+                  Height: =120
+                  Size: =26
+                  Color: =RGBA(90, 90, 90, 1)
+                  Font: =Font.'Open Sans'
+                  VerticalAlign: =VerticalAlign.Middle
+                  Wrap: =true
+            - btnZumBuchen:
+                Control: Classic/Button@2.2.0
+                Properties:
+                  Text: ="Jetzt Tisch buchen"
+                  FillPortions: =0
+                  LayoutMinWidth: =0
+                  LayoutMinHeight: =0
+                  Height: =104
+                  Size: =26
+                  Font: =Font.'Open Sans'
+                  FontWeight: =FontWeight.Semibold
+                  Fill: =RGBA(23, 20, 150, 1)
+                  Color: =RGBA(255, 255, 255, 1)
+                  HoverFill: =RGBA(23, 20, 150, 1)
+                  HoverColor: =RGBA(255, 255, 255, 1)
+                  PressedFill: =RGBA(255, 255, 255, 1)
+                  PressedColor: =RGBA(23, 20, 150, 1)
+                  BorderColor: =RGBA(23, 20, 150, 1)
+                  RadiusBottomLeft: =16
+                  RadiusBottomRight: =16
+                  RadiusTopLeft: =16
+                  RadiusTopRight: =16
+                  OnSelect: =Set(varTab, "buchen")
+      - galHeute:
+          Control: Gallery@2.15.0
+          Variant: Vertical
+          Properties:
+            Items: |-
+              =With(
+                { neuLaden: varNeuLaden },
+                SortByColumns(
+                  Filter(
+                    Tischbuchungen,
+                    Person.Email = User().Email && Startzeit >= Today() && Startzeit < DateAdd(Today(), 1, TimeUnit.Days) && Endzeit >= Now()
+                  ),
+                  "Startzeit",
+                  SortOrder.Ascending
+                )
+              )
+            TemplateSize: =300
+            TemplatePadding: =0
+            FillPortions: =1
+            LayoutMinWidth: =0
+            LayoutMinHeight: =0
+            BorderColor: =RGBA(0, 18, 107, 1)
+            ShowScrollbar: =false
+          Children:
+            - conKarteH:
+                Control: GroupContainer@1.5.0
+                Variant: ManualLayout
+                Properties:
+                  X: =24
+                  Y: =12
+                  Width: =Parent.TemplateWidth - 48
+                  Height: =276
+                  Fill: =RGBA(255, 255, 255, 1)
+                  RadiusBottomLeft: =20
+                  RadiusBottomRight: =20
+                  RadiusTopLeft: =20
+                  RadiusTopRight: =20
+                Children:
+                  - lblTischH:
+                      Control: Label@2.5.1
+                      Properties:
+                        Text: =ThisItem.Tisch.Value
+                        X: =28
+                        Y: =16
+                        Width: =Parent.Width - 360
+                        Height: =58
+                        Size: =30
+                        FontWeight: =FontWeight.Semibold
+                        Color: =RGBA(32, 54, 71, 1)
+                        Font: =Font.'Open Sans'
+                  - lblStatusH:
+                      Control: Label@2.5.1
+                      Properties:
+                        Text: =If(ThisItem.CheckedIn, "Eingecheckt", "Nicht eingecheckt")
+                        Color: =If(ThisItem.CheckedIn, RGBA(0, 169, 107, 1), RGBA(255, 165, 0, 1))
+                        X: =Parent.Width - 330
+                        Y: =20
+                        Width: =302
+                        Height: =52
+                        Size: =21
+                        Wrap: =false
+                        FontWeight: =FontWeight.Semibold
+                        Align: =Align.Right
+                        Font: =Font.'Open Sans'
+                  - lblZeitH:
+                      Control: Label@2.5.1
+                      Properties:
+                        Text: =Text(ThisItem.Startzeit, "hh:mm") & " bis " & Text(ThisItem.Endzeit, "hh:mm")
+                        X: =28
+                        Y: =76
+                        Width: =Parent.Width - 56
+                        Height: =58
+                        Size: =28
+                        FontWeight: =FontWeight.Semibold
+                        Color: =RGBA(23, 20, 150, 1)
+                        Font: =Font.'Open Sans'
+                  - btnEincheckenH:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        Text: =If(ThisItem.CheckedIn, "Eingecheckt", "Einchecken")
+                        X: =28
+                        Y: =150
+                        Width: =(Parent.Width - 80) / 2
+                        Height: =100
+                        Size: =24
+                        Font: =Font.'Open Sans'
+                        FontWeight: =FontWeight.Semibold
+                        Fill: =RGBA(0, 169, 107, 1)
+                        Color: =RGBA(255, 255, 255, 1)
+                        HoverFill: =RGBA(0, 169, 107, 1)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(255, 255, 255, 1)
+                        PressedColor: =RGBA(0, 169, 107, 1)
+                        DisabledFill: =RGBA(222, 222, 222, 1)
+                        DisabledColor: =RGBA(120, 120, 120, 1)
+                        DisabledBorderColor: =RGBA(222, 222, 222, 1)
+                        BorderColor: =RGBA(0, 169, 107, 1)
+                        RadiusBottomLeft: =16
+                        RadiusBottomRight: =16
+                        RadiusTopLeft: =16
+                        RadiusTopRight: =16
+                        DisplayMode: |-
+                          =If(
+                            ThisItem.CheckedIn,
+                            DisplayMode.Disabled,
+                            If(
+                              varIsLoading,
+                              DisplayMode.Disabled,
+                              If(
+                                varJetzt >= DateAdd(ThisItem.Startzeit, -30, TimeUnit.Minutes) && varJetzt <= ThisItem.Endzeit,
+                                DisplayMode.Edit,
+                                DisplayMode.Disabled
+                              )
+                            )
+                          )
+                        OnSelect: |-
+                          =If(
+                            !varIsLoading && Now() >= varSperreBis,
+                            Set(varIsLoading, true);
+                            Set(varCheckinID, ThisItem.ID);
+                            With(
+                              { frisch: LookUp(Tischbuchungen, ID = varCheckinID) },
+                              If(
+                                IsBlank(frisch.ID),
+                                Notify("Diese Buchung gibt es nicht mehr. Bitte aktualisieren.", NotificationType.Warning),
+                                If(
+                                  frisch.CheckedIn,
+                                  Notify("Du bist bereits eingecheckt.", NotificationType.Information),
+                                  If(
+                                    Now() < DateAdd(frisch.Startzeit, -30, TimeUnit.Minutes) || Now() > frisch.Endzeit,
+                                    Notify("Einchecken ist erst ab 30 Minuten vor Beginn und nur bis zum Ende moeglich.", NotificationType.Warning),
+                                    IfError(
+                                      Patch(Tischbuchungen, frisch, { CheckedIn: true }),
+                                      Notify("Einchecken fehlgeschlagen. Bitte erneut versuchen.", NotificationType.Error),
+                                      If(
+                                        LookUp(Tischbuchungen, ID = varCheckinID).CheckedIn,
+                                        Notify("Eingecheckt.", NotificationType.Success),
+                                        Notify("Der Check-in ist nicht angekommen. Bitte aktualisieren und erneut versuchen.", NotificationType.Warning)
+                                      )
+                                    )
+                                  )
+                                )
+                              )
+                            );
+                            Set(varNeuLaden, varNeuLaden + 1);
+                            Set(varSperreBis, DateAdd(Now(), 2, TimeUnit.Seconds));
+                            Set(varIsLoading, false)
+                          )
+                  - btnVerwaltenH:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        Text: ="Verwalten"
+                        X: =Parent.Width - 28 - (Parent.Width - 80) / 2
+                        Y: =150
+                        Width: =(Parent.Width - 80) / 2
+                        Height: =100
+                        Size: =24
+                        Font: =Font.'Open Sans'
+                        Fill: =RGBA(23, 20, 150, 1)
+                        Color: =RGBA(255, 255, 255, 1)
+                        HoverFill: =RGBA(23, 20, 150, 1)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(255, 255, 255, 1)
+                        PressedColor: =RGBA(23, 20, 150, 1)
+                        BorderColor: =RGBA(23, 20, 150, 1)
+                        RadiusBottomLeft: =16
+                        RadiusBottomRight: =16
+                        RadiusTopLeft: =16
+                        RadiusTopRight: =16
+                        OnSelect: |-
+                          =Set(varBuchung, ThisItem);
+                          Set(varBuchungID, ThisItem.ID);
+                          Set(varZeigeVerwalten, true)

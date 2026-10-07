@@ -1,0 +1,5 @@
+# Entpackte Exporte und große Monitor-Dateien nicht einchecken
+/arbeit/_entpackt/
+*.json.trace
+PowerAppsTraceEvents*.json
+__pycache__/

@@ -1,0 +1,379 @@
+- conBuchenForm:
+    Control: GroupContainer@1.5.0
+    Variant: AutoLayout
+    Properties:
+      BorderThickness: =0
+      DropShadow: =DropShadow.None
+      LayoutDirection: =LayoutDirection.Vertical
+      LayoutAlignItems: =LayoutAlignItems.Stretch
+      LayoutGap: =14
+      FillPortions: =1
+      LayoutMinWidth: =0
+      LayoutMinHeight: =0
+      PaddingLeft: =32
+      PaddingRight: =32
+      PaddingTop: =0
+      PaddingBottom: =16
+    Children:
+      - lblBuchenTitel:
+          Control: Label@2.5.1
+          Properties:
+            Text: ="Tisch buchen"
+            FillPortions: =0
+            LayoutMinWidth: =0
+            LayoutMinHeight: =0
+            Height: =110
+            Size: =34
+            FontWeight: =FontWeight.Semibold
+            Color: =RGBA(23, 20, 150, 1)
+            Font: =Font.'Open Sans'
+            VerticalAlign: =VerticalAlign.Middle
+      - lblDatumL:
+          Control: Label@2.5.1
+          Properties:
+            Text: ="Datum"
+            FillPortions: =0
+            LayoutMinWidth: =0
+            LayoutMinHeight: =0
+            Height: =48
+            Size: =22
+            Color: =RGBA(90, 90, 90, 1)
+            Font: =Font.'Open Sans'
+            VerticalAlign: =VerticalAlign.Bottom
+      - ddDatum:
+          Control: Classic/DropDown@2.3.1
+          Properties:
+            Items: |-
+              =ForAll(
+                Sequence(60, If(Hour(Now()) >= 22, 1, 0)) As n,
+                {
+                  Value: If(n.Value = 0, "Heute, ", n.Value = 1, "Morgen, ", "") & Text(DateAdd(Today(), n.Value, TimeUnit.Days), "dddd, dd.mm.yyyy"),
+                  Tag: DateAdd(Today(), n.Value, TimeUnit.Days)
+                }
+              )
+            Items.Value: =Value
+            AccessibleLabel: ="Datum"
+            FillPortions: =0
+            LayoutMinWidth: =0
+            LayoutMinHeight: =0
+            Height: =96
+            Size: =26
+            Font: =Font.'Open Sans'
+            Color: =RGBA(32, 54, 71, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            BorderColor: =RGBA(190, 190, 190, 1)
+            BorderThickness: =2
+            PaddingLeft: =20
+            ChevronBackground: =RGBA(23, 20, 150, 1)
+            ChevronFill: =RGBA(255, 255, 255, 1)
+            ChevronHoverBackground: =RGBA(23, 20, 150, 1)
+            ChevronHoverFill: =RGBA(255, 255, 255, 1)
+            HoverFill: =RGBA(230, 232, 245, 1)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(23, 20, 150, 1)
+            SelectionColor: =RGBA(255, 255, 255, 1)
+            SelectionFill: =RGBA(23, 20, 150, 1)
+            DisplayMode: =If(varIsLoading, DisplayMode.Disabled, DisplayMode.Edit)
+      - conZeiten:
+          Control: GroupContainer@1.5.0
+          Variant: AutoLayout
+          Properties:
+            BorderThickness: =0
+            DropShadow: =DropShadow.None
+            LayoutDirection: =LayoutDirection.Horizontal
+            LayoutAlignItems: =LayoutAlignItems.Stretch
+            LayoutGap: =24
+            FillPortions: =0
+            LayoutMinWidth: =0
+            LayoutMinHeight: =0
+            Height: =160
+          Children:
+            - conVon:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  BorderThickness: =0
+                  DropShadow: =DropShadow.None
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutGap: =14
+                  FillPortions: =1
+                  LayoutMinWidth: =0
+                  LayoutMinHeight: =0
+                Children:
+                  - lblVonL:
+                      Control: Label@2.5.1
+                      Properties:
+                        Text: ="Von"
+                        FillPortions: =0
+                        LayoutMinWidth: =0
+                        LayoutMinHeight: =0
+                        Height: =48
+                        Size: =22
+                        Color: =RGBA(90, 90, 90, 1)
+                        Font: =Font.'Open Sans'
+                        VerticalAlign: =VerticalAlign.Bottom
+                  - ddStart:
+                      Control: Classic/DropDown@2.3.1
+                      Properties:
+                        Items: |-
+                          =With(
+                            { ab: If(ddDatum.Selected.Tag = Today(), 30 * RoundDown((Hour(Now()) * 60 + Minute(Now())) / 30, 0), 8 * 60) },
+                            ForAll(
+                              Sequence(Max(0, (21 * 60 + 30 - ab) / 30 + 1), 0) As n,
+                              {
+                                Value: Text(Time(RoundDown((ab + n.Value * 30) / 60, 0), Mod(ab + n.Value * 30, 60), 0), "hh:mm"),
+                                Min: ab + n.Value * 30
+                              }
+                            )
+                          )
+                        Items.Value: =Value
+                        AccessibleLabel: ="Beginn"
+                        FillPortions: =0
+                        LayoutMinWidth: =0
+                        LayoutMinHeight: =0
+                        Height: =96
+                        Size: =26
+                        Font: =Font.'Open Sans'
+                        Color: =RGBA(32, 54, 71, 1)
+                        Fill: =RGBA(255, 255, 255, 1)
+                        BorderColor: =RGBA(190, 190, 190, 1)
+                        BorderThickness: =2
+                        PaddingLeft: =20
+                        ChevronBackground: =RGBA(23, 20, 150, 1)
+                        ChevronFill: =RGBA(255, 255, 255, 1)
+                        ChevronHoverBackground: =RGBA(23, 20, 150, 1)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        HoverFill: =RGBA(230, 232, 245, 1)
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(23, 20, 150, 1)
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(23, 20, 150, 1)
+                        DisplayMode: =If(varIsLoading, DisplayMode.Disabled, DisplayMode.Edit)
+            - conBis:
+                Control: GroupContainer@1.5.0
+                Variant: AutoLayout
+                Properties:
+                  BorderThickness: =0
+                  DropShadow: =DropShadow.None
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutGap: =14
+                  FillPortions: =1
+                  LayoutMinWidth: =0
+                  LayoutMinHeight: =0
+                Children:
+                  - lblBisL:
+                      Control: Label@2.5.1
+                      Properties:
+                        Text: ="Bis"
+                        FillPortions: =0
+                        LayoutMinWidth: =0
+                        LayoutMinHeight: =0
+                        Height: =48
+                        Size: =22
+                        Color: =RGBA(90, 90, 90, 1)
+                        Font: =Font.'Open Sans'
+                        VerticalAlign: =VerticalAlign.Bottom
+                  - ddEnde:
+                      Control: Classic/DropDown@2.3.1
+                      Properties:
+                        Items: |-
+                          =With(
+                            { s: ddStart.Selected.Min },
+                            ForAll(
+                              Sequence(Max(0, (22 * 60 - s) / 30), 1) As n,
+                              {
+                                Value: Text(Time(RoundDown((s + n.Value * 30) / 60, 0), Mod(s + n.Value * 30, 60), 0), "hh:mm"),
+                                Min: s + n.Value * 30
+                              }
+                            )
+                          )
+                        Items.Value: =Value
+                        Default: =If(ddStart.Selected.Min < 17 * 60, "17:00", "")
+                        AccessibleLabel: ="Ende"
+                        FillPortions: =0
+                        LayoutMinWidth: =0
+                        LayoutMinHeight: =0
+                        Height: =96
+                        Size: =26
+                        Font: =Font.'Open Sans'
+                        Color: =RGBA(32, 54, 71, 1)
+                        Fill: =RGBA(255, 255, 255, 1)
+                        BorderColor: =RGBA(190, 190, 190, 1)
+                        BorderThickness: =2
+                        PaddingLeft: =20
+                        ChevronBackground: =RGBA(23, 20, 150, 1)
+                        ChevronFill: =RGBA(255, 255, 255, 1)
+                        ChevronHoverBackground: =RGBA(23, 20, 150, 1)
+                        ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                        HoverFill: =RGBA(230, 232, 245, 1)
+                        PressedColor: =RGBA(255, 255, 255, 1)
+                        PressedFill: =RGBA(23, 20, 150, 1)
+                        SelectionColor: =RGBA(255, 255, 255, 1)
+                        SelectionFill: =RGBA(23, 20, 150, 1)
+                        DisplayMode: =If(varIsLoading, DisplayMode.Disabled, DisplayMode.Edit)
+      - lblTischL:
+          Control: Label@2.5.1
+          Properties:
+            Text: ="Freier Tisch in dieser Zeit"
+            FillPortions: =0
+            LayoutMinWidth: =0
+            LayoutMinHeight: =0
+            Height: =48
+            Size: =22
+            Color: =RGBA(90, 90, 90, 1)
+            Font: =Font.'Open Sans'
+            VerticalAlign: =VerticalAlign.Bottom
+      - ddTisch:
+          Control: Classic/DropDown@2.3.1
+          Properties:
+            Items: |-
+              =With(
+                { neuLaden: varNeuLaden },
+                With(
+                  { belegt: ForAll(Filter(Tischbuchungen, Startzeit < DateTime(Year(ddDatum.Selected.Tag), Month(ddDatum.Selected.Tag), Day(ddDatum.Selected.Tag), RoundDown(ddEnde.Selected.Min / 60, 0), Mod(ddEnde.Selected.Min, 60), 0) && Endzeit > DateTime(Year(ddDatum.Selected.Tag), Month(ddDatum.Selected.Tag), Day(ddDatum.Selected.Tag), RoundDown(ddStart.Selected.Min / 60, 0), Mod(ddStart.Selected.Min, 60), 0)), Tisch.Value) },
+                  ForAll(
+                    Sort(
+                      Filter(colTische, !("big table" in Lower(Titel)) && !(Titel in belegt)),
+                      Geschoss.Value & Left(Titel, Len(Titel) - Len(Last(Split(Titel, " ")).Value)) & Text(IfError(Value(Last(Split(Titel, " ")).Value), 0), "000")
+                    ) As t,
+                    { Value: t.Titel, ID: t.ID }
+                  )
+                )
+              )
+            Items.Value: =Value
+            AccessibleLabel: ="Freier Tisch"
+            FillPortions: =0
+            LayoutMinWidth: =0
+            LayoutMinHeight: =0
+            Height: =96
+            Size: =26
+            Font: =Font.'Open Sans'
+            Color: =RGBA(32, 54, 71, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            BorderColor: =RGBA(190, 190, 190, 1)
+            BorderThickness: =2
+            PaddingLeft: =20
+            ChevronBackground: =RGBA(23, 20, 150, 1)
+            ChevronFill: =RGBA(255, 255, 255, 1)
+            ChevronHoverBackground: =RGBA(23, 20, 150, 1)
+            ChevronHoverFill: =RGBA(255, 255, 255, 1)
+            HoverFill: =RGBA(230, 232, 245, 1)
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(23, 20, 150, 1)
+            SelectionColor: =RGBA(255, 255, 255, 1)
+            SelectionFill: =RGBA(23, 20, 150, 1)
+            DisplayMode: =If(varIsLoading, DisplayMode.Disabled, DisplayMode.Edit)
+      - lblZusammenfassung:
+          Control: Label@2.5.1
+          Properties:
+            Text: |-
+              =If(
+                IsBlank(ddTisch.Selected.Value),
+                "Im gewählten Zeitraum ist kein Tisch frei. Bitte eine andere Zeit wählen.",
+                ddTisch.Selected.Value & Char(10) & Text(ddDatum.Selected.Tag, "dddd, dd.mm.yyyy") & Char(10) & ddStart.Selected.Value & " bis " & ddEnde.Selected.Value & " Uhr"
+              )
+            FillPortions: =0
+            LayoutMinWidth: =0
+            LayoutMinHeight: =0
+            Height: =170
+            Size: =24
+            FontWeight: =FontWeight.Semibold
+            Color: =If(IsBlank(ddTisch.Selected.Value), RGBA(235, 57, 81, 1), RGBA(23, 20, 150, 1))
+            Fill: =RGBA(238, 240, 250, 1)
+            Font: =Font.'Open Sans'
+            Wrap: =true
+            VerticalAlign: =VerticalAlign.Middle
+            PaddingLeft: =24
+            PaddingRight: =24
+      - btnBuchen:
+          Control: Classic/Button@2.2.0
+          Properties:
+            Text: ="Jetzt buchen"
+            FillPortions: =0
+            LayoutMinWidth: =0
+            LayoutMinHeight: =0
+            Height: =110
+            Size: =28
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Semibold
+            Fill: =RGBA(0, 169, 107, 1)
+            Color: =RGBA(255, 255, 255, 1)
+            HoverFill: =RGBA(0, 169, 107, 1)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            PressedColor: =RGBA(0, 169, 107, 1)
+            DisabledFill: =RGBA(222, 222, 222, 1)
+            DisabledColor: =RGBA(120, 120, 120, 1)
+            DisabledBorderColor: =RGBA(222, 222, 222, 1)
+            BorderColor: =RGBA(0, 169, 107, 1)
+            RadiusBottomLeft: =16
+            RadiusBottomRight: =16
+            RadiusTopLeft: =16
+            RadiusTopRight: =16
+            DisplayMode: =If(varIsLoading || IsBlank(ddTisch.Selected.Value), DisplayMode.Disabled, DisplayMode.Edit)
+            OnSelect: |-
+              =If(
+                !varIsLoading && Now() >= varSperreBis,
+                Set(varIsLoading, true);
+                Set(varBuchStart, DateTime(Year(ddDatum.Selected.Tag), Month(ddDatum.Selected.Tag), Day(ddDatum.Selected.Tag), RoundDown(ddStart.Selected.Min / 60, 0), Mod(ddStart.Selected.Min, 60), 0));
+                Set(varBuchEnde, DateTime(Year(ddDatum.Selected.Tag), Month(ddDatum.Selected.Tag), Day(ddDatum.Selected.Tag), RoundDown(ddEnde.Selected.Min / 60, 0), Mod(ddEnde.Selected.Min, 60), 0));
+                Set(varTagesEnde, DateTime(Year(ddDatum.Selected.Tag), Month(ddDatum.Selected.Tag), Day(ddDatum.Selected.Tag), 22, 0, 0));
+                Set(varTischName, ddTisch.Selected.Value);
+                Set(varTischID, ddTisch.Selected.ID);
+                If(
+                  IsBlank(varTischName) || IsBlank(varTischID) || IsBlank(ddStart.Selected.Min) || IsBlank(ddEnde.Selected.Min),
+                  Notify("Bitte Datum, Uhrzeit und Tisch auswählen.", NotificationType.Warning),
+                  varBuchEnde <= varBuchStart,
+                  Notify("Das Ende muss nach dem Beginn liegen.", NotificationType.Warning),
+                  varBuchStart < DateTime(Year(Now()), Month(Now()), Day(Now()), Hour(Now()), If(Minute(Now()) >= 30, 30, 0), 0),
+                  Notify("Diese Zeit liegt in der Vergangenheit. Bitte eine spätere Zeit wählen.", NotificationType.Warning),
+                  varBuchEnde > varTagesEnde,
+                  Notify("Eine Buchung kann nicht nach 22:00 Uhr enden.", NotificationType.Warning),
+                  !IsBlank(LookUp(Tischbuchungen, Tisch.Value = varTischName && Startzeit < varBuchEnde && Endzeit > varBuchStart).ID),
+                  Notify("Der Tisch ist in dieser Zeit schon belegt. Bitte einen anderen Tisch wählen.", NotificationType.Warning),
+                  !IsBlank(LookUp(Tischbuchungen, Person.Email = User().Email && Startzeit < varBuchEnde && Endzeit > varBuchStart).ID),
+                  Notify("Du hast in dieser Zeit schon einen Tisch gebucht.", NotificationType.Warning),
+                  Set(
+                    varNeuID,
+                    IfError(
+                      Patch(
+                        Tischbuchungen,
+                        Defaults(Tischbuchungen),
+                        {
+                          Tisch: { Id: varTischID, Value: varTischName },
+                          Startzeit: varBuchStart,
+                          Endzeit: varBuchEnde,
+                          Person: {
+                            Claims: "i:0#.f|membership|" & Lower(User().Email),
+                            Department: "",
+                            DisplayName: User().FullName,
+                            Email: User().Email,
+                            JobTitle: "",
+                            Picture: ""
+                          }
+                        }
+                      ).ID,
+                      -1
+                    )
+                  );
+                  If(
+                    varNeuID = -1,
+                    Notify("Das Buchen ist fehlgeschlagen. Bitte erneut versuchen.", NotificationType.Error),
+                    ClearCollect(colKollision, Filter(Tischbuchungen, Tisch.Value = varTischName && Startzeit < varBuchEnde && Endzeit > varBuchStart));
+                    Set(varNeuBuchung, LookUp(colKollision, ID = varNeuID));
+                    If(
+                      IsBlank(varNeuBuchung.ID) || varNeuBuchung.Startzeit <> varBuchStart || varNeuBuchung.Endzeit <> varBuchEnde || Lower(varNeuBuchung.Person.Email) <> Lower(User().Email),
+                      Notify("Die Buchung ist nicht vollständig angekommen. Bitte unter „Meine“ prüfen.", NotificationType.Warning),
+                      !IsBlank(LookUp(colKollision, ID < varNeuID).ID),
+                      Notify("Achtung: Jemand hat diesen Tisch fast gleichzeitig vor dir gebucht. Bitte storniere deine Buchung unter „Meine“ und wähle einen anderen Tisch.", NotificationType.Error),
+                      Notify("Gebucht: " & varTischName & ", " & Text(varBuchStart, "dd.mm.") & ", " & Text(varBuchStart, "hh:mm") & " bis " & Text(varBuchEnde, "hh:mm") & " Uhr", NotificationType.Success);
+                      Set(varTab, If(varBuchStart < DateAdd(Today(), 1, TimeUnit.Days), "heute", "meine"))
+                    )
+                  )
+                );
+                Set(varNeuLaden, varNeuLaden + 1);
+                Set(varSperreBis, DateAdd(Now(), 2, TimeUnit.Seconds));
+                Set(varIsLoading, false)
+              )

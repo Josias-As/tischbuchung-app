@@ -1,0 +1,12 @@
+- tmrJetzt:
+    Control: Timer@2.1.0
+    Properties:
+      Duration: =60000
+      Repeat: =true
+      AutoStart: =true
+      OnTimerEnd: =Set(varJetzt, Now())
+      Visible: =false
+      X: =0
+      Y: =0
+      Width: =10
+      Height: =10

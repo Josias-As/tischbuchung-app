@@ -1,0 +1,424 @@
+- conDlgHintergrund:
+    Control: GroupContainer@1.5.0
+    Variant: ManualLayout
+    Properties:
+      X: =0
+      Y: =0
+      Width: =Parent.Width
+      Height: =Parent.Height
+      Fill: =RGBA(0, 0, 0, 0.45)
+      Visible: =varZeigeVerwalten || varZeigeStorno
+- conDlgVerwalten:
+    Control: GroupContainer@1.5.0
+    Variant: ManualLayout
+    Properties:
+      X: =30
+      Y: =(Parent.Height - 800) / 2
+      Width: =Parent.Width - 60
+      Height: =800
+      Fill: =RGBA(255, 255, 255, 1)
+      RadiusBottomLeft: =28
+      RadiusBottomRight: =28
+      RadiusTopLeft: =28
+      RadiusTopRight: =28
+      Visible: =varZeigeVerwalten && !varZeigeStorno
+    Children:
+      - lblDlgTitel:
+          Control: Label@2.5.1
+          Properties:
+            Text: =varBuchung.Tisch.Value
+            X: =36
+            Y: =28
+            Width: =Parent.Width - 72
+            Height: =66
+            Size: =32
+            FontWeight: =FontWeight.Semibold
+            Color: =RGBA(32, 54, 71, 1)
+            Font: =Font.'Open Sans'
+      - lblDlgTag:
+          Control: Label@2.5.1
+          Properties:
+            Text: =Text(varBuchung.Startzeit, "dddd, dd.mm.yyyy")
+            X: =36
+            Y: =98
+            Width: =Parent.Width - 72
+            Height: =52
+            Size: =24
+            Color: =RGBA(90, 90, 90, 1)
+            Font: =Font.'Open Sans'
+      - lblDlgZeit:
+          Control: Label@2.5.1
+          Properties:
+            Text: =Text(varBuchung.Startzeit, "hh:mm") & " bis " & Text(varBuchung.Endzeit, "hh:mm")
+            X: =36
+            Y: =152
+            Width: =Parent.Width - 72
+            Height: =62
+            Size: =28
+            FontWeight: =FontWeight.Semibold
+            Color: =RGBA(23, 20, 150, 1)
+            Font: =Font.'Open Sans'
+      - btnVerl1:
+          Control: Classic/Button@2.2.0
+          Properties:
+            Text: ="+1 Std"
+            X: =36
+            Y: =244
+            Width: =(Parent.Width - 108) / 2
+            Height: =110
+            Size: =26
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Semibold
+            Fill: =RGBA(23, 20, 150, 1)
+            Color: =RGBA(255, 255, 255, 1)
+            HoverFill: =RGBA(23, 20, 150, 1)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            PressedColor: =RGBA(23, 20, 150, 1)
+            DisabledFill: =RGBA(222, 222, 222, 1)
+            DisabledColor: =RGBA(120, 120, 120, 1)
+            DisabledBorderColor: =RGBA(222, 222, 222, 1)
+            BorderColor: =RGBA(23, 20, 150, 1)
+            RadiusBottomLeft: =16
+            RadiusBottomRight: =16
+            RadiusTopLeft: =16
+            RadiusTopRight: =16
+            DisplayMode: =If(varIsLoading, DisplayMode.Disabled, DisplayMode.Edit)
+            OnSelect: |-
+              =If(
+                !varIsLoading && Now() >= varSperreBis,
+                Set(varIsLoading, true);
+                Set(varBuchung, LookUp(Tischbuchungen, ID = varBuchungID));
+                If(
+                  IsBlank(varBuchung.ID),
+                  Notify("Diese Buchung gibt es nicht mehr. Die Liste wird aktualisiert.", NotificationType.Warning); Set(varZeigeVerwalten, false),
+                  Set(varTischName, varBuchung.Tisch.Value);
+                  Set(varEndeAlt, varBuchung.Endzeit);
+                  Set(varNeuEnde, DateAdd(varEndeAlt, 60, TimeUnit.Minutes));
+                  Set(varTagesEnde, DateTime(Year(varBuchung.Startzeit), Month(varBuchung.Startzeit), Day(varBuchung.Startzeit), 22, 0, 0));
+                  If(
+                    varEndeAlt <= Now(),
+                    Notify("Diese Buchung ist bereits beendet.", NotificationType.Information); Set(varZeigeVerwalten, false),
+                    varNeuEnde > varTagesEnde,
+                    Notify("Eine Buchung kann nicht nach 22:00 Uhr enden.", NotificationType.Warning),
+                    !IsBlank(LookUp(Tischbuchungen, Tisch.Value = varTischName && Startzeit < varNeuEnde && Endzeit > varEndeAlt).ID),
+                    Notify("Der Tisch ist in dieser Zeit schon belegt.", NotificationType.Warning),
+                    !IsBlank(LookUp(Tischbuchungen, Person.Email = User().Email && Startzeit < varNeuEnde && Endzeit > varEndeAlt).ID),
+                    Notify("Du hast in dieser Zeit schon einen anderen Tisch gebucht.", NotificationType.Warning),
+                    IfError(
+                      Patch(Tischbuchungen, varBuchung, { Endzeit: varNeuEnde }),
+                      Notify("Das Verlängern ist fehlgeschlagen. Bitte erneut versuchen.", NotificationType.Error),
+                      ClearCollect(colKollision, Filter(Tischbuchungen, Tisch.Value = varTischName && Startzeit < varNeuEnde && Endzeit > varEndeAlt));
+                      If(
+                        LookUp(colKollision, ID = varBuchungID).Endzeit <> varNeuEnde,
+                        Notify("Die Verlängerung ist nicht angekommen. Bitte aktualisieren.", NotificationType.Warning),
+                        !IsBlank(LookUp(colKollision, ID <> varBuchungID).ID),
+                        IfError(
+                          Patch(Tischbuchungen, LookUp(Tischbuchungen, ID = varBuchungID), { Endzeit: varEndeAlt }),
+                          Notify("Jemand hat den Tisch gerade für diese Zeit gebucht. Bitte deine Buchung prüfen, sie überschneidet sich.", NotificationType.Error),
+                          Notify("Jemand hat den Tisch gerade für diese Zeit gebucht. Die Verlängerung wurde zurückgenommen.", NotificationType.Error)
+                        ),
+                        Notify("Buchung verlängert.", NotificationType.Success);
+                        Set(varZeigeVerwalten, false)
+                      )
+                    )
+                  )
+                );
+                Set(varNeuLaden, varNeuLaden + 1);
+                Set(varSperreBis, DateAdd(Now(), 2, TimeUnit.Seconds));
+                Set(varIsLoading, false)
+              )
+      - btnVerl2:
+          Control: Classic/Button@2.2.0
+          Properties:
+            Text: ="+2 Std"
+            X: =Parent.Width - 36 - (Parent.Width - 108) / 2
+            Y: =244
+            Width: =(Parent.Width - 108) / 2
+            Height: =110
+            Size: =26
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Semibold
+            Fill: =RGBA(23, 20, 150, 1)
+            Color: =RGBA(255, 255, 255, 1)
+            HoverFill: =RGBA(23, 20, 150, 1)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            PressedColor: =RGBA(23, 20, 150, 1)
+            DisabledFill: =RGBA(222, 222, 222, 1)
+            DisabledColor: =RGBA(120, 120, 120, 1)
+            DisabledBorderColor: =RGBA(222, 222, 222, 1)
+            BorderColor: =RGBA(23, 20, 150, 1)
+            RadiusBottomLeft: =16
+            RadiusBottomRight: =16
+            RadiusTopLeft: =16
+            RadiusTopRight: =16
+            DisplayMode: =If(varIsLoading, DisplayMode.Disabled, DisplayMode.Edit)
+            OnSelect: |-
+              =If(
+                !varIsLoading && Now() >= varSperreBis,
+                Set(varIsLoading, true);
+                Set(varBuchung, LookUp(Tischbuchungen, ID = varBuchungID));
+                If(
+                  IsBlank(varBuchung.ID),
+                  Notify("Diese Buchung gibt es nicht mehr. Die Liste wird aktualisiert.", NotificationType.Warning); Set(varZeigeVerwalten, false),
+                  Set(varTischName, varBuchung.Tisch.Value);
+                  Set(varEndeAlt, varBuchung.Endzeit);
+                  Set(varNeuEnde, DateAdd(varEndeAlt, 120, TimeUnit.Minutes));
+                  Set(varTagesEnde, DateTime(Year(varBuchung.Startzeit), Month(varBuchung.Startzeit), Day(varBuchung.Startzeit), 22, 0, 0));
+                  If(
+                    varEndeAlt <= Now(),
+                    Notify("Diese Buchung ist bereits beendet.", NotificationType.Information); Set(varZeigeVerwalten, false),
+                    varNeuEnde > varTagesEnde,
+                    Notify("Eine Buchung kann nicht nach 22:00 Uhr enden.", NotificationType.Warning),
+                    !IsBlank(LookUp(Tischbuchungen, Tisch.Value = varTischName && Startzeit < varNeuEnde && Endzeit > varEndeAlt).ID),
+                    Notify("Der Tisch ist in dieser Zeit schon belegt.", NotificationType.Warning),
+                    !IsBlank(LookUp(Tischbuchungen, Person.Email = User().Email && Startzeit < varNeuEnde && Endzeit > varEndeAlt).ID),
+                    Notify("Du hast in dieser Zeit schon einen anderen Tisch gebucht.", NotificationType.Warning),
+                    IfError(
+                      Patch(Tischbuchungen, varBuchung, { Endzeit: varNeuEnde }),
+                      Notify("Das Verlängern ist fehlgeschlagen. Bitte erneut versuchen.", NotificationType.Error),
+                      ClearCollect(colKollision, Filter(Tischbuchungen, Tisch.Value = varTischName && Startzeit < varNeuEnde && Endzeit > varEndeAlt));
+                      If(
+                        LookUp(colKollision, ID = varBuchungID).Endzeit <> varNeuEnde,
+                        Notify("Die Verlängerung ist nicht angekommen. Bitte aktualisieren.", NotificationType.Warning),
+                        !IsBlank(LookUp(colKollision, ID <> varBuchungID).ID),
+                        IfError(
+                          Patch(Tischbuchungen, LookUp(Tischbuchungen, ID = varBuchungID), { Endzeit: varEndeAlt }),
+                          Notify("Jemand hat den Tisch gerade für diese Zeit gebucht. Bitte deine Buchung prüfen, sie überschneidet sich.", NotificationType.Error),
+                          Notify("Jemand hat den Tisch gerade für diese Zeit gebucht. Die Verlängerung wurde zurückgenommen.", NotificationType.Error)
+                        ),
+                        Notify("Buchung verlängert.", NotificationType.Success);
+                        Set(varZeigeVerwalten, false)
+                      )
+                    )
+                  )
+                );
+                Set(varNeuLaden, varNeuLaden + 1);
+                Set(varSperreBis, DateAdd(Now(), 2, TimeUnit.Seconds));
+                Set(varIsLoading, false)
+              )
+      - btnJetztBeenden:
+          Control: Classic/Button@2.2.0
+          Properties:
+            Text: ="Jetzt beenden"
+            X: =36
+            Y: =372
+            Width: =Parent.Width - 72
+            Height: =110
+            Size: =26
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Semibold
+            Fill: =RGBA(255, 165, 0, 1)
+            Color: =RGBA(255, 255, 255, 1)
+            HoverFill: =RGBA(255, 165, 0, 1)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            PressedColor: =RGBA(255, 165, 0, 1)
+            DisabledFill: =RGBA(222, 222, 222, 1)
+            DisabledColor: =RGBA(120, 120, 120, 1)
+            DisabledBorderColor: =RGBA(222, 222, 222, 1)
+            BorderColor: =RGBA(255, 165, 0, 1)
+            RadiusBottomLeft: =16
+            RadiusBottomRight: =16
+            RadiusTopLeft: =16
+            RadiusTopRight: =16
+            DisplayMode: =If(varIsLoading, DisplayMode.Disabled, DisplayMode.Edit)
+            OnSelect: |-
+              =If(
+                !varIsLoading && Now() >= varSperreBis,
+                Set(varIsLoading, true);
+                Set(varBuchung, LookUp(Tischbuchungen, ID = varBuchungID));
+                If(
+                  IsBlank(varBuchung.ID),
+                  Notify("Diese Buchung gibt es nicht mehr. Die Liste wird aktualisiert.", NotificationType.Warning); Set(varZeigeVerwalten, false),
+                  If(
+                    Now() <= varBuchung.Startzeit,
+                    Notify("Diese Buchung hat noch nicht begonnen. Du kannst sie stornieren.", NotificationType.Warning),
+                    Now() >= varBuchung.Endzeit,
+                    Notify("Diese Buchung ist bereits beendet.", NotificationType.Information); Set(varZeigeVerwalten, false),
+                    Set(varNeuEnde, With({ ab: DateTime(Year(Now()), Month(Now()), Day(Now()), Hour(Now()), If(Minute(Now()) >= 30, 30, 0), 0) }, If(ab > varBuchung.Startzeit, ab, Now())));
+                    IfError(
+                      Patch(Tischbuchungen, varBuchung, { Endzeit: varNeuEnde }),
+                      Notify("Das Beenden ist fehlgeschlagen. Bitte erneut versuchen.", NotificationType.Error),
+                      If(
+                        LookUp(Tischbuchungen, ID = varBuchungID).Endzeit < varBuchung.Endzeit,
+                        Notify("Buchung beendet. Der Tisch ist wieder frei.", NotificationType.Success);
+                        Set(varZeigeVerwalten, false),
+                        Notify("Das Beenden ist nicht angekommen. Bitte aktualisieren.", NotificationType.Warning)
+                      )
+                    )
+                  )
+                );
+                Set(varNeuLaden, varNeuLaden + 1);
+                Set(varSperreBis, DateAdd(Now(), 2, TimeUnit.Seconds));
+                Set(varIsLoading, false)
+              )
+      - btnStornierenD:
+          Control: Classic/Button@2.2.0
+          Properties:
+            Text: ="Stornieren"
+            X: =36
+            Y: =500
+            Width: =Parent.Width - 72
+            Height: =110
+            Size: =26
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Semibold
+            Fill: =RGBA(235, 57, 81, 1)
+            Color: =RGBA(255, 255, 255, 1)
+            HoverFill: =RGBA(235, 57, 81, 1)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            PressedColor: =RGBA(235, 57, 81, 1)
+            DisabledFill: =RGBA(222, 222, 222, 1)
+            DisabledColor: =RGBA(120, 120, 120, 1)
+            DisabledBorderColor: =RGBA(222, 222, 222, 1)
+            BorderColor: =RGBA(235, 57, 81, 1)
+            RadiusBottomLeft: =16
+            RadiusBottomRight: =16
+            RadiusTopLeft: =16
+            RadiusTopRight: =16
+            DisplayMode: =If(varIsLoading, DisplayMode.Disabled, DisplayMode.Edit)
+            OnSelect: =If(!varIsLoading && Now() >= varSperreBis, Set(varZeigeStorno, true))
+      - btnSchliessenD:
+          Control: Classic/Button@2.2.0
+          Properties:
+            Text: ="Schließen"
+            X: =36
+            Y: =640
+            Width: =Parent.Width - 72
+            Height: =110
+            Size: =26
+            Font: =Font.'Open Sans'
+            Fill: =RGBA(255, 255, 255, 1)
+            Color: =RGBA(90, 90, 90, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            HoverColor: =RGBA(90, 90, 90, 1)
+            PressedFill: =RGBA(240, 240, 240, 1)
+            PressedColor: =RGBA(90, 90, 90, 1)
+            BorderColor: =RGBA(190, 190, 190, 1)
+            BorderThickness: =2
+            RadiusBottomLeft: =16
+            RadiusBottomRight: =16
+            RadiusTopLeft: =16
+            RadiusTopRight: =16
+            OnSelect: =Set(varZeigeVerwalten, false)
+- conDlgStorno:
+    Control: GroupContainer@1.5.0
+    Variant: ManualLayout
+    Properties:
+      X: =30
+      Y: =(Parent.Height - 620) / 2
+      Width: =Parent.Width - 60
+      Height: =620
+      Fill: =RGBA(255, 255, 255, 1)
+      RadiusBottomLeft: =28
+      RadiusBottomRight: =28
+      RadiusTopLeft: =28
+      RadiusTopRight: =28
+      Visible: =varZeigeStorno
+    Children:
+      - lblStornoFrage:
+          Control: Label@2.5.1
+          Properties:
+            Text: ="Buchung wirklich stornieren?"
+            X: =36
+            Y: =36
+            Width: =Parent.Width - 72
+            Height: =76
+            Size: =30
+            FontWeight: =FontWeight.Semibold
+            Color: =RGBA(32, 54, 71, 1)
+            Font: =Font.'Open Sans'
+            Wrap: =true
+      - lblStornoDetail:
+          Control: Label@2.5.1
+          Properties:
+            Text: |-
+              =varBuchung.Tisch.Value & "
+              " & Text(varBuchung.Startzeit, "dddd, dd.mm.yyyy") & "
+              " & Text(varBuchung.Startzeit, "hh:mm") & " bis " & Text(varBuchung.Endzeit, "hh:mm")
+            X: =36
+            Y: =126
+            Width: =Parent.Width - 72
+            Height: =170
+            Size: =24
+            Color: =RGBA(90, 90, 90, 1)
+            Font: =Font.'Open Sans'
+            Wrap: =true
+      - btnStornoJa:
+          Control: Classic/Button@2.2.0
+          Properties:
+            Text: ="Ja, stornieren"
+            X: =36
+            Y: =320
+            Width: =Parent.Width - 72
+            Height: =110
+            Size: =26
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Semibold
+            Fill: =RGBA(235, 57, 81, 1)
+            Color: =RGBA(255, 255, 255, 1)
+            HoverFill: =RGBA(235, 57, 81, 1)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            PressedColor: =RGBA(235, 57, 81, 1)
+            DisabledFill: =RGBA(222, 222, 222, 1)
+            DisabledColor: =RGBA(120, 120, 120, 1)
+            DisabledBorderColor: =RGBA(222, 222, 222, 1)
+            BorderColor: =RGBA(235, 57, 81, 1)
+            RadiusBottomLeft: =16
+            RadiusBottomRight: =16
+            RadiusTopLeft: =16
+            RadiusTopRight: =16
+            DisplayMode: =If(varIsLoading, DisplayMode.Disabled, DisplayMode.Edit)
+            OnSelect: |-
+              =If(
+                !varIsLoading && Now() >= varSperreBis,
+                Set(varIsLoading, true);
+                Set(varBuchung, LookUp(Tischbuchungen, ID = varBuchungID));
+                If(
+                  IsBlank(varBuchung.ID),
+                  Notify("Diese Buchung gibt es nicht mehr. Die Liste wird aktualisiert.", NotificationType.Warning);
+                  Set(varZeigeStorno, false);
+                  Set(varZeigeVerwalten, false),
+                  IfError(
+                    Remove(Tischbuchungen, varBuchung),
+                    Notify("Das Stornieren ist fehlgeschlagen. Bitte erneut versuchen.", NotificationType.Error),
+                    If(
+                      IsBlank(LookUp(Tischbuchungen, ID = varBuchungID).ID),
+                      Notify("Buchung storniert.", NotificationType.Success);
+                      Set(varZeigeStorno, false);
+                      Set(varZeigeVerwalten, false),
+                      Notify("Die Stornierung ist nicht angekommen. Bitte aktualisieren.", NotificationType.Warning)
+                    )
+                  )
+                );
+                Set(varNeuLaden, varNeuLaden + 1);
+                Set(varSperreBis, DateAdd(Now(), 2, TimeUnit.Seconds));
+                Set(varIsLoading, false)
+              )
+      - btnStornoAbbrechen:
+          Control: Classic/Button@2.2.0
+          Properties:
+            Text: ="Abbrechen"
+            X: =36
+            Y: =450
+            Width: =Parent.Width - 72
+            Height: =110
+            Size: =26
+            Font: =Font.'Open Sans'
+            Fill: =RGBA(255, 255, 255, 1)
+            Color: =RGBA(90, 90, 90, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            HoverColor: =RGBA(90, 90, 90, 1)
+            PressedFill: =RGBA(240, 240, 240, 1)
+            PressedColor: =RGBA(90, 90, 90, 1)
+            BorderColor: =RGBA(190, 190, 190, 1)
+            BorderThickness: =2
+            RadiusBottomLeft: =16
+            RadiusBottomRight: =16
+            RadiusTopLeft: =16
+            RadiusTopRight: =16
+            OnSelect: =Set(varZeigeStorno, false)
