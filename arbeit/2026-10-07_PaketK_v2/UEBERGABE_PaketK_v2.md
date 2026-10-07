@@ -1,15 +1,16 @@
 # ÜBERGABE Tischbuchung: Paket K v2 (Korrektheit, Verlängern, Speichern, Tischauswahl)
-**v2 · 07.10.2026 · Basis: veröffentlichter Export „Tischbuchung App 07.10.2026 verbesserung analyse“ (enthält L2) · alle 54 Properties maschinell aus diesem Export erzeugt und geprüft (`werkzeuge/paket_k_v2.py`, Anhang 2) · ersetzt `UEBERGABE_PaketK_v1.md` · noch nichts davon eingefügt**
+**v2 · 07.10.2026 · Basis: veröffentlichter Export „Tischbuchung App 07.10.2026 verbesserung analyse“ (enthält L2) · alle 55 Properties maschinell aus diesem Export erzeugt und geprüft (`werkzeuge/paket_k_v2.py`, Anhang 2) · unabhängig geprüft, Befunde eingearbeitet (Abschnitt „Unabhängige Prüfung“) · ersetzt `UEBERGABE_PaketK_v1.md` · noch nichts davon eingefügt**
 
 Kennzeichnung: **belegt** = im Export/Dokument nachgesehen · **gemessen** = Livemonitor oder Test · **geschlussfolgert** = abgeleitet, nicht getestet · **UNSICHER** = offen, mit Prüftest (Abschnitt UNSICHER).
 
 ## 0. Kurzfassung
-- **v1 hatte einen echten Fehler.** Die Doppelklick-Sperre nur über `DisplayMode` hält nicht. Die Handy-App hat das am 06.10. gemessen: Ein Doppeltipp auf „+1 Std“ hat zweimal verlängert (belegt, `ENTSCHEIDUNGEN.md` E-07). v2 nutzt deshalb an allen 8 Schreibstellen die dort erprobte Zweifach-Sperre `If(!varIsLoading && Now() >= varSperreBis; …)`.
+- **v1 hatte einen echten Fehler.** Die Doppelklick-Sperre nur über `DisplayMode` hält nicht. Die Handy-App hat das am 06.10. gemessen: Ein Doppeltipp auf „+1 Std“ hat zweimal verlängert (belegt, `ENTSCHEIDUNGEN.md` E-07). v2 nutzt deshalb an allen 8 Schreibstellen die dort erprobte Zweifach-Sperre `If(!varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis); …)`. Folge: Nach jeder Speichern-, Verlängern-, Stornieren- oder Einchecken-Aktion reagiert 2 Sekunden lang **kein** Schreibknopf (still, ohne Meldung), und das Lade-Overlay erscheint jetzt auch beim Verlängern, Stornieren und Einchecken.
 - **Eine Regel für beide Apps.** v2 übernimmt die Regeln, die du für die Handy-App schon bestätigt hast: nie über 22:00, kein Buchen in der Vergangenheit, keine zwei Tische zur selben Zeit, Einchecken ab 30 Minuten vor Beginn. Außerdem dasselbe Schreibmuster: frisch lesen, prüfen, `IfError`, nachlesen, ehrlich melden. Die Formeln sind dort schon in Betrieb (belegt).
 - **Verwalten-Dialoge neu gedacht (Teil A).** Beim Öffnen wird **einmal** berechnet, bis wann die Buchung verlängert werden kann. Die 24 Plus-/Minus-Properties fragen danach **keine Daten mehr ab** (vorher je eine eigene Abfrage, auch bei geschlossenem Dialog, gemessen ~50 Abfragen pro Schreibvorgang). Befund B0 ist damit an der Wurzel weg: Der Tab liest seine eigene Buchung (statt der Ein-Zeilen-Lösung K1).
 - **Speichern (Teil B):** Beide Speichern-Knöpfe laufen gleich, beide mit Sammel-Patch. Neu dabei: Kollisionsprüfung mit Zeitfenster, Prüfung „du hast schon einen Tisch“, **`SerienID` wird geschrieben und nachgelesen** (ehrliche Anzahl statt lokaler Zählung), Erkennung gleichzeitiger Buchungen, **eine** Meldung mit allem. Bei einem Fehler bleiben die Eingaben stehen.
 - **Tischauswahl (Teil C):** Das Panel zeigt nur noch freie Tische, sortiert, ohne Big Table, das aktuelle Stockwerk zuerst. Bei Serien steht dabei, an wie vielen Tagen ein Tisch belegt ist. Beim Öffnen ist kein Tisch vorausgewählt. „5 Std“/„9 Std“ starten an anderen Tagen um 08:00.
-- **Aufwand:** 22 Schritte, 54 Properties, jeder Schritt einzeln testbar. Die Teile A bis D sind voneinander unabhängig; nur Schritt 0 muss zuerst kommen.
+- **Geprüft:** eigene maschinelle Prüfung (Anhang 2) und ein unabhängiger Prüf-Agent. Sein Urteil: „einfügebereit nach Korrekturen“, mit 1 Fehler, 3 Risiken und 12 Hinweisen. Alle sind eingearbeitet oder begründet offen (Abschnitt „Unabhängige Prüfung“).
+- **Aufwand:** 22 Schritte, 55 Properties, jeder Schritt einzeln testbar. Die Teile A bis D sind voneinander unabhängig. Schritt 0 zuerst ist empfohlen, aber nicht zwingend.
 - **Was nur du entscheiden kannst:** sieben Punkte in Abschnitt 2. Überall steht ein Vorschlag (meist die Regel der Handy-App). Wenn du nichts sagst, gilt der Vorschlag.
 
 ## 1. Übersicht
@@ -33,7 +34,7 @@ Kennzeichnung: **belegt** = im Export/Dokument nachgesehen · **gemessen** = Liv
 | C2 | `btnTischHinzufügen.OnSelect` | Panel öffnen: Datum und Tisch zurücksetzen | Frage 21 (alte Auswahl) |
 | C3 | `btn5Std.DisplayMode`, `btn5Std.Fill`, `btn5Std.OnSelect` | 5 Std: anderer Tag ab 08:00, ohne Tisch bedienbar, Abfrage nur bei offenem Panel | Frage 20, BD-27, Abfragen bei geschlossenem Panel |
 | C4 | `btn9Std.DisplayMode`, `btn9Std.Fill`, `btn9Std.OnSelect` | 9 Std: wie 5 Std | wie C3 |
-| C5 | `Label14.Text` | Hinweistext liest das Panel-Datum (BD-26) | BD-26 |
+| C5 | `Label14.Text`, `Label14.Color` | Hinweistext liest das Panel-Datum (BD-26) | BD-26 |
 | D1 | `ddStockwerk.OnSelect` | Dauer leeren statt 0 (BD-12) | BD-12 |
 | D2 | `Icon1.OnSelect`, `Icon1_1.OnSelect`, `Image6.OnSelect`, `btnHitArea_1.OnSelect` | „Aktualisiert.“ nur bei Erfolg (BD-10) | BD-10 (U7) |
 | D3 | `btnStornierenKlein.OnSelect` | Mehrfach-Stornieren mit Zweifach-Sperre | Doppeltipp bei Mehrfach-Stornieren |
@@ -55,14 +56,14 @@ Kennzeichnung: **belegt** = im Export/Dokument nachgesehen · **gemessen** = Liv
 ## 3. Ablauf je Schritt (wie bei L2)
 1. Vorher: **`.msapp` exportieren** (Datei → Speichern unter → Diesen Computer) und prüfen, dass seit dem Export vom 07.10. in Studio nichts geändert wurde. Wenn doch: neuen Export geben, dann erzeuge ich alles neu (`python3 -I werkzeuge/paket_k_v2.py`). Das Skript bricht ab, wenn ein Anker nicht mehr genau passt.
 2. Steuerelement in der Strukturansicht wählen (der Ort steht bei jedem Block) → Property im Formelfeld → **ganze Property ersetzen** → Enter.
-3. App-Prüfung (Baseline vor Paket: 134 Einträge, keine Formelfehler). Neue **Formelfehler** = sofort melden, nicht weitermachen. Neue Delegierungswarnungen sind nur bei C1 erwartet (UNSICHER U-V3).
+3. App-Prüfung (Baseline vor Paket: 134 Einträge, keine Formelfehler). Neue **Formelfehler** = sofort melden, nicht weitermachen. 47 der 134 Einträge sitzen auf Properties, die das Paket ersetzt (vor allem `CountRows`-Warnungen der Dauer-Knöpfe). Nach dem ganzen Paket also etwa **87 plus wenige neue** (möglich bei C1, siehe U-V3). Ist es viel mehr, wurde vermutlich ein Block nicht eingefügt.
 4. Kurz testen (Test unter jedem Schritt), im Testbogen abhaken.
-5. **Reihenfolge:** Schritt 0 zuerst (sonst sind die Knöpfe 2 Sekunden lang nach dem App-Start gesperrt, U-V1). Danach A, B, C, D in beliebiger Reihenfolge. Innerhalb eines Schritts alle Properties einfügen, bevor du testest.
+5. **Reihenfolge:** Schritt 0 zuerst, danach in Studio **„OnStart ausführen“** (Strukturansicht → App → … → OnStart ausführen), weil Studio OnStart nach dem Einfügen nicht von selbst neu ausführt. Danach A, B, C, D in beliebiger Reihenfolge. Innerhalb eines Schritts alle Properties einfügen, bevor du testest.
 6. **Besonderheit `Items.Value` (C1):** Das ist kein Formelfeld. Rechts im Eigenschaftenbereich „Wert“ auf **Anzeige** stellen, nachdem `Items` ersetzt ist.
 
 ## Teil 0: Vorbereitung (zuerst)
 
-Legt drei Variablen mit Startwert an. `varSperreBis` muss einen Zeitwert haben, bevor der erste Knopf ihn vergleicht. Die Zeilen stehen **vor** der L2-Ladezeile, die Ladezeile bleibt die letzte Anweisung.
+Legt drei Variablen mit Startwert an, ganz am **Anfang** von OnStart (nicht blockierendes OnStart: so früh wie möglich gesetzt). Die L2-Ladezeile bleibt die letzte Anweisung. Die Sperre funktioniert auch ohne Schritt 0 (`IsBlank(varSperreBis)` ist abgefangen). Schritt 0 macht nur die Typen eindeutig und ist deshalb empfohlen.
 
 ### 0 `App.OnStart`
 
@@ -72,18 +73,20 @@ Ort: `App`
 ```diff
 --- 
 +++ 
-@@ -101,3 +101,6 @@
- Set(varIsLoading; false);;
- Set(varSpinnerWinkel; 0);;
+@@ -1,2 +1,5 @@
 +Set(varSperreBis; Now());;
 +Set(varVerlGrenze; Now());;
 +Set(varVerlGrenzeTab; Now());;
- With({neu: ForAll(Filter(Tischbuchungen; (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(); 60; TimeUnit.Minutes))) As B; {TischName: B.Tisch.Value; Startzeit: B.Startzeit; Endzeit: B.Endzeit; Eingecheckt: B.CheckedIn; Name: B.Person.DisplayName})}; If(IsError(neu) || IsError(First(neu)); Notify("Grundriss konnte nicht aktualisiert werden. Bitte auf Aktualisieren tippen."; NotificationType.Warning); ClearCollect(colGrundriss; neu)))
+ Set(varSelectedTisch; Blank());;
+ Set(varZeigeDialog; false);;
 ```
 
 **Einfügen: ganze Property `App.OnStart` ersetzen durch**
 
 ```
+Set(varSperreBis; Now());;
+Set(varVerlGrenze; Now());;
+Set(varVerlGrenzeTab; Now());;
 Set(varSelectedTisch; Blank());;
 Set(varZeigeDialog; false);;
 Set(varZeigeDetails; false);;
@@ -186,13 +189,10 @@ ClearCollect(
 );;
 Set(varIsLoading; false);;
 Set(varSpinnerWinkel; 0);;
-Set(varSperreBis; Now());;
-Set(varVerlGrenze; Now());;
-Set(varVerlGrenzeTab; Now());;
 With({neu: ForAll(Filter(Tischbuchungen; (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(); 60; TimeUnit.Minutes))) As B; {TischName: B.Tisch.Value; Startzeit: B.Startzeit; Endzeit: B.Endzeit; Eingecheckt: B.CheckedIn; Name: B.Person.DisplayName})}; If(IsError(neu) || IsError(First(neu)); Notify("Grundriss konnte nicht aktualisiert werden. Bitte auf Aktualisieren tippen."; NotificationType.Warning); ClearCollect(colGrundriss; neu)))
 ```
 
-**Test:** App-Prüfung ohne neue Fehler. Vorschau starten: Grundriss lädt wie bisher.
+**Test:** App-Prüfung ohne neue Fehler. **OnStart ausführen**, dann Vorschau: Grundriss lädt wie bisher.
 
 ## Teil A: Verwalten-Dialoge (Verlängern, Stornieren, Einchecken)
 
@@ -200,7 +200,7 @@ With({neu: ForAll(Filter(Tischbuchungen; (Endzeit > varAnsichtsDatum && Startzei
 
 **Richtig benannt:** Der Dialog `conVerwaltenDialog` wird **vom Dashboard** geöffnet (`galTischbuchungenHeute > btnVerwalten`), nicht vom Grundriss. Eine Kachel im Grundriss öffnet das Details-Popup (`btnHitArea` → `varZeigeDetails`), belegt. v1 nannte ihn „Grundriss-Dialog“, deshalb war der B3-Test dort nicht ausführbar.
 
-**Weil sich die Daten ändern können, während der Dialog offen ist,** prüft der Speichern-Knopf (A6/A7) **beim Klick** noch einmal frisch am Server. Wie in der Handy-App stehen die Werte dabei in globalen Variablen, weil die Handy-App nur so delegierbare Filter bekam (belegt, E-06 Punkt 2).
+**Weil sich die Daten ändern können, während der Dialog offen ist,** prüft der Speichern-Knopf (A6/A7) **beim Klick** noch einmal frisch am Server. Meldet er „inzwischen belegt“, wird die Grenze auf das alte Ende gesetzt, sodass alle Plus-Knöpfe grau werden. Verkürzen bleibt möglich. Wie in der Handy-App stehen die Werte dabei in globalen Variablen, weil die Handy-App nur so delegierbare Filter bekam (belegt, E-06 Punkt 2).
 
 ### A1 `btnVerwalten.OnSelect`
 
@@ -546,7 +546,7 @@ Ort: `Screen1 > conVerwaltenDialog > btnVerlängern`
 
 ```
 If(
-  !varIsLoading && Now() >= varSperreBis;
+  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis);
   Set(varIsLoading; true);;
   Set(varVerlBuchung; LookUp(Tischbuchungen; ID = varSelectedBuchung.ID));;
   If(
@@ -565,7 +565,8 @@ If(
       varAusgewaehltePlusDauer > 0 && varVerlEndeNeu > varVerlTagesende;
       Notify("Eine Buchung kann nicht nach 22:00 Uhr enden."; NotificationType.Warning);
       varAusgewaehltePlusDauer > 0 && !IsBlank(LookUp(Tischbuchungen; Tisch.Value = varVerlTisch && Startzeit < varVerlEndeNeu && Endzeit > varVerlEndeAlt).ID);
-      Notify("Der Tisch ist in dieser Zeit inzwischen belegt. Bitte eine kürzere Dauer wählen."; NotificationType.Warning);
+      Notify("Der Tisch ist in dieser Zeit inzwischen belegt. Bitte eine kürzere Dauer wählen."; NotificationType.Warning);;
+      Set(varVerlGrenze; varVerlEndeAlt);
       IfError(
         Patch(Tischbuchungen; varVerlBuchung; {Endzeit: varVerlEndeNeu});
         Notify("Speichern fehlgeschlagen. Bitte erneut versuchen."; NotificationType.Error);
@@ -595,7 +596,7 @@ Ort: `Screen1 > conVerwaltenDialog > btnVerlängern`
 If(varIsLoading || IsBlank(varAusgewaehltePlusDauer) || varAusgewaehltePlusDauer = 0; DisplayMode.Disabled; DisplayMode.Edit)
 ```
 
-**Test:** (1) +1 Std → „Buchung geändert, neues Ende hh:mm Uhr.“, Dialog zu, Dashboard-Karte und Kachel stimmen. (2) **Doppelklick** auf Verlängern → genau +1 Std. (3) Zwei Browser-Tabs: In Tab 2 direkt hinter die Buchung buchen, in Tab 1 (Dialog war schon offen, +1 grün) verlängern → „Der Tisch ist in dieser Zeit inzwischen belegt…“. (4) In Tab 2 die Buchung stornieren, in Tab 1 verlängern → „Diese Buchung gibt es nicht mehr…“, Dialog zu.
+**Test:** (1) +1 Std → „Buchung geändert, neues Ende hh:mm Uhr.“, Dialog zu, Dashboard-Karte und Kachel stimmen. (2) **Doppelklick** auf Verlängern → genau +1 Std. (3) Zwei Browser-Tabs: In Tab 2 direkt hinter die Buchung buchen, in Tab 1 (Dialog war schon offen, +1 grün) verlängern → „Der Tisch ist in dieser Zeit inzwischen belegt…“, danach sind die Plus-Knöpfe grau. (4) In Tab 2 die Buchung stornieren, in Tab 1 verlängern → „Diese Buchung gibt es nicht mehr…“, Dialog zu.
 
 ### A7 `btnVerlängern_1.OnSelect`, `btnVerlängern_1.DisplayMode`
 
@@ -609,7 +610,7 @@ Ort: `Screen1 > conBuchungen > conVerwaltenDialog_1 > btnVerlängern_1`
 
 ```
 If(
-  !varIsLoading && Now() >= varSperreBis;
+  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis);
   Set(varIsLoading; true);;
   Set(varVerlBuchung; LookUp(Tischbuchungen; ID = varSelectedBuchungTab.ID));;
   If(
@@ -628,7 +629,8 @@ If(
       varAusgewaehltePlusDauer > 0 && varVerlEndeNeu > varVerlTagesende;
       Notify("Eine Buchung kann nicht nach 22:00 Uhr enden."; NotificationType.Warning);
       varAusgewaehltePlusDauer > 0 && !IsBlank(LookUp(Tischbuchungen; Tisch.Value = varVerlTisch && Startzeit < varVerlEndeNeu && Endzeit > varVerlEndeAlt).ID);
-      Notify("Der Tisch ist in dieser Zeit inzwischen belegt. Bitte eine kürzere Dauer wählen."; NotificationType.Warning);
+      Notify("Der Tisch ist in dieser Zeit inzwischen belegt. Bitte eine kürzere Dauer wählen."; NotificationType.Warning);;
+      Set(varVerlGrenzeTab; varVerlEndeAlt);
       IfError(
         Patch(Tischbuchungen; varVerlBuchung; {Endzeit: varVerlEndeNeu});
         Notify("Speichern fehlgeschlagen. Bitte erneut versuchen."; NotificationType.Error);
@@ -672,7 +674,7 @@ Ort: `Screen1 > conVerwaltenDialog > btnStornieren`
 
 ```
 If(
-  !varIsLoading && Now() >= varSperreBis;
+  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis);
   Set(varIsLoading; true);;
   Set(varStornoBuchung; LookUp(Tischbuchungen; ID = varSelectedBuchung.ID));;
   If(
@@ -717,7 +719,7 @@ Ort: `Screen1 > conBuchungen > conVerwaltenDialog_1 > btnStornieren_1`
 
 ```
 If(
-  !varIsLoading && Now() >= varSperreBis;
+  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis);
   Set(varIsLoading; true);;
   Set(varStornoBuchung; LookUp(Tischbuchungen; ID = varSelectedBuchungTab.ID));;
   If(
@@ -764,7 +766,7 @@ Ort: `Screen1 > conCheckinDialog > btnEinchecken`
 
 ```
 If(
-  !varIsLoading && Now() >= varSperreBis;
+  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis);
   Set(varIsLoading; true);;
   Set(varCheckinBuchung; LookUp(Tischbuchungen; ID = varSelectedBuchung.ID));;
   If(
@@ -803,7 +805,7 @@ If(varIsLoading; DisplayMode.Disabled; DisplayMode.Edit)
 
 ## Teil B: Neue Buchung speichern
 
-**Ein Ablauf für beide Knöpfe** (der Buchungsdialog aus dem Grundriss und das Tische-Panel): Sperre → Werte zum Klickzeitpunkt in Variablen → Termine berechnen (wie bisher: Kappung auf Start + 14 Tage, Wochentage). Der unerreichbare Zweig „Taeglich“ entfällt (BD-24, `varWiederholenModus` wird nur auf „Wochentage“ gesetzt, belegt) → Plausibilität mit je eigener Meldung → **eine** Abfrage „Tisch belegt?“ und **eine** „ich schon gebucht?“, beide nur im Zeitraum der Serie (K4.1, delegierbar) → je Termin frei / Tisch belegt / ich belegt → **Sammel-Patch** der freien Termine mit gemeinsamer `SerienID` → **Nachlese** (dieselbe Zeitraum-Abfrage): Wie viele meiner Zeilen sind wirklich angekommen? Hat jemand mit kleinerer ID gleichzeitig denselben Tisch gebucht (Regel der Handy-App, nimmt nichts automatisch zurück)? → eine Meldung → nur wenn etwas gebucht wurde: Dialog schließen und Eingaben leeren (BD-11).
+**Ein Ablauf für beide Knöpfe** (der Buchungsdialog aus dem Grundriss und das Tische-Panel): Sperre → Werte zum Klickzeitpunkt in Variablen → Termine berechnen (wie bisher: Kappung auf Start + 14 Tage, Wochentage). Der unerreichbare Zweig „Taeglich“ entfällt (BD-24, `varWiederholenModus` wird nur auf „Wochentage“ gesetzt, belegt) → Plausibilität mit je eigener Meldung → **eine** Abfrage „Tisch belegt?“ und **eine** „ich schon gebucht?“, beide nur im Zeitraum der Serie (K4.1, delegierbar) → je Termin frei / Tisch belegt / ich belegt → **Sammel-Patch** der freien Termine mit gemeinsamer `SerienID` → `Refresh` → **Nachlese** (dieselbe Zeitraum-Abfrage; das `Refresh` davor stellt sicher, dass sie vom Server kommt und nicht aus dem Zwischenspeicher): Wie viele meiner Zeilen sind wirklich angekommen? Hat jemand mit kleinerer ID gleichzeitig denselben Tisch gebucht (Regel der Handy-App, nimmt nichts automatisch zurück)? → eine Meldung → nur wenn etwas gebucht wurde: Dialog schließen und Eingaben leeren (BD-11).
 
 **Warum `SerienID` jetzt geschrieben wird:** Die Spalte gibt es schon (Text, filterbar, belegt in `DataSources.json`), sie war nur nie befüllt. So lässt sich nach dem Sammel-Patch exakt zählen, was angekommen ist (Frage 14), und eine Serie später gemeinsam finden (E-4). Der Aufräum-Flow wird nicht berührt (geschlussfolgert, er löscht nach Datum).
 
@@ -817,7 +819,7 @@ Ort: `Screen1 > conBuchungDialog > btnSpeichern`
 
 ```
 If(
-  !varIsLoading && Now() >= varSperreBis;
+  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis);
   Set(varIsLoading; true);;
   Set(varNeuTischTitel; varSelectedTisch.Titel);;
   Set(varNeuTischID; varSelectedTisch.ID);;
@@ -884,7 +886,8 @@ If(
           "Nichts gebucht: An allen " & varNeuGesamt & " Terminen ist der Tisch belegt oder du hast schon einen Tisch."
         );
         NotificationType.Warning
-      );
+      );;
+      Refresh(Tischbuchungen);
       Set(varSerienID; Text(GUID()));;
       IfError(
         Patch(
@@ -911,6 +914,7 @@ If(
         Set(varNeuFehler; true);
         Set(varNeuFehler; false)
       );;
+      Refresh(Tischbuchungen);;
       ClearCollect(colNeuNachlese; Filter(Tischbuchungen; Tisch.Value = varNeuTischTitel && Startzeit < varNeuSpanEnde && Endzeit > varNeuSpanStart));;
       Set(varNeuAnzahl; CountRows(Filter(colNeuNachlese; SerienID = varSerienID)));;
       Set(varNeuKonflikt; CountRows(Filter(colNeuNachlese As N; N.SerienID = varSerienID && !IsBlank(LookUp(colNeuNachlese As M; M.ID < N.ID && M.Startzeit < N.Endzeit && M.Endzeit > N.Startzeit).ID))));;
@@ -944,7 +948,6 @@ If(
         Set(varTagSo; false)
       )
     );;
-    Refresh(Tischbuchungen);;
     With({neu: ForAll(Filter(Tischbuchungen; (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(); 60; TimeUnit.Minutes))) As B; {TischName: B.Tisch.Value; Startzeit: B.Startzeit; Endzeit: B.Endzeit; Eingecheckt: B.CheckedIn; Name: B.Person.DisplayName})}; If(IsError(neu) || IsError(First(neu)); Notify("Grundriss konnte nicht aktualisiert werden. Bitte auf Aktualisieren tippen."; NotificationType.Warning); ClearCollect(colGrundriss; neu)))
   );;
   Set(varSperreBis; DateAdd(Now(); 2; TimeUnit.Seconds));;
@@ -972,7 +975,7 @@ Ort: `Screen1 > conTischBuchungenPanel > btnSpeichernTischePanel`
 
 ```
 If(
-  !varIsLoading && Now() >= varSperreBis;
+  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis);
   Set(varIsLoading; true);;
   Set(varNeuTischTitel; ddTischePanel.Selected.Titel);;
   Set(varNeuTischID; ddTischePanel.Selected.ID);;
@@ -1039,7 +1042,8 @@ If(
           "Nichts gebucht: An allen " & varNeuGesamt & " Terminen ist der Tisch belegt oder du hast schon einen Tisch."
         );
         NotificationType.Warning
-      );
+      );;
+      Refresh(Tischbuchungen);
       Set(varSerienID; Text(GUID()));;
       IfError(
         Patch(
@@ -1066,6 +1070,7 @@ If(
         Set(varNeuFehler; true);
         Set(varNeuFehler; false)
       );;
+      Refresh(Tischbuchungen);;
       ClearCollect(colNeuNachlese; Filter(Tischbuchungen; Tisch.Value = varNeuTischTitel && Startzeit < varNeuSpanEnde && Endzeit > varNeuSpanStart));;
       Set(varNeuAnzahl; CountRows(Filter(colNeuNachlese; SerienID = varSerienID)));;
       Set(varNeuKonflikt; CountRows(Filter(colNeuNachlese As N; N.SerienID = varSerienID && !IsBlank(LookUp(colNeuNachlese As M; M.ID < N.ID && M.Startzeit < N.Endzeit && M.Endzeit > N.Startzeit).ID))));;
@@ -1107,7 +1112,6 @@ If(
         Set(varEndeOverridePanel; "")
       )
     );;
-    Refresh(Tischbuchungen);;
     With({neu: ForAll(Filter(Tischbuchungen; (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(); 60; TimeUnit.Minutes))) As B; {TischName: B.Tisch.Value; Startzeit: B.Startzeit; Endzeit: B.Endzeit; Eingecheckt: B.CheckedIn; Name: B.Person.DisplayName})}; If(IsError(neu) || IsError(First(neu)); Notify("Grundriss konnte nicht aktualisiert werden. Bitte auf Aktualisieren tippen."; NotificationType.Warning); ClearCollect(colGrundriss; neu)))
   );;
   Set(varSperreBis; DateAdd(Now(); 2; TimeUnit.Seconds));;
@@ -1127,9 +1131,9 @@ If(varIsLoading || IsBlank(ddTischePanel.Selected.Titel); DisplayMode.Disabled; 
 
 ## Teil C: Tischauswahl im Tische-Panel
 
-**Ablauf im Panel neu: erst Datum und Zeit, dann Tisch.** Die Tischliste rechnet mit denselben Terminen wie der Speichern-Knopf und holt dafür **eine** Abfrage „alle Buchungen im Zeitraum“ (delegierbar), dann wird lokal gerechnet. Die Liste zeigt nur Tische, die an **mindestens einem** Termin frei sind. Bei Serien steht dahinter z. B. „(an 2 von 10 Tagen belegt)“. Sortierung: ganz freie zuerst, dann das gerade gewählte Stockwerk, dann nach Nummer (Muster aus der Handy-App, `Desk 2` vor `Desk 10`). Bei geschlossenem Panel fragt die Liste nichts ab.
+**Ablauf im Panel neu: erst Datum und Zeit, dann Tisch.** Die Tischliste rechnet mit denselben Terminen wie der Speichern-Knopf. Dafür holt sie **eine** Abfrage „alle Buchungen der betroffenen Tage“ (ganze Tage vom Startdatum bis zum letzten Serientag). Die Grenzen stehen direkt als Steuerelement-Ausdrücke im Filter, nicht als `With`-Werte, denn das ist laut Messung in der Handy-App die delegierbare Form (APP_WISSEN). Danach wird lokal minutengenau gerechnet. Die Liste zeigt nur Tische, die an **mindestens einem** Termin frei sind. Bei Serien steht dahinter z. B. „(an 2 von 10 Tagen belegt)“. Sortierung: ganz freie zuerst, dann das gerade gewählte Stockwerk, dann nach Nummer (Muster aus der Handy-App, `Desk 2` vor `Desk 10`). Bei geschlossenem Panel fragt die Liste `Tischbuchungen` nicht ab (`Tische` wird aus dem Zwischenspeicher gelesen). Die Liste berücksichtigt nur „Tisch belegt“, nicht „du hast zu der Zeit schon einen Tisch“. Das prüft erst Speichern (E2).
 
-**Sicherheitsnetz (wichtig):** Ändert sich die Zeit, nachdem ein Tisch gewählt wurde, berechnet sich die Liste neu. Ob die klassische Auswahlliste den gewählten Tisch dann behält oder leert, ist UNSICHER (U-C1). Deshalb ist kein Tisch vorausgewählt (`Default` leer, `AllowEmptySelection` an), Speichern ist ohne Tisch grau, die Erfolgsmeldung nennt den Tisch, und Speichern prüft am Server noch einmal. Ein stiller Wechsel auf einen anderen Tisch ist so ausgeschlossen (geschlussfolgert).
+**Sicherheitsnetz (wichtig):** Ändert sich die Zeit, nachdem ein Tisch gewählt wurde, berechnet sich die Liste neu. Ob die klassische Auswahlliste den gewählten Tisch dann behält oder leert, ist UNSICHER (U-C1). Deshalb ist kein Tisch vorausgewählt (`Default` leer, `AllowEmptySelection` an), Speichern ist ohne Tisch grau, die Erfolgsmeldung nennt den Tisch, und Speichern prüft am Server noch einmal. Gebucht wird immer der Tisch, der beim Klick sichtbar gewählt ist. Ein unbemerkter Wechsel ist damit unwahrscheinlich, aber nicht bewiesen (UNSICHER, U-C1).
 
 **Optional, nicht nötig:** Die Tischauswahl im Panel nach unten unter die Zeit ziehen (nur Y-Position), damit die Reihenfolge auf dem Bildschirm der Logik folgt.
 
@@ -1163,33 +1167,39 @@ With(
       };
       With(
         {
-          spanStart: If(IsEmpty(termine); datum + startZeit; First(termine).Start);
-          spanEnde: If(IsEmpty(termine); datum + endeZeit; Last(termine).Ende)
-        };
-        With(
-          { belegt: If(varZeigeTischBuchungForm; ForAll(Filter(Tischbuchungen; Startzeit < spanEnde && Endzeit > spanStart); {TischName: Tisch.Value; Beginn: Startzeit; Schluss: Endzeit})) };
-          SortByColumns(
-            Filter(
-              ForAll(
-                Tische As X;
-                With(
-                  { n: CountRows(Filter(termine As Z; !IsBlank(LookUp(belegt; TischName = X.Titel && Beginn < Z.Ende && Schluss > Z.Start).TischName))) };
-                  {
-                    Titel: X.Titel;
-                    ID: X.ID;
-                    Belegt: n;
-                    Etage: If(X.Geschoss.Value = varAusgewaehltesStockwerk; 0; 1);
-                    Schluessel: X.Geschoss.Value & Left(X.Titel; Len(X.Titel) - Len(Last(Split(X.Titel; " ")).Value)) & Text(IfError(Value(Last(Split(X.Titel; " ")).Value); 0); "000");
-                    Anzeige: X.Titel & If(n = 0; ""; "  (an " & n & " von " & CountRows(termine) & " Tagen belegt)")
-                  }
-                )
+          belegtListe: If(
+            varZeigeTischBuchungForm;
+            ForAll(
+              Filter(
+                Tischbuchungen;
+                Startzeit < DateAdd(dpDatumTischePanel.SelectedDate; If(varWiederholen && dpWiederholenBis_1.SelectedDate > dpDatumTischePanel.SelectedDate; Min(DateDiff(dpDatumTischePanel.SelectedDate; dpWiederholenBis_1.SelectedDate; TimeUnit.Days); 14); 0) + 1; TimeUnit.Days) && Endzeit > dpDatumTischePanel.SelectedDate
               );
-              !("big table" in Lower(Titel)) && (Belegt = 0 || Belegt < CountRows(termine))
+              {TischName: Tisch.Value; Beginn: Startzeit; Schluss: Endzeit}
             );
-            "Belegt"; SortOrder.Ascending;
-            "Etage"; SortOrder.Ascending;
-            "Schluessel"; SortOrder.Ascending
+            FirstN(Table({TischName: ""; Beginn: Now(); Schluss: Now()}); 0)
           )
+        };
+        SortByColumns(
+          Filter(
+            ForAll(
+              Tische As Ti;
+              With(
+                { n: CountRows(Filter(termine As Z; !IsBlank(LookUp(belegtListe; TischName = Ti.Titel && Beginn < Z.Ende && Schluss > Z.Start).TischName))) };
+                {
+                  Titel: Ti.Titel;
+                  ID: Ti.ID;
+                  Belegt: n;
+                  Etage: If(Ti.Geschoss.Value = varAusgewaehltesStockwerk; 0; 1);
+                  Schluessel: Ti.Geschoss.Value & Left(Ti.Titel; Len(Ti.Titel) - Len(Last(Split(Ti.Titel; " ")).Value)) & Text(IfError(Value(Last(Split(Ti.Titel; " ")).Value); 0); "000");
+                  Anzeige: Ti.Titel & If(n = 0; ""; "  (an " & n & " von " & CountRows(termine) & " Tagen belegt)")
+                }
+              )
+            );
+            !("big table" in Lower(Titel)) && (Belegt = 0 || Belegt < CountRows(termine))
+          );
+          "Belegt"; SortOrder.Ascending;
+          "Etage"; SortOrder.Ascending;
+          "Schluessel"; SortOrder.Ascending
         )
       )
     )
@@ -1223,7 +1233,7 @@ Ort: `Screen1 > conTischBuchungenPanel > ddTischePanel`
 Blank()
 ```
 
-**Test:** (1) Panel öffnen: kein Tisch gewählt, Speichern grau. (2) Heute 09:00–10:00: belegte Tische fehlen, Big Table fehlt, Stockwerk des Grundrisses zuerst, `OG Desk 2` vor `OG Desk 10`. (3) Wiederholen Mo–Fr: Tische mit Hinweis „(an x von y Tagen belegt)“ stehen hinten. (4) Zeit ändern, nachdem ein Tisch gewählt war: Wird die Auswahl geleert oder bleibt sie? → im Testbogen notieren (U-C1). (5) App-Prüfung: Delegierungswarnung bei `ddTischePanel.Items` → notieren (U-V3).
+**Test:** (1) Panel öffnen: kein Tisch gewählt, Speichern grau. (2) Morgen 09:00–10:00 (heute beginnt die Startliste erst bei der nächsten halben Stunde): belegte Tische fehlen, Big Table fehlt, Stockwerk des Grundrisses zuerst, `OG Desk 2` vor `OG Desk 10`. (3) Wiederholen Mo–Fr: Tische mit Hinweis „(an x von y Tagen belegt)“ stehen hinten. (4) Zeit ändern, nachdem ein Tisch gewählt war: Wird die Auswahl geleert oder bleibt sie? → im Testbogen notieren (U-C1). (5) App-Prüfung: Warnung bei `ddTischePanel.Items` → **Wortlaut notieren** (U-V3). Eine Warnung an `Tische`/`ForAll` ist erwartet und harmlos. Eine Warnung an `Startzeit`/`Endzeit` heißt, dass die Abfrage nicht delegiert wird: dann melden.
 
 ### C2 `btnTischHinzufügen.OnSelect`
 
@@ -1293,7 +1303,7 @@ With(
         IsBlank(ddTischePanel.Selected.Titel);
         DisplayMode.Edit;
         If(
-          IsBlank(LookUp(Tischbuchungen; Tisch.Value = ddTischePanel.Selected.Titel && Startzeit < endeZeit && Endzeit > startZeit).ID);
+          IsBlank(LookUp(Tischbuchungen; Tisch.Value = ddTischePanel.Selected.Titel && Startzeit < DateAdd(dpDatumTischePanel.SelectedDate; If(dpDatumTischePanel.SelectedDate = Today(); 30 * RoundUp((Hour(Now())*60 + Minute(Now())) / 30; 0); 8 * 60) + 5 * 60; TimeUnit.Minutes) && Endzeit > DateAdd(dpDatumTischePanel.SelectedDate; If(dpDatumTischePanel.SelectedDate = Today(); 30 * RoundUp((Hour(Now())*60 + Minute(Now())) / 30; 0); 8 * 60); TimeUnit.Minutes)).ID);
           DisplayMode.Edit;
           DisplayMode.Disabled
         )
@@ -1329,7 +1339,7 @@ Ort: `Screen1 > conTischBuchungenPanel > btn5Std`
            ColorFade(ColorValue("#00A96B"); 70%);
            If(
 -            CountRows(Filter(Tischbuchungen; Tisch.Value = ddTischePanel.Selected.Titel && Startzeit < endeZeit && Endzeit > startZeit)) = 0;
-+            IsBlank(LookUp(Tischbuchungen; Tisch.Value = ddTischePanel.Selected.Titel && Startzeit < endeZeit && Endzeit > startZeit).ID);
++            IsBlank(LookUp(Tischbuchungen; Tisch.Value = ddTischePanel.Selected.Titel && Startzeit < DateAdd(dpDatumTischePanel.SelectedDate; If(dpDatumTischePanel.SelectedDate = Today(); 30 * RoundUp((Hour(Now())*60 + Minute(Now())) / 30; 0); 8 * 60) + 5 * 60; TimeUnit.Minutes) && Endzeit > DateAdd(dpDatumTischePanel.SelectedDate; If(dpDatumTischePanel.SelectedDate = Today(); 30 * RoundUp((Hour(Now())*60 + Minute(Now())) / 30; 0); 8 * 60); TimeUnit.Minutes)).ID);
              ColorFade(ColorValue("#00A96B"); 70%);
              ColorFade(ColorValue("#EB3951"); 70%)
 ```
@@ -1355,7 +1365,7 @@ With(
           !varZeigeTischBuchungForm || IsBlank(ddTischePanel.Selected.Titel);
           ColorFade(ColorValue("#00A96B"); 70%);
           If(
-            IsBlank(LookUp(Tischbuchungen; Tisch.Value = ddTischePanel.Selected.Titel && Startzeit < endeZeit && Endzeit > startZeit).ID);
+            IsBlank(LookUp(Tischbuchungen; Tisch.Value = ddTischePanel.Selected.Titel && Startzeit < DateAdd(dpDatumTischePanel.SelectedDate; If(dpDatumTischePanel.SelectedDate = Today(); 30 * RoundUp((Hour(Now())*60 + Minute(Now())) / 30; 0); 8 * 60) + 5 * 60; TimeUnit.Minutes) && Endzeit > DateAdd(dpDatumTischePanel.SelectedDate; If(dpDatumTischePanel.SelectedDate = Today(); 30 * RoundUp((Hour(Now())*60 + Minute(Now())) / 30; 0); 8 * 60); TimeUnit.Minutes)).ID);
             ColorFade(ColorValue("#00A96B"); 70%);
             ColorFade(ColorValue("#EB3951"); 70%)
           )
@@ -1434,7 +1444,7 @@ With(
         IsBlank(ddTischePanel.Selected.Titel);
         DisplayMode.Edit;
         If(
-          IsBlank(LookUp(Tischbuchungen; Tisch.Value = ddTischePanel.Selected.Titel && Startzeit < endeZeit && Endzeit > startZeit).ID);
+          IsBlank(LookUp(Tischbuchungen; Tisch.Value = ddTischePanel.Selected.Titel && Startzeit < DateAdd(dpDatumTischePanel.SelectedDate; If(dpDatumTischePanel.SelectedDate = Today(); 30 * RoundUp((Hour(Now())*60 + Minute(Now())) / 30; 0); 8 * 60) + 9 * 60; TimeUnit.Minutes) && Endzeit > DateAdd(dpDatumTischePanel.SelectedDate; If(dpDatumTischePanel.SelectedDate = Today(); 30 * RoundUp((Hour(Now())*60 + Minute(Now())) / 30; 0); 8 * 60); TimeUnit.Minutes)).ID);
           DisplayMode.Edit;
           DisplayMode.Disabled
         )
@@ -1470,7 +1480,7 @@ Ort: `Screen1 > conTischBuchungenPanel > btn9Std`
            ColorFade(ColorValue("#00A96B"); 70%);
            If(
 -            CountRows(Filter(Tischbuchungen; Tisch.Value = ddTischePanel.Selected.Titel && Startzeit < endeZeit && Endzeit > startZeit)) = 0;
-+            IsBlank(LookUp(Tischbuchungen; Tisch.Value = ddTischePanel.Selected.Titel && Startzeit < endeZeit && Endzeit > startZeit).ID);
++            IsBlank(LookUp(Tischbuchungen; Tisch.Value = ddTischePanel.Selected.Titel && Startzeit < DateAdd(dpDatumTischePanel.SelectedDate; If(dpDatumTischePanel.SelectedDate = Today(); 30 * RoundUp((Hour(Now())*60 + Minute(Now())) / 30; 0); 8 * 60) + 9 * 60; TimeUnit.Minutes) && Endzeit > DateAdd(dpDatumTischePanel.SelectedDate; If(dpDatumTischePanel.SelectedDate = Today(); 30 * RoundUp((Hour(Now())*60 + Minute(Now())) / 30; 0); 8 * 60); TimeUnit.Minutes)).ID);
              ColorFade(ColorValue("#00A96B"); 70%);
              ColorFade(ColorValue("#EB3951"); 70%)
 ```
@@ -1496,7 +1506,7 @@ With(
           !varZeigeTischBuchungForm || IsBlank(ddTischePanel.Selected.Titel);
           ColorFade(ColorValue("#00A96B"); 70%);
           If(
-            IsBlank(LookUp(Tischbuchungen; Tisch.Value = ddTischePanel.Selected.Titel && Startzeit < endeZeit && Endzeit > startZeit).ID);
+            IsBlank(LookUp(Tischbuchungen; Tisch.Value = ddTischePanel.Selected.Titel && Startzeit < DateAdd(dpDatumTischePanel.SelectedDate; If(dpDatumTischePanel.SelectedDate = Today(); 30 * RoundUp((Hour(Now())*60 + Minute(Now())) / 30; 0); 8 * 60) + 9 * 60; TimeUnit.Minutes) && Endzeit > DateAdd(dpDatumTischePanel.SelectedDate; If(dpDatumTischePanel.SelectedDate = Today(); 30 * RoundUp((Hour(Now())*60 + Minute(Now())) / 30; 0); 8 * 60); TimeUnit.Minutes)).ID);
             ColorFade(ColorValue("#00A96B"); 70%);
             ColorFade(ColorValue("#EB3951"); 70%)
           )
@@ -1551,7 +1561,7 @@ Reset(ddEndTischePanel)
 
 **Test:** wie C3 mit 9 Std (morgen 08:00–17:00).
 
-### C5 `Label14.Text`
+### C5 `Label14.Text`, `Label14.Color`
 
 Ort: `Screen1 > conTischBuchungenPanel > Label14`
 
@@ -1577,7 +1587,31 @@ If(
 )
 ```
 
-**Test:** Panel → Wiederholen an → Bis-Datum 3 Wochen nach dem Panel-Datum → Text „*Zu weit gewählt …“. Vorher las der Text das Datum aus dem Buchungsdialog.
+Ort: `Screen1 > conTischBuchungenPanel > Label14`
+
+Änderung an `Label14.Color` (rot = weg, grün = neu, Rest unverändert):
+```diff
+--- 
++++ 
+@@ -1,4 +1,4 @@
+ If(
+-  DateDiff(dpDatum.SelectedDate; dpWiederholenBis_1.SelectedDate; TimeUnit.Days) > 14;
++  DateDiff(dpDatumTischePanel.SelectedDate; dpWiederholenBis_1.SelectedDate; TimeUnit.Days) > 14;
+   ColorValue("#EB3951");
+   RGBA(50; 49; 48; 1)
+```
+
+**Einfügen: ganze Property `Label14.Color` ersetzen durch**
+
+```
+If(
+  DateDiff(dpDatumTischePanel.SelectedDate; dpWiederholenBis_1.SelectedDate; TimeUnit.Days) > 14;
+  ColorValue("#EB3951");
+  RGBA(50; 49; 48; 1)
+)
+```
+
+**Test:** Panel → Wiederholen an → Bis-Datum 3 Wochen nach dem Panel-Datum → Text „*Zu weit gewählt …“. Der Text wird rot. Vorher lasen Text und Farbe das Datum aus dem Buchungsdialog, sodass sie sich widersprechen konnten.
 
 ## Teil D: Kleinigkeiten
 
@@ -1612,7 +1646,7 @@ Set(varAusgewaehltePlusDauer; Blank())
 
 ```
 
-**Test:** Stockwerk wechseln, danach eine Buchung verwalten → keine Dauer vorausgewählt, Verlängern grau.
+**Test:** Tab „Buchungen“ → Verwalten → +1 wählen, Dialog offen lassen. Tab Dashboard → Stockwerk wechseln → zurück zum Tab: Speichern ist grau (vorher war die Dauer `0`, und Speichern hätte „+0 Minuten“ geschrieben).
 
 ### D2 `Icon1.OnSelect`, `Icon1_1.OnSelect`, `Image6.OnSelect`, `btnHitArea_1.OnSelect`
 
@@ -1668,7 +1702,7 @@ With({neu: ForAll(Filter(Tischbuchungen; (Endzeit > varAnsichtsDatum && Startzei
 Set(varIsLoading; false)
 ```
 
-**Test:** Aktualisieren (Dashboard, Buchungen, Kopfzeile, Profil) → „Aktualisiert.“. WLAN aus → nur die gelbe Grundriss-Warnung, nicht zusätzlich „Aktualisiert.“.
+**Test:** Aktualisieren (Dashboard, Buchungen, Kopfzeile, Profil) → „Aktualisiert.“. WLAN aus → **kein** „Aktualisiert.“, dafür die gelbe Warnung „… Bitte erneut auf Aktualisieren tippen.“ (Text leicht geändert). Ein zusätzliches Fehlerbanner von Power Apps ist möglich, weil `Refresh` selbst nicht abgefangen ist (UNSICHER).
 
 ### D3 `btnStornierenKlein.OnSelect`
 
@@ -1680,7 +1714,7 @@ Ort: `Screen1 > conBuchungen > conVerwaltenKlein > btnStornierenKlein`
 
 ```
 If(
-  !varIsLoading && Now() >= varSperreBis;
+  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis);
   Set(varIsLoading; true);;
   ClearCollect(
       colStornoFrisch;
@@ -1752,21 +1786,22 @@ Reset(chkWiederholenPanel)
 - **Teil A zurück:** A3 bis A5 brauchen die Grenze aus A1/A2. Deshalb Teil A **ganz** zurücknehmen oder ganz behalten. B, C, D sind davon unabhängig.
 - **Teil B zurück:** B1/B2 einzeln möglich. Bereits geschriebene `SerienID`-Werte stören nicht.
 - **Teil C zurück:** C1 (vier Properties) zusammen zurücknehmen, sonst passt `Items.Value` nicht zu `Items`.
-- **Schritt 0** zuletzt zurücknehmen: Ohne ihn sind alle Knöpfe mit Sperre ab App-Start 2 s gesperrt, danach normal (U-V1).
+- **Schritt 0** kann jederzeit zurück: Die Sperre fängt ein leeres `varSperreBis` ab.
 - **Komplett:** `.msapp`-Export oder Versionsverlauf.
 
 ## UNSICHER (mit Prüftest)
 | # | Unsicherheit | Folge, falls falsch | Test |
 |---|---|---|---|
-| U-V1 | `Now() >= varSperreBis` mit leerem `varSperreBis`, falls Schritt 0 fehlt oder `OnStart` später fertig wird (nicht blockierendes OnStart) | Knopf reagiert in den ersten Sekunden nicht | Schritt 0 zuerst; direkt nach dem Start buchen |
+| U-V1 | ~~Leeres `varSperreBis`~~ **erledigt:** Die Sperre prüft `IsBlank(varSperreBis) \|\| Now() >= varSperreBis`. Unsicher war, ob `Now() >= Blank()` wahr ist (Prüfbefund R3) | – | – |
 | U-V2 | Die 2-Sekunden-Sperre fängt den eingereihten Zweitklick auch in der **PC**-App (in der Handy-App gemessen, gleiche App-Einstellungen, belegt `Properties.json`) | Doppelte Buchung/Verlängerung bei Doppelklick | Doppelklick-Tests A6, A7, B1 (6), D3 |
-| U-V3 | `ddTischePanel.Items`: `ForAll(Tische …)` ist nicht delegierbar (Tische hat 34 Zeilen, belegt), deshalb vermutlich eine neue Delegierungswarnung. Die Abfrage auf `Tischbuchungen` ist delegierbar (nur `<`/`>` auf DateTime) | nur Warnung, kein Fehler, solange Tische < Datenzeilenlimit | App-Prüfung nach C1 |
-| U-V4 | Datenzeilenlimit: Die Panel-Liste holt bei einer 2-Wochen-Serie **alle** Buchungen aller Tische im Zeitraum. Bei voller Auslastung über 500 Zeilen möglich (34 Tische × 15 Tage) | Liste zeigt einen Tisch als frei, der belegt ist. **Speichern prüft trotzdem richtig** (eigene, engere Abfrage) | App-Einstellungen → „Datenzeilenlimit“ ansehen und melden (Standard 500, max. 2000) |
+| U-V3 | `ddTischePanel.Items`: `ForAll(Tische …)` ist nicht delegierbar (34 Zeilen, harmlos). Ob die Abfrage auf `Tischbuchungen` delegiert wird, ist UNSICHER. Die Grenzen stehen direkt im Filter (Form „ohne Warnung“ laut Handy-App), sind aber mit `If`/`Min`/`DateDiff` zusammengesetzt | Wird nicht delegiert: Die Liste rechnet nur mit den ersten 1.000 Zeilen der ganzen Liste und zeigt belegte Tische als frei. **Speichern prüft trotzdem richtig** | App-Prüfung nach C1: Warnung an `Startzeit`/`Endzeit` in `ddTischePanel.Items`? Dann melden, ich erzeuge eine einfachere Form |
+| U-V4 | Datenzeilenlimit: Die App steht auf **1.000** (belegt, `Properties.json`). Bei einer 2-Wochen-Serie holt die Panel-Liste alle Buchungen aller Tische an 15 Tagen, das sind höchstens einige hundert (34 Tische × 15 Tage × wenige Buchungen pro Tag) | Erst bei sehr voller Belegung würde die Liste unvollständig, Speichern prüft trotzdem richtig | keiner nötig. Nur relevant, wenn U-V3 zutrifft |
 | U-C1 | Behält die klassische Auswahlliste den gewählten Tisch, wenn sich `Items` neu berechnet? | Nutzer muss den Tisch nach einer Zeitänderung neu wählen (lästig, nicht gefährlich, siehe Sicherheitsnetz in Teil C) | C1-Test (4) |
 | U-B1 | `SerienID` wird beim Sammel-Patch mitgeschrieben (Spalte vorhanden, read-write, belegt). Wenn nicht: Nachlese zählt 0 → Meldung „nicht angekommen“, obwohl gebucht ist | falsche rote Meldung. Ein erneuter Klick bucht **nicht** doppelt (Prüfung findet die eigene Buchung) | B1-Test (1): `SerienID` in der Liste gefüllt? |
 | U-B2 | `Text(GUID())` liefert Text (App-Einstellung `useguiddatatypes` an, belegt) | rote Formel | App-Prüfung nach B1 |
 | U-A1 | Gleichheit `Endzeit = varVerlEndeNeu` in der Nachlese (Muster aus der Handy-App) | falsche Meldung „nicht angekommen“ trotz Erfolg | A6-Test (1) |
 | U-A2 | `First(Sort(Filter(…); Startzeit; SortOrder.Ascending))` ist delegierbar (Sort auf DateTime bei SharePoint) | Delegierungswarnung bei A1/A2 | App-Prüfung nach A1 |
+| U-B3 | Ein Lesefehler (Netz weg) beim frischen `LookUp` gilt als „gibt es nicht mehr“ (A6–A10), eine gescheiterte Vorprüfung in B1/B2 als „alles frei“. So verhält sich auch die Handy-App. Die Nachlese meldet eine Doppelbuchung dann hinterher | seltene irreführende Meldung | hinnehmen (Prüfbefund H12) |
 | U-A3 | Mehrarmiges `If` mit Anweisungsketten in den Zweigen bei `powerfxv1 = false`. In der Handy-App mit denselben Einstellungen in Betrieb (belegt) | rote Formel | App-Prüfung nach A6 |
 
 ## Testbogen (abhaken, Ergebnis kurz melden)
@@ -1782,7 +1817,7 @@ Reset(chkWiederholenPanel)
 | ☐ | C1 Tischliste (frei, sortiert, Big Table, Serienhinweis; U-C1 notieren) | | |
 | ☐ | C2–C5 Panel öffnen, 5/9 Std, Hinweistext | | |
 | ☐ | D1–D4 Kleinigkeiten | | |
-| ☐ | App-Prüfung: Anzahl Einträge vorher 134, nachher ___, neue Formelfehler ___ | | |
+| ☐ | App-Prüfung: Anzahl Einträge vorher 134, nachher ___ (erwartet etwa 87 plus wenige), neue Formelfehler ___ | | |
 | ☐ | Monitor (optional): Serie 11 Termine über das Panel, nur diese Aktion | | erwartet deutlich unter 96 `getRows` (keine Abfragen der Dauer-Knöpfe mehr) |
 
 ## Unabhängige Prüfung
@@ -1803,7 +1838,35 @@ Reset(chkWiederholenPanel)
 **Weitere Funde beim Lesen des ganzen Exports (v2 behebt sie):** `ddStockwerk.OnSelect` setzt die Dauer auf `0` (BD-12). Die vier Aktualisieren-Knöpfe überdecken die Grundriss-Warnung (BD-10). Das Panel liest im Hinweistext das falsche Datum (BD-26). Die Panel-Knöpfe 5/9 Std fragen auch bei geschlossenem Panel ab. `chkAuswahl.X` liest schon `btnVerwalten_2` (**BD-18 ist bereits erledigt**, belegt).
 
 ### b) Prüfung von v2
-Noch ausstehend.
+Ein unabhängiger Prüf-Agent hat v2 geprüft: frischer Kontext, nur Dateien und Prüfauftrag, eigene Skripte. Der vollständige Bericht liegt in `arbeit/2026-10-07_PaketK_v2/pruefung_v2_roh.md`. **Urteil: einfügebereit nach Korrekturen.** Ohne Befund blieben:
+- Alle Originale sind zeichengleich mit dem Export.
+- Eine eigene Rückübersetzung deutsch → englisch ergibt für alle Blöcke genau die Vorlage.
+- Keine Variable wird mit zwei Typen gesetzt.
+- `varIsLoading` wird auf jedem Ast zurückgesetzt.
+- Die Grenze-Logik (A1–A5) ist gleichwertig zur alten Kollisionsprüfung, plus 22:00.
+- Kappung, Wochentage und Aufräumblöcke in B1/B2 entsprechen dem Original.
+- Alle Namen existieren, die Zuordnung „Dashboard-Dialog“ stimmt.
+
+| Nr | Befund | Schwere | Umgang in dieser Fassung |
+|---|---|---|---|
+| F1 | C5 korrigiert nur `Label14.Text`, `Label14.Color` liest weiter das falsche Datum | Fehler | **behoben:** `Label14.Color` ist in C5 aufgenommen |
+| R1 | C1: With-Werte im Server-Filter. In der Handy-App gemessen: Das erzeugt eine Delegierungswarnung | Risiko | **behoben:** Die Grenzen stehen direkt als Steuerelement-Ausdrücke im Filter (ganze Tage). Gleich umgestellt: C3/C4 (5/9 Std). Neue automatische Prüfung: Kein Server-Prädikat im Paket nutzt With-Werte (Anhang 2). Rest-Unsicherheit U-V3 |
+| R2 | C1: Alias `X` heißt wie die Spalte `X` der Liste `Tische`, und `belegt`/`Belegt` unterscheiden sich nur in der Schreibweise | Risiko | **behoben:** Alias `Ti`, Name `belegtListe` |
+| R3 | Schritt 0: Studio führt OnStart nicht neu aus. Ob `Now() >= Blank()` wahr ist, ist unsicher; die Begründung „2 s gesperrt“ war falsch | Risiko | **behoben:** Die Sperre fängt `IsBlank(varSperreBis)` ab. Die Startwerte stehen am Anfang von OnStart. „OnStart ausführen“ steht im Ablauf und im Test. Der Rückfall-Text ist korrigiert |
+| H1 | Das Lade-Overlay erscheint jetzt auch bei Verlängern, Stornieren und Einchecken; D2 ändert den Warntext | Hinweis | im Dokument ergänzt (Kurzfassung, Test D2) |
+| H2 | Die 2-s-Sperre gilt für alle Schreibknöpfe, nicht nur gegen den Doppelklick | Hinweis | in der Kurzfassung ergänzt |
+| H3 | Nach „inzwischen belegt“ bleiben die Plus-Knöpfe grün | Hinweis | **behoben:** Die Grenze wird auf das alte Ende gesetzt, die Plus-Knöpfe werden grau |
+| H4 | Das Datenzeilenlimit ist 1.000, nicht 500 | Hinweis | U-V4 korrigiert |
+| H5 | „Stiller Tischwechsel ausgeschlossen“ ist zu stark | Hinweis | umformuliert, U-C1 bleibt |
+| H6 | Die Nachlese könnte aus dem Zwischenspeicher kommen | Hinweis | **behoben:** `Refresh` steht jetzt vor der Nachlese (statt danach, also keine zusätzliche Abfragewelle) |
+| H7 | `If` ohne Else liefert eine Tabelle (C1) | Hinweis | **behoben:** Bei geschlossenem Panel kommt eine typgleiche leere Tabelle (`FirstN(Table(…); 0)`) |
+| H8 | Die Liste kennt „ich habe schon einen Tisch“ nicht | Hinweis | im Dokument erwähnt, bleibt so (Speichern prüft es) |
+| H9 | `Tische` wird auch bei geschlossenem Panel gelesen | Hinweis | Satz eingeschränkt |
+| H10 | Tests D1, C1(2) und D2 nicht aussagekräftig bzw. nicht ausführbar | Hinweis | alle drei Tests umgeschrieben |
+| H11 | 47 der 134 Prüf-Einträge liegen auf ersetzten Properties | Hinweis | Erwartungswert (etwa 87 plus wenige) im Ablauf und im Testbogen |
+| H12 | Lesefehler gilt als „gibt es nicht mehr“ bzw. „alles frei“ | Hinweis | als U-B3 aufgenommen, bleibt wie in der Handy-App |
+
+Nach den Korrekturen sind Generator und maschinelle Prüfung neu gelaufen: 0 Fehler (Anhang 2). Die Korrekturen selbst wurden **nicht** noch einmal unabhängig geprüft. Das ist die nächste Stufe der Prüfkette: App-Prüfung in Studio und Josias’ Tests.
 
 ## Bewusst nicht in diesem Paket
 | Vorhaben | Warum nicht jetzt |
@@ -2831,6 +2894,16 @@ If(
 )
 ```
 
+### `Label14.Color`
+
+```
+If(
+  DateDiff(dpDatum.SelectedDate; dpWiederholenBis_1.SelectedDate; TimeUnit.Days) > 14;
+  ColorValue("#EB3951");
+  RGBA(50; 49; 48; 1)
+)
+```
+
 ### `ddStockwerk.OnSelect`
 
 ```
@@ -2940,7 +3013,7 @@ Reset(chkWiederholenPanel)
 
 ```
 Erzeugt von werkzeuge/paket_k_v2.py aus dem Export vom 07.10.2026 (veröffentlicht, enthält L2).
-54 Properties in 22 Schritten, 34 neue Variablen/Collections (vorher in der App unbenutzt: geprüft).
+55 Properties in 22 Schritten, 34 neue Variablen/Collections (vorher in der App unbenutzt: geprüft).
 Je Property geprüft: Steuerelement im Export, Property vorhanden (ersetzen) bzw. noch nicht vorhanden (neu),
 Klammern (englisch und deutsch), keine Kommentare, deutsch -> englisch ergibt wieder exakt die Vorlage,
 alle var/col-Namen bekannt, alle Steuerelement-Namen im Export, Reset nur auf vorhandene Steuerelemente.
@@ -2966,9 +3039,9 @@ OK  A5   btnMinus2Std.DisplayMode             ersetzen     1 Zeilen  +1/-11
 OK  A5   btnMinus2Std.Fill                    ersetzen     9 Zeilen  +7/-16
 OK  A5   btnMinus3std.DisplayMode             ersetzen     1 Zeilen  +1/-11
 OK  A5   btnMinus3std.Fill                    ersetzen     9 Zeilen  +7/-16
-OK  A6   btnVerlängern.OnSelect               ersetzen    40 Zeilen  +38/-11
+OK  A6   btnVerlängern.OnSelect               ersetzen    41 Zeilen  +39/-11
 OK  A6   btnVerlängern.DisplayMode            neu          1 Zeilen  +0/-0
-OK  A7   btnVerlängern_1.OnSelect             ersetzen    40 Zeilen  +37/-13
+OK  A7   btnVerlängern_1.OnSelect             ersetzen    41 Zeilen  +38/-13
 OK  A7   btnVerlängern_1.DisplayMode          neu          1 Zeilen  +0/-0
 OK  A8   btnStornieren.OnSelect               ersetzen    24 Zeilen  +24/-2
 OK  A8   btnStornieren.DisplayMode            neu          1 Zeilen  +0/-0
@@ -2976,11 +3049,11 @@ OK  A9   btnStornieren_1.OnSelect             ersetzen    24 Zeilen  +22/-9
 OK  A9   btnStornieren_1.DisplayMode          neu          1 Zeilen  +0/-0
 OK  A10  btnEinchecken.OnSelect               ersetzen    26 Zeilen  +26/-6
 OK  A10  btnEinchecken.DisplayMode            neu          1 Zeilen  +0/-0
-OK  B1   btnSpeichern.OnSelect                ersetzen   134 Zeilen  +130/-109
+OK  B1   btnSpeichern.OnSelect                ersetzen   135 Zeilen  +131/-109
 OK  B1   btnSpeichern.DisplayMode             neu          1 Zeilen  +0/-0
-OK  B2   btnSpeichernTischePanel.OnSelect     ersetzen   142 Zeilen  +138/-105
+OK  B2   btnSpeichernTischePanel.OnSelect     ersetzen   143 Zeilen  +139/-105
 OK  B2   btnSpeichernTischePanel.DisplayMode  neu          1 Zeilen  +0/-0
-OK  C1   ddTischePanel.Items                  ersetzen    53 Zeilen  +53/-1
+OK  C1   ddTischePanel.Items                  ersetzen    59 Zeilen  +59/-1
 OK  C1   ddTischePanel.Items.Value            ersetzen     1 Zeilen  +1/-1
 OK  C1   ddTischePanel.AllowEmptySelection    neu          1 Zeilen  +0/-0
 OK  C1   ddTischePanel.Default                neu          1 Zeilen  +0/-0
@@ -2992,6 +3065,7 @@ OK  C4   btn9Std.DisplayMode                  ersetzen    23 Zeilen  +13/-5
 OK  C4   btn9Std.Fill                         ersetzen    27 Zeilen  +5/-5
 OK  C4   btn9Std.OnSelect                     ersetzen    22 Zeilen  +1/-1
 OK  C5   Label14.Text                         ersetzen     5 Zeilen  +1/-1
+OK  C5   Label14.Color                        ersetzen     5 Zeilen  +1/-1
 OK  D1   ddStockwerk.OnSelect                 ersetzen     9 Zeilen  +1/-1
 OK  D2   Icon1.OnSelect                       ersetzen     4 Zeilen  +2/-3
 OK  D2   Icon1_1.OnSelect                     ersetzen     4 Zeilen  +2/-3
@@ -3004,5 +3078,6 @@ Gesamtprüfungen auf dem Stand NACH dem Paket:
 OK  Schreibstellen auf Tischbuchungen (8): alle mit Zweifach-Sperre und L2-Ladezeile: btnEinchecken.OnSelect, btnSpeichern.OnSelect, btnSpeichernTischePanel.OnSelect, btnStornieren.OnSelect, btnStornierenKlein.OnSelect, btnStornieren_1.OnSelect, btnVerlängern.OnSelect, btnVerlängern_1.OnSelect
 OK  Kein Steuerelement im Tab-Dialog (conVerwaltenDialog_1) liest noch varSelectedBuchung (Befund B0 geschlossen)
 OK  Kein Plus-/Minus-Knopf fragt noch Tischbuchungen ab (vorher 24 Properties mit eigener Abfrage)
+OK  39 Server-Prädikate auf Tischbuchungen im Paket: keines nutzt With-Werte (nur Spalten, globale Variablen, Steuerelemente)
 OK  Jede neue Variable wird mindestens einmal gesetzt; keine Property doppelt im Paket
 ```

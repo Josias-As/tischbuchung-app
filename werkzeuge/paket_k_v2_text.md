@@ -1,17 +1,18 @@
 @@ kopf
 # ÜBERGABE Tischbuchung: Paket K v2 (Korrektheit, Verlängern, Speichern, Tischauswahl)
-**v2 · 07.10.2026 · Basis: veröffentlichter Export „Tischbuchung App 07.10.2026 verbesserung analyse“ (enthält L2) · alle 54 Properties maschinell aus diesem Export erzeugt und geprüft (`werkzeuge/paket_k_v2.py`, Anhang 2) · ersetzt `UEBERGABE_PaketK_v1.md` · noch nichts davon eingefügt**
+**v2 · 07.10.2026 · Basis: veröffentlichter Export „Tischbuchung App 07.10.2026 verbesserung analyse“ (enthält L2) · alle 55 Properties maschinell aus diesem Export erzeugt und geprüft (`werkzeuge/paket_k_v2.py`, Anhang 2) · unabhängig geprüft, Befunde eingearbeitet (Abschnitt „Unabhängige Prüfung“) · ersetzt `UEBERGABE_PaketK_v1.md` · noch nichts davon eingefügt**
 
 Kennzeichnung: **belegt** = im Export/Dokument nachgesehen · **gemessen** = Livemonitor oder Test · **geschlussfolgert** = abgeleitet, nicht getestet · **UNSICHER** = offen, mit Prüftest (Abschnitt UNSICHER).
 
 @@ kurzfassung
 ## 0. Kurzfassung
-- **v1 hatte einen echten Fehler.** Die Doppelklick-Sperre nur über `DisplayMode` hält nicht. Die Handy-App hat das am 06.10. gemessen: Ein Doppeltipp auf „+1 Std“ hat zweimal verlängert (belegt, `ENTSCHEIDUNGEN.md` E-07). v2 nutzt deshalb an allen 8 Schreibstellen die dort erprobte Zweifach-Sperre `If(!varIsLoading && Now() >= varSperreBis; …)`.
+- **v1 hatte einen echten Fehler.** Die Doppelklick-Sperre nur über `DisplayMode` hält nicht. Die Handy-App hat das am 06.10. gemessen: Ein Doppeltipp auf „+1 Std“ hat zweimal verlängert (belegt, `ENTSCHEIDUNGEN.md` E-07). v2 nutzt deshalb an allen 8 Schreibstellen die dort erprobte Zweifach-Sperre `If(!varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis); …)`. Folge: Nach jeder Speichern-, Verlängern-, Stornieren- oder Einchecken-Aktion reagiert 2 Sekunden lang **kein** Schreibknopf (still, ohne Meldung), und das Lade-Overlay erscheint jetzt auch beim Verlängern, Stornieren und Einchecken.
 - **Eine Regel für beide Apps.** v2 übernimmt die Regeln, die du für die Handy-App schon bestätigt hast: nie über 22:00, kein Buchen in der Vergangenheit, keine zwei Tische zur selben Zeit, Einchecken ab 30 Minuten vor Beginn. Außerdem dasselbe Schreibmuster: frisch lesen, prüfen, `IfError`, nachlesen, ehrlich melden. Die Formeln sind dort schon in Betrieb (belegt).
 - **Verwalten-Dialoge neu gedacht (Teil A).** Beim Öffnen wird **einmal** berechnet, bis wann die Buchung verlängert werden kann. Die 24 Plus-/Minus-Properties fragen danach **keine Daten mehr ab** (vorher je eine eigene Abfrage, auch bei geschlossenem Dialog, gemessen ~50 Abfragen pro Schreibvorgang). Befund B0 ist damit an der Wurzel weg: Der Tab liest seine eigene Buchung (statt der Ein-Zeilen-Lösung K1).
 - **Speichern (Teil B):** Beide Speichern-Knöpfe laufen gleich, beide mit Sammel-Patch. Neu dabei: Kollisionsprüfung mit Zeitfenster, Prüfung „du hast schon einen Tisch“, **`SerienID` wird geschrieben und nachgelesen** (ehrliche Anzahl statt lokaler Zählung), Erkennung gleichzeitiger Buchungen, **eine** Meldung mit allem. Bei einem Fehler bleiben die Eingaben stehen.
 - **Tischauswahl (Teil C):** Das Panel zeigt nur noch freie Tische, sortiert, ohne Big Table, das aktuelle Stockwerk zuerst. Bei Serien steht dabei, an wie vielen Tagen ein Tisch belegt ist. Beim Öffnen ist kein Tisch vorausgewählt. „5 Std“/„9 Std“ starten an anderen Tagen um 08:00.
-- **Aufwand:** 22 Schritte, 54 Properties, jeder Schritt einzeln testbar. Die Teile A bis D sind voneinander unabhängig; nur Schritt 0 muss zuerst kommen.
+- **Geprüft:** eigene maschinelle Prüfung (Anhang 2) und ein unabhängiger Prüf-Agent. Sein Urteil: „einfügebereit nach Korrekturen“, mit 1 Fehler, 3 Risiken und 12 Hinweisen. Alle sind eingearbeitet oder begründet offen (Abschnitt „Unabhängige Prüfung“).
+- **Aufwand:** 22 Schritte, 55 Properties, jeder Schritt einzeln testbar. Die Teile A bis D sind voneinander unabhängig. Schritt 0 zuerst ist empfohlen, aber nicht zwingend.
 - **Was nur du entscheiden kannst:** sieben Punkte in Abschnitt 2. Überall steht ein Vorschlag (meist die Regel der Handy-App). Wenn du nichts sagst, gilt der Vorschlag.
 
 @@ behebt
@@ -35,23 +36,23 @@ Kennzeichnung: **belegt** = im Export/Dokument nachgesehen · **gemessen** = Liv
 ## 3. Ablauf je Schritt (wie bei L2)
 1. Vorher: **`.msapp` exportieren** (Datei → Speichern unter → Diesen Computer) und prüfen, dass seit dem Export vom 07.10. in Studio nichts geändert wurde. Wenn doch: neuen Export geben, dann erzeuge ich alles neu (`python3 -I werkzeuge/paket_k_v2.py`). Das Skript bricht ab, wenn ein Anker nicht mehr genau passt.
 2. Steuerelement in der Strukturansicht wählen (der Ort steht bei jedem Block) → Property im Formelfeld → **ganze Property ersetzen** → Enter.
-3. App-Prüfung (Baseline vor Paket: 134 Einträge, keine Formelfehler). Neue **Formelfehler** = sofort melden, nicht weitermachen. Neue Delegierungswarnungen sind nur bei C1 erwartet (UNSICHER U-V3).
+3. App-Prüfung (Baseline vor Paket: 134 Einträge, keine Formelfehler). Neue **Formelfehler** = sofort melden, nicht weitermachen. 47 der 134 Einträge sitzen auf Properties, die das Paket ersetzt (vor allem `CountRows`-Warnungen der Dauer-Knöpfe). Nach dem ganzen Paket also etwa **87 plus wenige neue** (möglich bei C1, siehe U-V3). Ist es viel mehr, wurde vermutlich ein Block nicht eingefügt.
 4. Kurz testen (Test unter jedem Schritt), im Testbogen abhaken.
-5. **Reihenfolge:** Schritt 0 zuerst (sonst sind die Knöpfe 2 Sekunden lang nach dem App-Start gesperrt, U-V1). Danach A, B, C, D in beliebiger Reihenfolge. Innerhalb eines Schritts alle Properties einfügen, bevor du testest.
+5. **Reihenfolge:** Schritt 0 zuerst, danach in Studio **„OnStart ausführen“** (Strukturansicht → App → … → OnStart ausführen), weil Studio OnStart nach dem Einfügen nicht von selbst neu ausführt. Danach A, B, C, D in beliebiger Reihenfolge. Innerhalb eines Schritts alle Properties einfügen, bevor du testest.
 6. **Besonderheit `Items.Value` (C1):** Das ist kein Formelfeld. Rechts im Eigenschaftenbereich „Wert“ auf **Anzeige** stellen, nachdem `Items` ersetzt ist.
 
 @@ teil 0
-Legt drei Variablen mit Startwert an. `varSperreBis` muss einen Zeitwert haben, bevor der erste Knopf ihn vergleicht. Die Zeilen stehen **vor** der L2-Ladezeile, die Ladezeile bleibt die letzte Anweisung.
+Legt drei Variablen mit Startwert an, ganz am **Anfang** von OnStart (nicht blockierendes OnStart: so früh wie möglich gesetzt). Die L2-Ladezeile bleibt die letzte Anweisung. Die Sperre funktioniert auch ohne Schritt 0 (`IsBlank(varSperreBis)` ist abgefangen). Schritt 0 macht nur die Typen eindeutig und ist deshalb empfohlen.
 
 @@ test 0
-**Test:** App-Prüfung ohne neue Fehler. Vorschau starten: Grundriss lädt wie bisher.
+**Test:** App-Prüfung ohne neue Fehler. **OnStart ausführen**, dann Vorschau: Grundriss lädt wie bisher.
 
 @@ teil A
 **Was sich ändert (belegt am Export):** Heute rechnet jeder Plus-/Minus-Knopf seine Farbe und Bedienbarkeit mit einer eigenen Abfrage `LookUp(Tischbuchungen; ID = varSelectedBuchung.ID)` plus einer Kollisionsabfrage. Das sind 24 Properties, und sie laufen auch bei geschlossenem Dialog. Im Tab lesen sie die falsche Variable (B0). **Neu:** Beim Klick auf „Verwalten“ wird einmal die **Grenze** berechnet. Das ist der Beginn der nächsten Buchung am selben Tisch nach meinem Ende, höchstens 22:00 am Buchungstag. Das ist eine einzige delegierbare Abfrage (`First(Sort(Filter(…)))`). Die Knöpfe vergleichen dann nur noch Zahlen. Das bewertet dasselbe wie heute: Ein Plus-Knopf ist gesperrt genau dann, wenn eine Buchung mit `Startzeit < neues Ende` und `Endzeit > altes Ende` existiert (geschlussfolgert, gleichwertig umgeformt). Dazu kommt die 22:00-Grenze.
 
 **Richtig benannt:** Der Dialog `conVerwaltenDialog` wird **vom Dashboard** geöffnet (`galTischbuchungenHeute > btnVerwalten`), nicht vom Grundriss. Eine Kachel im Grundriss öffnet das Details-Popup (`btnHitArea` → `varZeigeDetails`), belegt. v1 nannte ihn „Grundriss-Dialog“, deshalb war der B3-Test dort nicht ausführbar.
 
-**Weil sich die Daten ändern können, während der Dialog offen ist,** prüft der Speichern-Knopf (A6/A7) **beim Klick** noch einmal frisch am Server. Wie in der Handy-App stehen die Werte dabei in globalen Variablen, weil die Handy-App nur so delegierbare Filter bekam (belegt, E-06 Punkt 2).
+**Weil sich die Daten ändern können, während der Dialog offen ist,** prüft der Speichern-Knopf (A6/A7) **beim Klick** noch einmal frisch am Server. Meldet er „inzwischen belegt“, wird die Grenze auf das alte Ende gesetzt, sodass alle Plus-Knöpfe grau werden. Verkürzen bleibt möglich. Wie in der Handy-App stehen die Werte dabei in globalen Variablen, weil die Handy-App nur so delegierbare Filter bekam (belegt, E-06 Punkt 2).
 
 @@ test A1
 **Test:** Dashboard → bei einer heutigen Buchung „Verwalten“: +1/+2/+3 Std sind grün, wenn dahinter frei ist. Ist ein Knopf grau, dann reicht er in eine Folgebuchung oder über 22:00. Monitor (optional): beim Öffnen genau 1 Abfrage auf `Tischbuchungen`.
@@ -72,7 +73,7 @@ Legt drei Variablen mit Startwert an. `varSperreBis` muss einen Zeitwert haben, 
 Ablauf, gleich wie in der Handy-App (`btnVerl1`): Sperre → Buchung frisch laden → keine Dauer (auch `0`, BD-12)? → gelöscht? → würde leer? → über 22:00? → Tisch inzwischen belegt? → speichern in `IfError` → **nachlesen**, ob das neue Ende angekommen ist → Meldung → immer: `Refresh`, Grundriss neu laden, Dauer leeren, Sperre 2 s, Ladeanzeige aus. Der Knopf ist erst bedienbar, wenn eine Dauer gewählt ist.
 
 @@ test A6
-**Test:** (1) +1 Std → „Buchung geändert, neues Ende hh:mm Uhr.“, Dialog zu, Dashboard-Karte und Kachel stimmen. (2) **Doppelklick** auf Verlängern → genau +1 Std. (3) Zwei Browser-Tabs: In Tab 2 direkt hinter die Buchung buchen, in Tab 1 (Dialog war schon offen, +1 grün) verlängern → „Der Tisch ist in dieser Zeit inzwischen belegt…“. (4) In Tab 2 die Buchung stornieren, in Tab 1 verlängern → „Diese Buchung gibt es nicht mehr…“, Dialog zu.
+**Test:** (1) +1 Std → „Buchung geändert, neues Ende hh:mm Uhr.“, Dialog zu, Dashboard-Karte und Kachel stimmen. (2) **Doppelklick** auf Verlängern → genau +1 Std. (3) Zwei Browser-Tabs: In Tab 2 direkt hinter die Buchung buchen, in Tab 1 (Dialog war schon offen, +1 grün) verlängern → „Der Tisch ist in dieser Zeit inzwischen belegt…“, danach sind die Plus-Knöpfe grau. (4) In Tab 2 die Buchung stornieren, in Tab 1 verlängern → „Diese Buchung gibt es nicht mehr…“, Dialog zu.
 
 @@ A7
 Wie A6, für den Tab (`varSelectedBuchungTab`, `varZeigeVerwaltenTab`). Verkürzen läuft über dieselbe Formel (negative Dauer). Weggefallen sind `Clear(colAusgewaehlteBuchungen)` und `Set(varMehrfachAuswahlModus; false)`: Der Tab-Dialog öffnet sich nur außerhalb des Auswahlmodus, dann ist die Auswahl leer. `varMehrfachAuswahlModus` liest niemand (BD-21, belegt).
@@ -96,7 +97,7 @@ Einchecken liest frisch, prüft das Fenster (E3), schreibt in `IfError` und lies
 **Test:** Heutige Buchung, die in mehr als 30 Minuten beginnt → „Einchecken ist erst ab 30 Minuten vor Beginn…“. Laufende Buchung → „Eingecheckt.“, Kachel rot. Noch einmal → „Ausgecheckt.“.
 
 @@ teil B
-**Ein Ablauf für beide Knöpfe** (der Buchungsdialog aus dem Grundriss und das Tische-Panel): Sperre → Werte zum Klickzeitpunkt in Variablen → Termine berechnen (wie bisher: Kappung auf Start + 14 Tage, Wochentage). Der unerreichbare Zweig „Taeglich“ entfällt (BD-24, `varWiederholenModus` wird nur auf „Wochentage“ gesetzt, belegt) → Plausibilität mit je eigener Meldung → **eine** Abfrage „Tisch belegt?“ und **eine** „ich schon gebucht?“, beide nur im Zeitraum der Serie (K4.1, delegierbar) → je Termin frei / Tisch belegt / ich belegt → **Sammel-Patch** der freien Termine mit gemeinsamer `SerienID` → **Nachlese** (dieselbe Zeitraum-Abfrage): Wie viele meiner Zeilen sind wirklich angekommen? Hat jemand mit kleinerer ID gleichzeitig denselben Tisch gebucht (Regel der Handy-App, nimmt nichts automatisch zurück)? → eine Meldung → nur wenn etwas gebucht wurde: Dialog schließen und Eingaben leeren (BD-11).
+**Ein Ablauf für beide Knöpfe** (der Buchungsdialog aus dem Grundriss und das Tische-Panel): Sperre → Werte zum Klickzeitpunkt in Variablen → Termine berechnen (wie bisher: Kappung auf Start + 14 Tage, Wochentage). Der unerreichbare Zweig „Taeglich“ entfällt (BD-24, `varWiederholenModus` wird nur auf „Wochentage“ gesetzt, belegt) → Plausibilität mit je eigener Meldung → **eine** Abfrage „Tisch belegt?“ und **eine** „ich schon gebucht?“, beide nur im Zeitraum der Serie (K4.1, delegierbar) → je Termin frei / Tisch belegt / ich belegt → **Sammel-Patch** der freien Termine mit gemeinsamer `SerienID` → `Refresh` → **Nachlese** (dieselbe Zeitraum-Abfrage; das `Refresh` davor stellt sicher, dass sie vom Server kommt und nicht aus dem Zwischenspeicher): Wie viele meiner Zeilen sind wirklich angekommen? Hat jemand mit kleinerer ID gleichzeitig denselben Tisch gebucht (Regel der Handy-App, nimmt nichts automatisch zurück)? → eine Meldung → nur wenn etwas gebucht wurde: Dialog schließen und Eingaben leeren (BD-11).
 
 **Warum `SerienID` jetzt geschrieben wird:** Die Spalte gibt es schon (Text, filterbar, belegt in `DataSources.json`), sie war nur nie befüllt. So lässt sich nach dem Sammel-Patch exakt zählen, was angekommen ist (Frage 14), und eine Serie später gemeinsam finden (E-4). Der Aufräum-Flow wird nicht berührt (geschlussfolgert, er löscht nach Datum).
 
@@ -107,14 +108,14 @@ Einchecken liest frisch, prüft das Fenster (E3), schreibt in `IfError` und lies
 **Test:** wie B1 über „Tisch Buchen“ im Dashboard. Zusätzlich: Ohne gewählten Tisch ist Speichern grau. Nach dem Speichern springt die Ansicht wie bisher auf das Dashboard.
 
 @@ teil C
-**Ablauf im Panel neu: erst Datum und Zeit, dann Tisch.** Die Tischliste rechnet mit denselben Terminen wie der Speichern-Knopf und holt dafür **eine** Abfrage „alle Buchungen im Zeitraum“ (delegierbar), dann wird lokal gerechnet. Die Liste zeigt nur Tische, die an **mindestens einem** Termin frei sind. Bei Serien steht dahinter z. B. „(an 2 von 10 Tagen belegt)“. Sortierung: ganz freie zuerst, dann das gerade gewählte Stockwerk, dann nach Nummer (Muster aus der Handy-App, `Desk 2` vor `Desk 10`). Bei geschlossenem Panel fragt die Liste nichts ab.
+**Ablauf im Panel neu: erst Datum und Zeit, dann Tisch.** Die Tischliste rechnet mit denselben Terminen wie der Speichern-Knopf. Dafür holt sie **eine** Abfrage „alle Buchungen der betroffenen Tage“ (ganze Tage vom Startdatum bis zum letzten Serientag). Die Grenzen stehen direkt als Steuerelement-Ausdrücke im Filter, nicht als `With`-Werte, denn das ist laut Messung in der Handy-App die delegierbare Form (APP_WISSEN). Danach wird lokal minutengenau gerechnet. Die Liste zeigt nur Tische, die an **mindestens einem** Termin frei sind. Bei Serien steht dahinter z. B. „(an 2 von 10 Tagen belegt)“. Sortierung: ganz freie zuerst, dann das gerade gewählte Stockwerk, dann nach Nummer (Muster aus der Handy-App, `Desk 2` vor `Desk 10`). Bei geschlossenem Panel fragt die Liste `Tischbuchungen` nicht ab (`Tische` wird aus dem Zwischenspeicher gelesen). Die Liste berücksichtigt nur „Tisch belegt“, nicht „du hast zu der Zeit schon einen Tisch“. Das prüft erst Speichern (E2).
 
-**Sicherheitsnetz (wichtig):** Ändert sich die Zeit, nachdem ein Tisch gewählt wurde, berechnet sich die Liste neu. Ob die klassische Auswahlliste den gewählten Tisch dann behält oder leert, ist UNSICHER (U-C1). Deshalb ist kein Tisch vorausgewählt (`Default` leer, `AllowEmptySelection` an), Speichern ist ohne Tisch grau, die Erfolgsmeldung nennt den Tisch, und Speichern prüft am Server noch einmal. Ein stiller Wechsel auf einen anderen Tisch ist so ausgeschlossen (geschlussfolgert).
+**Sicherheitsnetz (wichtig):** Ändert sich die Zeit, nachdem ein Tisch gewählt wurde, berechnet sich die Liste neu. Ob die klassische Auswahlliste den gewählten Tisch dann behält oder leert, ist UNSICHER (U-C1). Deshalb ist kein Tisch vorausgewählt (`Default` leer, `AllowEmptySelection` an), Speichern ist ohne Tisch grau, die Erfolgsmeldung nennt den Tisch, und Speichern prüft am Server noch einmal. Gebucht wird immer der Tisch, der beim Klick sichtbar gewählt ist. Ein unbemerkter Wechsel ist damit unwahrscheinlich, aber nicht bewiesen (UNSICHER, U-C1).
 
 **Optional, nicht nötig:** Die Tischauswahl im Panel nach unten unter die Zeit ziehen (nur Y-Position), damit die Reihenfolge auf dem Bildschirm der Logik folgt.
 
 @@ test C1
-**Test:** (1) Panel öffnen: kein Tisch gewählt, Speichern grau. (2) Heute 09:00–10:00: belegte Tische fehlen, Big Table fehlt, Stockwerk des Grundrisses zuerst, `OG Desk 2` vor `OG Desk 10`. (3) Wiederholen Mo–Fr: Tische mit Hinweis „(an x von y Tagen belegt)“ stehen hinten. (4) Zeit ändern, nachdem ein Tisch gewählt war: Wird die Auswahl geleert oder bleibt sie? → im Testbogen notieren (U-C1). (5) App-Prüfung: Delegierungswarnung bei `ddTischePanel.Items` → notieren (U-V3).
+**Test:** (1) Panel öffnen: kein Tisch gewählt, Speichern grau. (2) Morgen 09:00–10:00 (heute beginnt die Startliste erst bei der nächsten halben Stunde): belegte Tische fehlen, Big Table fehlt, Stockwerk des Grundrisses zuerst, `OG Desk 2` vor `OG Desk 10`. (3) Wiederholen Mo–Fr: Tische mit Hinweis „(an x von y Tagen belegt)“ stehen hinten. (4) Zeit ändern, nachdem ein Tisch gewählt war: Wird die Auswahl geleert oder bleibt sie? → im Testbogen notieren (U-C1). (5) App-Prüfung: Warnung bei `ddTischePanel.Items` → **Wortlaut notieren** (U-V3). Eine Warnung an `Tische`/`ForAll` ist erwartet und harmlos. Eine Warnung an `Startzeit`/`Endzeit` heißt, dass die Abfrage nicht delegiert wird: dann melden.
 
 @@ test C2
 **Test:** Tisch wählen, Panel schließen (Pfeil „<“), wieder öffnen → kein Tisch gewählt, Datum = Ansichtsdatum.
@@ -126,13 +127,13 @@ Einchecken liest frisch, prüft das Fenster (E3), schreibt in `IfError` und lies
 **Test:** wie C3 mit 9 Std (morgen 08:00–17:00).
 
 @@ test C5
-**Test:** Panel → Wiederholen an → Bis-Datum 3 Wochen nach dem Panel-Datum → Text „*Zu weit gewählt …“. Vorher las der Text das Datum aus dem Buchungsdialog.
+**Test:** Panel → Wiederholen an → Bis-Datum 3 Wochen nach dem Panel-Datum → Text „*Zu weit gewählt …“. Der Text wird rot. Vorher lasen Text und Farbe das Datum aus dem Buchungsdialog, sodass sie sich widersprechen konnten.
 
 @@ test D1
-**Test:** Stockwerk wechseln, danach eine Buchung verwalten → keine Dauer vorausgewählt, Verlängern grau.
+**Test:** Tab „Buchungen“ → Verwalten → +1 wählen, Dialog offen lassen. Tab Dashboard → Stockwerk wechseln → zurück zum Tab: Speichern ist grau (vorher war die Dauer `0`, und Speichern hätte „+0 Minuten“ geschrieben).
 
 @@ test D2
-**Test:** Aktualisieren (Dashboard, Buchungen, Kopfzeile, Profil) → „Aktualisiert.“. WLAN aus → nur die gelbe Grundriss-Warnung, nicht zusätzlich „Aktualisiert.“.
+**Test:** Aktualisieren (Dashboard, Buchungen, Kopfzeile, Profil) → „Aktualisiert.“. WLAN aus → **kein** „Aktualisiert.“, dafür die gelbe Warnung „… Bitte erneut auf Aktualisieren tippen.“ (Text leicht geändert). Ein zusätzliches Fehlerbanner von Power Apps ist möglich, weil `Refresh` selbst nicht abgefangen ist (UNSICHER).
 
 @@ test D3
 **Test:** Mehrfachauswahl, 2 Buchungen, Doppelklick auf Stornieren → „2 Buchungen storniert.“, keine zweite Meldung „gibt es nicht mehr“.
@@ -146,22 +147,23 @@ Einchecken liest frisch, prüft das Fenster (E3), schreibt in `IfError` und lies
 - **Teil A zurück:** A3 bis A5 brauchen die Grenze aus A1/A2. Deshalb Teil A **ganz** zurücknehmen oder ganz behalten. B, C, D sind davon unabhängig.
 - **Teil B zurück:** B1/B2 einzeln möglich. Bereits geschriebene `SerienID`-Werte stören nicht.
 - **Teil C zurück:** C1 (vier Properties) zusammen zurücknehmen, sonst passt `Items.Value` nicht zu `Items`.
-- **Schritt 0** zuletzt zurücknehmen: Ohne ihn sind alle Knöpfe mit Sperre ab App-Start 2 s gesperrt, danach normal (U-V1).
+- **Schritt 0** kann jederzeit zurück: Die Sperre fängt ein leeres `varSperreBis` ab.
 - **Komplett:** `.msapp`-Export oder Versionsverlauf.
 
 @@ unsicher
 ## UNSICHER (mit Prüftest)
 | # | Unsicherheit | Folge, falls falsch | Test |
 |---|---|---|---|
-| U-V1 | `Now() >= varSperreBis` mit leerem `varSperreBis`, falls Schritt 0 fehlt oder `OnStart` später fertig wird (nicht blockierendes OnStart) | Knopf reagiert in den ersten Sekunden nicht | Schritt 0 zuerst; direkt nach dem Start buchen |
+| U-V1 | ~~Leeres `varSperreBis`~~ **erledigt:** Die Sperre prüft `IsBlank(varSperreBis) \|\| Now() >= varSperreBis`. Unsicher war, ob `Now() >= Blank()` wahr ist (Prüfbefund R3) | – | – |
 | U-V2 | Die 2-Sekunden-Sperre fängt den eingereihten Zweitklick auch in der **PC**-App (in der Handy-App gemessen, gleiche App-Einstellungen, belegt `Properties.json`) | Doppelte Buchung/Verlängerung bei Doppelklick | Doppelklick-Tests A6, A7, B1 (6), D3 |
-| U-V3 | `ddTischePanel.Items`: `ForAll(Tische …)` ist nicht delegierbar (Tische hat 34 Zeilen, belegt), deshalb vermutlich eine neue Delegierungswarnung. Die Abfrage auf `Tischbuchungen` ist delegierbar (nur `<`/`>` auf DateTime) | nur Warnung, kein Fehler, solange Tische < Datenzeilenlimit | App-Prüfung nach C1 |
-| U-V4 | Datenzeilenlimit: Die Panel-Liste holt bei einer 2-Wochen-Serie **alle** Buchungen aller Tische im Zeitraum. Bei voller Auslastung über 500 Zeilen möglich (34 Tische × 15 Tage) | Liste zeigt einen Tisch als frei, der belegt ist. **Speichern prüft trotzdem richtig** (eigene, engere Abfrage) | App-Einstellungen → „Datenzeilenlimit“ ansehen und melden (Standard 500, max. 2000) |
+| U-V3 | `ddTischePanel.Items`: `ForAll(Tische …)` ist nicht delegierbar (34 Zeilen, harmlos). Ob die Abfrage auf `Tischbuchungen` delegiert wird, ist UNSICHER. Die Grenzen stehen direkt im Filter (Form „ohne Warnung“ laut Handy-App), sind aber mit `If`/`Min`/`DateDiff` zusammengesetzt | Wird nicht delegiert: Die Liste rechnet nur mit den ersten 1.000 Zeilen der ganzen Liste und zeigt belegte Tische als frei. **Speichern prüft trotzdem richtig** | App-Prüfung nach C1: Warnung an `Startzeit`/`Endzeit` in `ddTischePanel.Items`? Dann melden, ich erzeuge eine einfachere Form |
+| U-V4 | Datenzeilenlimit: Die App steht auf **1.000** (belegt, `Properties.json`). Bei einer 2-Wochen-Serie holt die Panel-Liste alle Buchungen aller Tische an 15 Tagen, das sind höchstens einige hundert (34 Tische × 15 Tage × wenige Buchungen pro Tag) | Erst bei sehr voller Belegung würde die Liste unvollständig, Speichern prüft trotzdem richtig | keiner nötig. Nur relevant, wenn U-V3 zutrifft |
 | U-C1 | Behält die klassische Auswahlliste den gewählten Tisch, wenn sich `Items` neu berechnet? | Nutzer muss den Tisch nach einer Zeitänderung neu wählen (lästig, nicht gefährlich, siehe Sicherheitsnetz in Teil C) | C1-Test (4) |
 | U-B1 | `SerienID` wird beim Sammel-Patch mitgeschrieben (Spalte vorhanden, read-write, belegt). Wenn nicht: Nachlese zählt 0 → Meldung „nicht angekommen“, obwohl gebucht ist | falsche rote Meldung. Ein erneuter Klick bucht **nicht** doppelt (Prüfung findet die eigene Buchung) | B1-Test (1): `SerienID` in der Liste gefüllt? |
 | U-B2 | `Text(GUID())` liefert Text (App-Einstellung `useguiddatatypes` an, belegt) | rote Formel | App-Prüfung nach B1 |
 | U-A1 | Gleichheit `Endzeit = varVerlEndeNeu` in der Nachlese (Muster aus der Handy-App) | falsche Meldung „nicht angekommen“ trotz Erfolg | A6-Test (1) |
 | U-A2 | `First(Sort(Filter(…); Startzeit; SortOrder.Ascending))` ist delegierbar (Sort auf DateTime bei SharePoint) | Delegierungswarnung bei A1/A2 | App-Prüfung nach A1 |
+| U-B3 | Ein Lesefehler (Netz weg) beim frischen `LookUp` gilt als „gibt es nicht mehr“ (A6–A10), eine gescheiterte Vorprüfung in B1/B2 als „alles frei“. So verhält sich auch die Handy-App. Die Nachlese meldet eine Doppelbuchung dann hinterher | seltene irreführende Meldung | hinnehmen (Prüfbefund H12) |
 | U-A3 | Mehrarmiges `If` mit Anweisungsketten in den Zweigen bei `powerfxv1 = false`. In der Handy-App mit denselben Einstellungen in Betrieb (belegt) | rote Formel | App-Prüfung nach A6 |
 
 @@ testbogen
@@ -178,7 +180,7 @@ Einchecken liest frisch, prüft das Fenster (E3), schreibt in `IfError` und lies
 | ☐ | C1 Tischliste (frei, sortiert, Big Table, Serienhinweis; U-C1 notieren) | | |
 | ☐ | C2–C5 Panel öffnen, 5/9 Std, Hinweistext | | |
 | ☐ | D1–D4 Kleinigkeiten | | |
-| ☐ | App-Prüfung: Anzahl Einträge vorher 134, nachher ___, neue Formelfehler ___ | | |
+| ☐ | App-Prüfung: Anzahl Einträge vorher 134, nachher ___ (erwartet etwa 87 plus wenige), neue Formelfehler ___ | | |
 | ☐ | Monitor (optional): Serie 11 Termine über das Panel, nur diese Aktion | | erwartet deutlich unter 96 `getRows` (keine Abfragen der Dauer-Knöpfe mehr) |
 
 @@ pruefung

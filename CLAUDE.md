@@ -32,7 +32,7 @@ Monitor-Dateien (`PowerAppsTraceEvents_*.json`, 23 MB) sind nicht im Repo, nur b
 - `With()`-Felder werden gleichzeitig ausgewertet. Abhängiges verschachteln.
 - Lookup schreiben `{Id: …; Value: …}`, Person mit vollem Satz (Claims, Department, DisplayName, Email, JobTitle, Picture), ohne `'@odata.type'` (belegt 06.10.).
 - Patch/Remove nur auf einen **frisch** gelesenen Datensatz (`LookUp` direkt davor). Eine Variable nie mit zwei Record-Typen füllen.
-- **Doppelklick:** `DisplayMode`-Sperre allein reicht **nicht** (gemessen 06.10. in der Handy-App, E-07). Jede Schreibstelle braucht `If(!varIsLoading && Now() >= varSperreBis; …; Set(varSperreBis; DateAdd(Now(); 2; TimeUnit.Seconds));; Set(varIsLoading; false))`.
+- **Doppelklick:** `DisplayMode`-Sperre allein reicht **nicht** (gemessen 06.10. in der Handy-App, E-07). Jede Schreibstelle braucht `If(!varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis); …; Set(varSperreBis; DateAdd(Now(); 2; TimeUnit.Seconds));; Set(varIsLoading; false))`.
 - Werte in Filter-Prädikaten von Verhaltensformeln über **globale Variablen** übergeben (Handy-App E-06: so delegierbar).
 - Delegation SharePoint: `=` auf Text/Lookup/Person.Email/DateTime ja, `<`/`>` auf DateTime ja, auf ID nur `=`. `in`, `IsBlank`, `Not` im Filter nicht. Statt `CountRows(Filter(…)) > 0` besser `!IsBlank(LookUp(…).ID)` (BD-27).
 - Unsichtbar ≠ nicht berechnet: Versteckte Steuerelemente fragen trotzdem ab (gemessen). Abfragen hinter `If(<Dialog offen>; …)` stellen oder ganz vermeiden.
@@ -50,7 +50,7 @@ Monitor-Dateien (`PowerAppsTraceEvents_*.json`, 23 MB) sind nicht im Repo, nur b
 
 ## 6. Stand der Arbeit
 - **Erledigt (Josias, veröffentlicht):** L2 Grundriss-Performance (Serie 11 Termine ~4,7 s statt ~101 s, gemessen), Sammel-Patch in `btnSpeichern`, Mehrfach-Stornieren neu.
-- **Paket K v2 (07.10., dieses Repo), nicht eingefügt:** `arbeit/2026-10-07_PaketK_v2/UEBERGABE_PaketK_v2.md`, 22 Schritte und 54 Properties. Ersetzt v1. Inhalt: Zweifach-Sperre an allen 8 Schreibstellen. Verwalten-Dialoge mit einmal berechneter Grenze (B0 an der Wurzel, 24 Abfrage-Properties weg). Verlängern/Stornieren/Einchecken frisch + `IfError` + Nachlese. Beide Speichern-Knöpfe gleich (Sammel-Patch, `SerienID`, Nachlese, Person-Prüfung, Vergangenheit, eine Meldung). Tischauswahl nur freie Tische. Kleinigkeiten BD-10/12/25/26. Entscheidungen E1–E7 mit Vorschlag nach den Handy-Regeln.
+- **Paket K v2 (07.10., dieses Repo), nicht eingefügt:** `arbeit/2026-10-07_PaketK_v2/UEBERGABE_PaketK_v2.md`, 22 Schritte und 55 Properties, unabhängig geprüft (Befunde eingearbeitet). Ersetzt v1. Inhalt: Zweifach-Sperre an allen 8 Schreibstellen. Verwalten-Dialoge mit einmal berechneter Grenze (B0 an der Wurzel, 24 Abfrage-Properties weg). Verlängern/Stornieren/Einchecken frisch + `IfError` + Nachlese. Beide Speichern-Knöpfe gleich (Sammel-Patch, `SerienID`, Nachlese, Person-Prüfung, Vergangenheit, eine Meldung). Tischauswahl nur freie Tische. Kleinigkeiten BD-10/12/25/26. Entscheidungen E1–E7 mit Vorschlag nach den Handy-Regeln.
 - **v1 (Claude Code, 07.10.) hatte einen echten Fehler:** Die K5-Sperre nur per `DisplayMode` hält nicht (siehe 4).
 
 ## 7. Backlog (nach Paket K v2)

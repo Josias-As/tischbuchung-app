@@ -98,9 +98,9 @@ def minus_fill(rec, minuten):
 )"""
 
 
-def verlaengern(rec_var, zeige_var):
+def verlaengern(rec_var, zeige_var, grenze_var):
     return f"""If(
-  !varIsLoading && Now() >= varSperreBis,
+  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis),
   Set(varIsLoading, true);
   Set(varVerlBuchung, LookUp(Tischbuchungen, ID = {rec_var}.ID));
   If(
@@ -119,7 +119,8 @@ def verlaengern(rec_var, zeige_var):
       varAusgewaehltePlusDauer > 0 && varVerlEndeNeu > varVerlTagesende,
       Notify("Eine Buchung kann nicht nach 22:00 Uhr enden.", NotificationType.Warning),
       varAusgewaehltePlusDauer > 0 && !IsBlank(LookUp(Tischbuchungen, Tisch.Value = varVerlTisch && Startzeit < varVerlEndeNeu && Endzeit > varVerlEndeAlt).ID),
-      Notify("Der Tisch ist in dieser Zeit inzwischen belegt. Bitte eine kürzere Dauer wählen.", NotificationType.Warning),
+      Notify("Der Tisch ist in dieser Zeit inzwischen belegt. Bitte eine kürzere Dauer wählen.", NotificationType.Warning);
+      Set({grenze_var}, varVerlEndeAlt),
       IfError(
         Patch(Tischbuchungen, varVerlBuchung, {{Endzeit: varVerlEndeNeu}}),
         Notify("Speichern fehlgeschlagen. Bitte erneut versuchen.", NotificationType.Error),
@@ -142,7 +143,7 @@ def verlaengern(rec_var, zeige_var):
 
 def stornieren(rec_var, zeige_var):
     return f"""If(
-  !varIsLoading && Now() >= varSperreBis,
+  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis),
   Set(varIsLoading, true);
   Set(varStornoBuchung, LookUp(Tischbuchungen, ID = {rec_var}.ID));
   If(
@@ -167,7 +168,7 @@ def stornieren(rec_var, zeige_var):
 
 
 EINCHECKEN = f"""If(
-  !varIsLoading && Now() >= varSperreBis,
+  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis),
   Set(varIsLoading, true);
   Set(varCheckinBuchung, LookUp(Tischbuchungen, ID = varSelectedBuchung.ID));
   If(
@@ -204,7 +205,7 @@ WOCHENTAG = ("Switch(Weekday(D.Value, StartOfWeek.Monday), 1, varTagMo, 2, varTa
 def speichern(tisch_titel, tisch_id, dp, dd_start, dd_ende, dp_bis, aufraeumen):
     """Gemeinsamer Speicherablauf für den Buchungsdialog und das Tische-Panel (Sammel-Patch, SerienID, Nachlese)."""
     return f"""If(
-  !varIsLoading && Now() >= varSperreBis,
+  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis),
   Set(varIsLoading, true);
   Set(varNeuTischTitel, {tisch_titel});
   Set(varNeuTischID, {tisch_id});
@@ -271,7 +272,8 @@ def speichern(tisch_titel, tisch_id, dp, dd_start, dd_ende, dp_bis, aufraeumen):
           "Nichts gebucht: An allen " & varNeuGesamt & " Terminen ist der Tisch belegt oder du hast schon einen Tisch."
         ),
         NotificationType.Warning
-      ),
+      );
+      Refresh(Tischbuchungen),
       Set(varSerienID, Text(GUID()));
       IfError(
         Patch(
@@ -298,6 +300,7 @@ def speichern(tisch_titel, tisch_id, dp, dd_start, dd_ende, dp_bis, aufraeumen):
         Set(varNeuFehler, true),
         Set(varNeuFehler, false)
       );
+      Refresh(Tischbuchungen);
       ClearCollect(colNeuNachlese, Filter(Tischbuchungen, Tisch.Value = varNeuTischTitel && Startzeit < varNeuSpanEnde && Endzeit > varNeuSpanStart));
       Set(varNeuAnzahl, CountRows(Filter(colNeuNachlese, SerienID = varSerienID)));
       Set(varNeuKonflikt, CountRows(Filter(colNeuNachlese As N, N.SerienID = varSerienID && !IsBlank(LookUp(colNeuNachlese As M, M.ID < N.ID && M.Startzeit < N.Endzeit && M.Endzeit > N.Startzeit).ID))));
@@ -322,7 +325,6 @@ def speichern(tisch_titel, tisch_id, dp, dd_start, dd_ende, dp_bis, aufraeumen):
 {einruecken(aufraeumen, 8)}
       )
     );
-    Refresh(Tischbuchungen);
     {LADE}
   );
   {SPERRE_ENDE}
@@ -351,13 +353,13 @@ def panel_knopf_displaymode(stunden):
         IsBlank(ddTischePanel.Selected.Titel),
         DisplayMode.Edit,
         If(
-          IsBlank(LookUp(Tischbuchungen, Tisch.Value = ddTischePanel.Selected.Titel && Startzeit < endeZeit && Endzeit > startZeit).ID),
+          IsBlank(LookUp(Tischbuchungen, Tisch.Value = ddTischePanel.Selected.Titel && Startzeit < DateAdd(dpDatumTischePanel.SelectedDate, If(dpDatumTischePanel.SelectedDate = Today(), 30 * RoundUp((Hour(Now())*60 + Minute(Now())) / 30, 0), 8 * 60) + __STD__ * 60, TimeUnit.Minutes) && Endzeit > DateAdd(dpDatumTischePanel.SelectedDate, If(dpDatumTischePanel.SelectedDate = Today(), 30 * RoundUp((Hour(Now())*60 + Minute(Now())) / 30, 0), 8 * 60), TimeUnit.Minutes)).ID),
           DisplayMode.Edit,
           DisplayMode.Disabled
         )
       )
     )"""
-    return panel_knopf_zeiten(stunden).replace("__KERN__", kern)
+    return panel_knopf_zeiten(stunden).replace("__KERN__", kern).replace("__STD__", str(stunden))
 
 
 def panel_knopf_fill(stunden):
@@ -371,14 +373,14 @@ def panel_knopf_fill(stunden):
           !varZeigeTischBuchungForm || IsBlank(ddTischePanel.Selected.Titel),
           ColorFade(ColorValue("#00A96B"), 70%),
           If(
-            IsBlank(LookUp(Tischbuchungen, Tisch.Value = ddTischePanel.Selected.Titel && Startzeit < endeZeit && Endzeit > startZeit).ID),
+            IsBlank(LookUp(Tischbuchungen, Tisch.Value = ddTischePanel.Selected.Titel && Startzeit < DateAdd(dpDatumTischePanel.SelectedDate, If(dpDatumTischePanel.SelectedDate = Today(), 30 * RoundUp((Hour(Now())*60 + Minute(Now())) / 30, 0), 8 * 60) + __STD__ * 60, TimeUnit.Minutes) && Endzeit > DateAdd(dpDatumTischePanel.SelectedDate, If(dpDatumTischePanel.SelectedDate = Today(), 30 * RoundUp((Hour(Now())*60 + Minute(Now())) / 30, 0), 8 * 60), TimeUnit.Minutes)).ID),
             ColorFade(ColorValue("#00A96B"), 70%),
             ColorFade(ColorValue("#EB3951"), 70%)
           )
         )
       )
     )"""
-    return panel_knopf_zeiten(stunden).replace("__KERN__", kern)
+    return panel_knopf_zeiten(stunden).replace("__KERN__", kern).replace("__STD__", str(stunden))
 
 
 def panel_knopf_onselect(c):
@@ -411,33 +413,39 @@ PANEL_ITEMS = """With(
       },
       With(
         {
-          spanStart: If(IsEmpty(termine), datum + startZeit, First(termine).Start),
-          spanEnde: If(IsEmpty(termine), datum + endeZeit, Last(termine).Ende)
-        },
-        With(
-          { belegt: If(varZeigeTischBuchungForm, ForAll(Filter(Tischbuchungen, Startzeit < spanEnde && Endzeit > spanStart), {TischName: Tisch.Value, Beginn: Startzeit, Schluss: Endzeit})) },
-          SortByColumns(
-            Filter(
-              ForAll(
-                Tische As X,
-                With(
-                  { n: CountRows(Filter(termine As Z, !IsBlank(LookUp(belegt, TischName = X.Titel && Beginn < Z.Ende && Schluss > Z.Start).TischName))) },
-                  {
-                    Titel: X.Titel,
-                    ID: X.ID,
-                    Belegt: n,
-                    Etage: If(X.Geschoss.Value = varAusgewaehltesStockwerk, 0, 1),
-                    Schluessel: X.Geschoss.Value & Left(X.Titel, Len(X.Titel) - Len(Last(Split(X.Titel, " ")).Value)) & Text(IfError(Value(Last(Split(X.Titel, " ")).Value), 0), "000"),
-                    Anzeige: X.Titel & If(n = 0, "", "  (an " & n & " von " & CountRows(termine) & " Tagen belegt)")
-                  }
-                )
+          belegtListe: If(
+            varZeigeTischBuchungForm,
+            ForAll(
+              Filter(
+                Tischbuchungen,
+                Startzeit < DateAdd(dpDatumTischePanel.SelectedDate, If(varWiederholen && dpWiederholenBis_1.SelectedDate > dpDatumTischePanel.SelectedDate, Min(DateDiff(dpDatumTischePanel.SelectedDate, dpWiederholenBis_1.SelectedDate, TimeUnit.Days), 14), 0) + 1, TimeUnit.Days) && Endzeit > dpDatumTischePanel.SelectedDate
               ),
-              !("big table" in Lower(Titel)) && (Belegt = 0 || Belegt < CountRows(termine))
+              {TischName: Tisch.Value, Beginn: Startzeit, Schluss: Endzeit}
             ),
-            "Belegt", SortOrder.Ascending,
-            "Etage", SortOrder.Ascending,
-            "Schluessel", SortOrder.Ascending
+            FirstN(Table({TischName: "", Beginn: Now(), Schluss: Now()}), 0)
           )
+        },
+        SortByColumns(
+          Filter(
+            ForAll(
+              Tische As Ti,
+              With(
+                { n: CountRows(Filter(termine As Z, !IsBlank(LookUp(belegtListe, TischName = Ti.Titel && Beginn < Z.Ende && Schluss > Z.Start).TischName))) },
+                {
+                  Titel: Ti.Titel,
+                  ID: Ti.ID,
+                  Belegt: n,
+                  Etage: If(Ti.Geschoss.Value = varAusgewaehltesStockwerk, 0, 1),
+                  Schluessel: Ti.Geschoss.Value & Left(Ti.Titel, Len(Ti.Titel) - Len(Last(Split(Ti.Titel, " ")).Value)) & Text(IfError(Value(Last(Split(Ti.Titel, " ")).Value), 0), "000"),
+                  Anzeige: Ti.Titel & If(n = 0, "", "  (an " & n & " von " & CountRows(termine) & " Tagen belegt)")
+                }
+              )
+            ),
+            !("big table" in Lower(Titel)) && (Belegt = 0 || Belegt < CountRows(termine))
+          ),
+          "Belegt", SortOrder.Ascending,
+          "Etage", SortOrder.Ascending,
+          "Schluessel", SortOrder.Ascending
         )
       )
     )
@@ -464,14 +472,12 @@ def mit_sperre(c):
     f = orig(c, "OnSelect")
     assert f.startswith("Set(varIsLoading, true);") and f.rstrip().endswith("Set(varIsLoading, false)"), c
     innen = f.rstrip()[: -len("Set(varIsLoading, false)")] + "Set(varSperreBis, DateAdd(Now(), 2, TimeUnit.Seconds));\nSet(varIsLoading, false)"
-    return "If(\n  !varIsLoading && Now() >= varSperreBis,\n" + einruecken(innen, 2) + "\n)"
+    return "If(\n  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis),\n" + einruecken(innen, 2) + "\n)"
 
 
 def onstart():
     f = orig("App", "OnStart")
-    anker = "Set(varSpinnerWinkel, 0);\n"
-    assert f.count(anker) == 1
-    return f.replace(anker, anker + "Set(varSperreBis, Now());\nSet(varVerlGrenze, Now());\nSet(varVerlGrenzeTab, Now());\n")
+    return "Set(varSperreBis, Now());\nSet(varVerlGrenze, Now());\nSet(varVerlGrenzeTab, Now());\n" + f
 
 
 def btn_tisch_hinzufuegen():
@@ -524,9 +530,9 @@ nr += 1
 for name, m in [("btnMinus1Std", 60), ("btnMinus2Std", 120), ("btnMinus3std", 180)]:
     schritt(f"A{nr}", "A", name, "DisplayMode", minus_displaymode("varSelectedBuchungTab", m), f"−{m // 60} Std (Tab) richtige Buchung, ohne Abfrage")
     schritt(f"A{nr}", "A", name, "Fill", minus_fill("varSelectedBuchungTab", m), f"−{m // 60} Std (Tab) richtige Buchung, ohne Abfrage")
-schritt("A6", "A", "btnVerlängern", "OnSelect", verlaengern("varSelectedBuchung", "varZeigeVerwalten"), "Verlängern (Dashboard) prüft am Server, meldet ehrlich")
+schritt("A6", "A", "btnVerlängern", "OnSelect", verlaengern("varSelectedBuchung", "varZeigeVerwalten", "varVerlGrenze"), "Verlängern (Dashboard) prüft am Server, meldet ehrlich")
 schritt("A6", "A", "btnVerlängern", "DisplayMode", "If(varIsLoading || IsBlank(varAusgewaehltePlusDauer) || varAusgewaehltePlusDauer = 0, DisplayMode.Disabled, DisplayMode.Edit)", "Verlängern (Dashboard) erst mit Dauer bedienbar", "neu")
-schritt("A7", "A", "btnVerlängern_1", "OnSelect", verlaengern("varSelectedBuchungTab", "varZeigeVerwaltenTab"), "Verlängern/Verkürzen (Tab) prüft am Server, meldet ehrlich")
+schritt("A7", "A", "btnVerlängern_1", "OnSelect", verlaengern("varSelectedBuchungTab", "varZeigeVerwaltenTab", "varVerlGrenzeTab"), "Verlängern/Verkürzen (Tab) prüft am Server, meldet ehrlich")
 schritt("A7", "A", "btnVerlängern_1", "DisplayMode", "If(varIsLoading || IsBlank(varAusgewaehltePlusDauer) || varAusgewaehltePlusDauer = 0, DisplayMode.Disabled, DisplayMode.Edit)", "Speichern (Tab) erst mit Dauer bedienbar", "neu")
 schritt("A8", "A", "btnStornieren", "OnSelect", stornieren("varSelectedBuchung", "varZeigeVerwalten"), "Stornieren (Dashboard) auf frischem Datensatz, Nachlese")
 schritt("A8", "A", "btnStornieren", "DisplayMode", "If(varIsLoading, DisplayMode.Disabled, DisplayMode.Edit)", "Stornieren (Dashboard) während Laden gesperrt", "neu")
@@ -560,6 +566,9 @@ schritt("C4", "C", "btn9Std", "OnSelect", panel_knopf_onselect("btn9Std"), "9 St
 l14 = orig("Label14", "Text")
 assert l14.count("dpDatum.SelectedDate") == 1
 schritt("C5", "C", "Label14", "Text", l14.replace("dpDatum.SelectedDate", "dpDatumTischePanel.SelectedDate"), "Hinweistext liest das Panel-Datum (BD-26)")
+l14c = orig("Label14", "Color")
+assert l14c.count("dpDatum.SelectedDate") == 1
+schritt("C5", "C", "Label14", "Color", l14c.replace("dpDatum.SelectedDate", "dpDatumTischePanel.SelectedDate"), "Hinweisfarbe liest das Panel-Datum (BD-26)")
 
 # Teil D: Kleinigkeiten
 oss = orig("ddStockwerk", "OnSelect")
@@ -625,7 +634,7 @@ for s in S:
     if s["prop"] == "OnSelect" and ("Patch(Tischbuchungen" in ohne or "Remove(Tischbuchungen" in ohne) and LADE not in neu:
         fehler.append(f"{key}: Schreibstelle ohne L2-Ladezeile")
     if s["prop"] == "OnSelect" and ("Patch(" in ohne or "Remove(" in ohne):
-        if not neu.startswith("If(\n  !varIsLoading && Now() >= varSperreBis,"):
+        if not neu.startswith("If(\n  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis),"):
             fehler.append(f"{key}: Schreibstelle ohne Zweifach-Sperre")
         if neu.count("Set(varIsLoading, false)") != 1 or not neu.rstrip().endswith("Set(varIsLoading, false)\n)"):
             fehler.append(f"{key}: varIsLoading wird nicht genau einmal am Ende zurückgesetzt")
@@ -667,10 +676,28 @@ for k, v in stand.items():
 schreib = sorted(k for k, v in stand.items() if re.search(r"(Patch|Remove)\(\s*Tischbuchungen", A.ausserhalb_strings(v)))
 for k in schreib:
     v = stand[k]
-    if not v.startswith("If(\n  !varIsLoading && Now() >= varSperreBis,"):
+    if not v.startswith("If(\n  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis),"):
         fehler.append(f"{k}: Schreibstelle nach dem Paket ohne Zweifach-Sperre")
     if LADE not in v:
         fehler.append(f"{k}: Schreibstelle nach dem Paket ohne L2-Ladezeile")
+
+# Delegation: In Server-Prädikaten auf Tischbuchungen keine With-Werte (Handy-App, APP_WISSEN: Warnung gemessen).
+def praedikate(f):
+    ohne_s = A.ausserhalb_strings(f)
+    for m in re.finditer(r"\b(Filter|LookUp)\(\s*Tischbuchungen\s*,", ohne_s):
+        i, tiefe = m.end(), 1
+        while tiefe:
+            tiefe += {"(": 1, ")": -1}.get(ohne_s[i], 0)
+            i += 1
+        yield ohne_s[m.end(): i - 1]
+ERLAUBT_KLEIN = {"true", "false"}
+anzahl_praed = 0
+for s in S:
+    for pr in praedikate(s["neu"]):
+        anzahl_praed += 1
+        for w in re.findall(r"(?<![.\w])([a-zäöü][A-Za-zÄÖÜäöü0-9_]*)\b(?!\s*\()", pr):
+            if w not in ERLAUBT_KLEIN and not w.startswith(("var", "col", "dd", "dp", "btn")):
+                fehler.append(f"{s['control']}.{s['prop']}: With-Wert '{w}' im Server-Prädikat")
 
 json.dump(S, open(os.path.join(ZIEL, "bloecke.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 zeilen = [f"Erzeugt von werkzeuge/paket_k_v2.py aus dem Export vom 07.10.2026 (veröffentlicht, enthält L2).",
@@ -686,6 +713,7 @@ zeilen += ["", "Gesamtprüfungen auf dem Stand NACH dem Paket:",
            f"OK  Schreibstellen auf Tischbuchungen ({len(schreib)}): alle mit Zweifach-Sperre und L2-Ladezeile: " + ", ".join(schreib),
            "OK  Kein Steuerelement im Tab-Dialog (conVerwaltenDialog_1) liest noch varSelectedBuchung (Befund B0 geschlossen)",
            "OK  Kein Plus-/Minus-Knopf fragt noch Tischbuchungen ab (vorher 24 Properties mit eigener Abfrage)",
+           f"OK  {anzahl_praed} Server-Prädikate auf Tischbuchungen im Paket: keines nutzt With-Werte (nur Spalten, globale Variablen, Steuerelemente)",
            "OK  Jede neue Variable wird mindestens einmal gesetzt; keine Property doppelt im Paket"]
 if fehler:
     zeilen = ["FEHLER:"] + ["  " + f for f in fehler]
