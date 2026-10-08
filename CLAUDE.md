@@ -57,7 +57,7 @@ Monitor-Dateien (`PowerAppsTraceEvents_*.json`, 23 MB) sind nicht im Repo, nur b
 - **Kritische Analyse (08.10.):** `arbeit/2026-10-08_Kritische_Analyse/ANALYSE_Stand_App.md`. Urteil: veröffentlichter Stand nicht go-live-fähig, mit Paket K v2 als Pilot realistisch. Größte Risiken: Betrieb (eine Person, keine Test-Umgebung), Mitbestimmung/Datenschutz (Namen sichtbar), fehlende Funktionen gegenüber GoBright (automatische Freigabe, Outlook, Räume, Auswertung).
 - **Paket L (08.10.), nicht eingefügt, unabhängig geprüft (Befunde eingearbeitet):** `arbeit/2026-10-08_Kritische_Analyse/FEHLER_UMBAUPLAN_STIL_PaketL.md`, 82 Properties (L10–L13 in zweiter Prüfung, siehe `pruefung_paket_l_2.md`), nach Paket K v2 einzufügen (keine Überschneidung, maschinell geprüft). Behebt: Startzeit 22:00 erzeugt Buchung mit Ende 00:00 (F-L1), Datum/Zeit im Buchungsdialog bleiben vom letzten Öffnen stehen → Buchung am falschen Tag (F-L11, L13), Dashboard-Liste unsortiert, unlesbare gedrückte Knöpfe, aktiver Tab unsichtbar, zufällige Profilfarbe, „Besetzt“ immer rot. Dazu Farben, Bedienelemente und Texte vereinheitlicht. Enthält Umbaupläne P1–P10 und ein Stil-Audit.
 
-- **Selbstprüfung (08.10.):** `arbeit/2026-10-08_Kritische_Analyse/SELBSTPRUEFUNG.md`. K v2 + L = 137 Properties. **Muss vor Go-Live: 40** (K: 0, A1–A10, B1, B2, C2; L: L1, L13), Soll 52, nach Go-Live 45.
+- **Selbstprüfung (08.10.):** `arbeit/2026-10-08_Kritische_Analyse/SELBSTPRUEFUNG.md`. K v2 + L = 137 Properties. **Muss vor Go-Live: 43** (K: 0, A1–A10, B1, B2, C2, D3; L: L1, L13), Soll 51, nach Go-Live 43. L12 zurückgezogen.
 
 ## 7. Backlog (nach Paket K v2)
 1. Josias: Paket K v2 einfügen und testen (Testbogen im Dokument). Entscheidungen E1–E7 bestätigen.
@@ -77,5 +77,6 @@ Monitor-Dateien (`PowerAppsTraceEvents_*.json`, 23 MB) sind nicht im Repo, nur b
 - Monitor-Dauern doppelt gezählt (`getRows` + `showGetRowsCount` paarweise; `time` = Ende der Antwort).
 - Behauptungen als Fakt verkauft, die nur geschlussfolgert waren.
 - Dialog falsch zugeordnet („Grundriss-Dialog“ ist der Dashboard-Dialog), dadurch ein nicht ausführbarer Test (v1 B3).
+- `Now()`/`Today()` in Datenformeln (Items/Default) werden nicht von selbst neu berechnet: Zeitpunkt beim Öffnen in eine Variable setzen (`varDialogJetzt`, `varPanelJetzt`) und damit rechnen (zweite Prüfung, 08.10.).
 - Zustand von Eingaben beim erneuten Öffnen eines Dialogs nicht geprüft (F-L11: `DefaultDate` greift nur bei Änderung, ohne `Reset` bleibt die alte Eingabe stehen).
 - Eine Messung aus der Schwester-App (Handy E-07) nicht übertragen. Erkenntnisse der Handy-App immer gegen die PC-App prüfen.
