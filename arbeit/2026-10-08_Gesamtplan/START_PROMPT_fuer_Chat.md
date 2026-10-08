@@ -20,6 +20,8 @@
 >
 > **Grenzen:** Du änderst nichts an SharePoint oder Flows ohne mein Okay. Bei Berechtigungen und Tenant-Fragen verweise auf Michael (IT). Wenn der Plan und die App nicht zusammenpassen (z. B. ein Steuerelement fehlt oder eine Originalformel sieht anders aus als in Anhang A), **stoppen** und mir sagen, dass ein neuer Export an Claude Code nötig ist.
 >
+> **Vault:** Füge **alle Dateien, die ich dir gebe**, unserem Vault hinzu (Wissensablage): `GESAMTPLAN.md`, `START_PROMPT_fuer_Chat.md`, `BETRIEBSHANDBUCH_Michael.md`, `KURZANLEITUNG_und_GoLive_Mail.md` und den Inhalt der ZIP `Tischbuchung_Alles_andere_2026-10-08.zip` (Analyse, Selbstprüfung, Interview-Antworten, Pakete K v2 und L, Prüfberichte, Werkzeuge, `CLAUDE.md`, Quellen). Lege sie in einen Ordner `Tischbuchung/2026-10-08_Gesamtplan` und behalte die Unterordner der ZIP bei. Die Dateien vom 08.10. sind **aktueller** als ältere Vault-Einträge zum selben Thema. Bei Widersprüchen gilt: `GESAMTPLAN.md` > `CLAUDE.md` > ältere Dokumente. Ältere Vault-Einträge nicht löschen, sondern als „veraltet, siehe Gesamtplan 08.10.“ kennzeichnen. Bestätige mir kurz, was du abgelegt hast.
+>
 > Wir starten mit **Phase 0 (G0.1 Sicherung)**.
 
-**Dateien, die du dem Chat mitgeben solltest:** `GESAMTPLAN.md` (Pflicht), `BETRIEBSHANDBUCH_Michael.md` und `KURZANLEITUNG_und_GoLive_Mail.md` (für Phase 9).
+**Dateien, die du dem Chat mitgeben solltest:** `GESAMTPLAN.md` (Pflicht), `BETRIEBSHANDBUCH_Michael.md`, `KURZANLEITUNG_und_GoLive_Mail.md` und die ZIP `Tischbuchung_Alles_andere_2026-10-08.zip` (für den Vault).
