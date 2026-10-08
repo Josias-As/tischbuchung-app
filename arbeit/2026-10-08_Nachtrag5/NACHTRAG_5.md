@@ -13,7 +13,9 @@ Für den Desktop-Chat. **Grundlage ist der Export „PCAppfertig“ vom 08.10., 
   - **F5** an `btn5Std.Fill`: Die Farbe zählt verfallene Buchungen noch als belegt, der Knopf selbst ist aber bedienbar.
   - **G25** an `recBuchungDanach1.Visible`: eine Abfrage beim Start.
 - **N5 Raumcode:** Die letzten 3 Abfragen auf `Raumbuchungen` beim Start (**gemessen** 07.10.: `recBuchungDavor1.X`, `recBuchungDanach1.X`/`.Width`) und `recBuchungDavor1.Width` laufen nur noch, wenn die Raumbestätigung offen ist. Zusammen mit N4 fragt die App beim Start den Raumcode **gar nicht mehr** ab (geschlussfolgert aus den Formeln).
-- **Umfang:** 16 Properties, kein neues Steuerelement. Maschinell 0 Fehler. In Studio ist nichts getestet.
+- **N6 (aus der unabhängigen Prüfung):** Die Check-in-Erinnerung im Timer sucht die eigene Buchung über die E-Mail (Dashboard-Liste) statt über den Anzeigenamen im Grundriss. Bisher kam bei abweichendem Anzeigenamen nie eine Erinnerung (F2.1 U8). Sie kennt jetzt auch die `Erstellt`-Hälfte der Freigabe-Regel. Es gibt keine zusätzliche Abfrage.
+- **N7 (aus der unabhängigen Prüfung):** Die Liste im Tab „Buchungen“ fragt nur noch ab, wenn der Tab offen ist. Bisher fragte sie beim Start und nach **jeder** Aktion mit, auch auf dem Dashboard. Das spart je Start und je Buchen, Stornieren, Verlängern, Einchecken und Aktualisieren 1 Abfrage, solange man auf dem Dashboard ist (geschlussfolgert aus den Formeln, `Refresh` lädt sichtbare und unsichtbare Galerien). Beim Öffnen des Tabs ist die Liste frisch, beendete Buchungen sind dann weg.
+- **Umfang:** 18 Properties, kein neues Steuerelement. Maschinell 0 Fehler. In Studio ist nichts getestet.
 - **Einzel-Storno auch mit Bestätigung, Begründung:**
   - `Remove` löscht endgültig, zurück geht es nur über den SharePoint-Papierkorb.
   - Der Knopf liegt neben „Verlängern“.
@@ -36,7 +38,7 @@ Verglichen wurde jede Property des Exports mit dem Stand, den die Rückmeldung a
 
 **Handy-App:** Der Export 08.10. 14:25 entspricht Umbauplan v2 H1–H7 **genau**. Die einzige Ausnahme ist die zusammengeführte Profilfarbe (`App.OnStart`, `btnInitialen_1`), wie gemeldet.
 
-## 2. Schritte (Reihenfolge N1 → N5)
+## 2. Schritte (Reihenfolge N1 → N7)
 
 ### N1 Stornieren mit Bestätigung: Dashboard und Tab
 
@@ -884,6 +886,109 @@ Jede der 4 Formeln steht unverändert in `If(varZeigeRaumBestätigung; …; 0)`.
 
 **Test:** Monitor beim Start: keine Abfrage auf `Raumbuchungen` oder `Räume`. Der Raumcode ist nicht erreichbar, ein Funktionstest entfällt.
 
+### N6 Check-in-Erinnerung über die E-Mail statt den Anzeigenamen
+
+#### `Timer1.OnTimerEnd`
+
+Ort: `Screen1 > Timer1` · **ganze Property ersetzen** · Herkunft: N6
+
+Änderung gegenüber dem Export 08.10. 14:26 (`-` alt, `+` neu):
+
+```diff
+@@ -12,3 +12,3 @@
+     Now() >= Coalesce(varErinnerungAb; Now()) &&
+-    !IsBlank(LookUp(colGrundriss; Name = User().FullName && !Eingecheckt && Startzeit <= DateAdd(Now(); 30; TimeUnit.Minutes) && Endzeit > Now() && Startzeit > DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes)).TischName);
++    !IsBlank(LookUp(galTischbuchungenHeute.AllItems; !CheckedIn && Startzeit <= DateAdd(Now(); 30; TimeUnit.Minutes) && Endzeit > Now() && (Startzeit > DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) || Erstellt > DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes))).ID);
+     Set(varErinnerungAb; DateAdd(Now(); 5; TimeUnit.Minutes));;
+```
+
+Vollständiger Block zum Einfügen:
+
+```
+Set(varJetztTakt; Now());;
+If(
+  !varIsLoading && !varZeigeDialog && !varZeigeTischBuchungForm && !varZeigeVerwalten && !varZeigeVerwaltenTab && !varZeigeVerwaltenKlein && !varZeigeCheckin;
+  If(
+    varAnsichtsDatum < Today() && dpAnsichtsDatum.SelectedDate < Today();
+    Set(varAnsichtsDatum; Today());;
+    Reset(dpAnsichtsDatum);;
+    Set(varGrundrissStand; Blank())
+  );;
+  If(
+    varAktiverTab = "dashboard" && varAnsichtsDatum = Today() && !varZeigeDetails && !varZeigeRaumBuchungForm &&
+    Now() >= Coalesce(varErinnerungAb; Now()) &&
+    !IsBlank(LookUp(galTischbuchungenHeute.AllItems; !CheckedIn && Startzeit <= DateAdd(Now(); 30; TimeUnit.Minutes) && Endzeit > Now() && (Startzeit > DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) || Erstellt > DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes))).ID);
+    Set(varErinnerungAb; DateAdd(Now(); 5; TimeUnit.Minutes));;
+    Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));;
+    ClearCollect(colCheckinFrage; Filter(Tischbuchungen; Person.Email = User().Email && Startzeit <= DateAdd(Now(); 30; TimeUnit.Minutes) && Endzeit > Now()));;
+    RemoveIf(colCheckinFrage; CheckedIn || (Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze));;
+    If(
+      !IsEmpty(colCheckinFrage) && First(SortByColumns(colCheckinFrage; "Startzeit"; SortOrder.Ascending)).ID <> varCheckinGefragtID;
+      Set(varCheckinGefragtID; First(SortByColumns(colCheckinFrage; "Startzeit"; SortOrder.Ascending)).ID);;
+      Set(varSelectedBuchung; LookUp(Tischbuchungen; ID = varCheckinGefragtID));;
+      Set(varZeigeCheckin; true)
+    )
+  )
+)
+```
+
+Nur der Vorfilter ändert sich. Ob gefragt wird, entscheidet wie bisher die Abfrage per E-Mail dahinter.
+- Die Dashboard-Liste (`galTischbuchungenHeute`) zeigt genau die eigenen Buchungen des Ansichtstags, per `Person.Email` (belegt).
+- Der Timer fragt nur, wenn das Ansichtsdatum heute ist und das Dashboard offen (belegt).
+
+**Test:** Testbogen Punkt 8.
+
+### N7 Tab „Buchungen“ fragt nur ab, wenn er offen ist
+
+#### `galAlleTischbuchungen.Items`
+
+Ort: `Screen1 > conBuchungen > galAlleTischbuchungen` · **ganze Property ersetzen** · Herkunft: N7
+
+Änderung gegenüber dem Export 08.10. 14:26 (`-` alt, `+` neu):
+
+```diff
+@@ -1,7 +1,10 @@
+-With(
+-  { erzwingeNeuaufbau: varGalleryNeuAufbauen };
+-  SortByColumns(
+-    Filter(Tischbuchungen; Person.Email = User().Email && Endzeit >= Now());
+-    "Startzeit";
+-    SortOrder.Ascending
++If(
++  varAktiverTab = "buchungen";
++  With(
++    { erzwingeNeuaufbau: varGalleryNeuAufbauen };
++    SortByColumns(
++      Filter(Tischbuchungen; Person.Email = User().Email && Endzeit >= Now());
++      "Startzeit";
++      SortOrder.Ascending
++    )
+   )
+```
+
+Vollständiger Block zum Einfügen:
+
+```
+If(
+  varAktiverTab = "buchungen";
+  With(
+    { erzwingeNeuaufbau: varGalleryNeuAufbauen };
+    SortByColumns(
+      Filter(Tischbuchungen; Person.Email = User().Email && Endzeit >= Now());
+      "Startzeit";
+      SortOrder.Ascending
+    )
+  )
+)
+```
+
+Die Formel ist unverändert, sie steht nur in `If(varAktiverTab = "buchungen"; …)`. Alle Formeln, die die Liste lesen, liegen im Tab „Buchungen“ (belegt: Auswahl, Alle auswählen, Leer-Hinweis, Breiten).
+
+**Test:**
+1. Tab „Buchungen“ öffnen → die Liste erscheint (kurz leer, solange sie lädt).
+2. Mehrfachauswahl → „Alle auswählen“ → alle sind angehakt.
+3. Zurück zum Dashboard, buchen, wieder zum Tab → die neue Buchung ist da.
+
 ## 3. Abschluss-Testbogen (ersetzt F2.1 Abschnitt 6, Auftrag 2b)
 Stand: F2.1 F1–F7, Grundriss-Sperre S1–S4, Nachtrag 5. **F8 gibt es nicht mehr**, der Timer (`Timer1`) ist S3.
 
@@ -909,17 +1014,21 @@ Stand: F2.1 F1–F7, Grundriss-Sperre S1–S4, Nachtrag 5. **F8 gibt es nicht me
 | ☐ | 11 Stornieren Dashboard, Tab, Mehrfach mit Bestätigung, Doppelklick (N1–N3) | siehe Tests N1–N3 |
 | ☐ | 12 **Testknopf löschen.** In `App.OnStart` steht `Set(varFreigabeMinuten; 30)` und `Set(varGrundrissSperreSekunden; 120)`. Keine Test-Steuerelemente mehr in der Strukturansicht | |
 | ☐ | 13 Alle Testbuchungen stornieren (eigene über den Mehrfach-Storno, die des Kollegen durch ihn) | Grundriss und Listen ohne Testbuchungen |
-| ☐ | 14 Sicherung (Datei → Speichern unter → Dieser Computer, `.msapp`), App-Prüfung ohne rote Fehler, **Veröffentlichen** | |
+| ☐ | 14 **Spätbuchung mit echten 30 Minuten (Muss).** Klärt, ob `Erstellt` in den Sammlungen der Desktop-App ankommt (Prüfung M3). Testknopf ist gelöscht. Ein Kollege bucht **am Handy** um hh:20 einen Tisch ab **hh:00**. Die Handy-Startliste beginnt bei der laufenden halben Stunde, die Desktop-App erlaubt das nicht. Er checkt nicht ein. Am PC um hh:35 und um hh:55 den Grundriss aktualisieren | hh:35: Der Tisch ist **belegt**, weil er erst 30 Min nach dem Buchungszeitpunkt (hh:50) verfällt. hh:55: frei. **Ist er schon um hh:35 frei, kommt `Erstellt` leer an** → nicht veröffentlichen, an Claude Code melden |
+| ☐ | 15 Rückmeldungen: Einchecken, Auschecken, Verlängern, Stornieren je einmal | jeweils die Erfolgsmeldung, nie „nicht angekommen“ |
+| ☐ | 16 Sicherung (Datei → Speichern unter → Dieser Computer, `.msapp`), App-Prüfung ohne rote Fehler, **Veröffentlichen** | |
 
 ## 4. UNSICHER
 | Nr | Was | Test |
 |---|---|---|
 | N-U1 | Passt „Ja, stornieren“ in `btnStornieren` (etwa 137 px) ohne Umbruch? (geschlussfolgert) | Test N1. Wenn es umbricht: `btnStornieren.Size` auf 13 |
+| N-U3 | Tab „Buchungen“: Beim Öffnen ist die Liste kurz leer, und „Keine Buchungen“ kann aufblitzen (geschlussfolgert) | Test N7. Stört es, N7 zurücknehmen |
+| N-U4 | `galTischbuchungenHeute.AllItems` liefert im Timer dieselben Zeilen wie die sichtbare Liste (geschlussfolgert, Standardverhalten) | Testbogen Punkt 8 |
 | N-U2 | `Concat(…; Text(ID); ",")` ist in dieser App zulässig (powerfxv1 aus). Geschlussfolgert, `Concat` ist eine Standardfunktion | App-Prüfung nach N2 |
 
 ## 5. Rückfall
 - N1–N3 **zusammen** auf die Fassungen in Anhang A zurücksetzen. Ohne N3 bleibt eine alte Frage beim erneuten Öffnen bestehen. Harmlos, weil der Knopf dann „Ja, stornieren“ zeigt.
-- N4 und N5 einzeln auf Anhang A zurücksetzen.
+- N4 bis N7 einzeln auf Anhang A zurücksetzen.
 
 ## Anhang A: Fassungen im Export 08.10. 14:26 (Rückfall)
 
@@ -1210,10 +1319,53 @@ With(
 )
 ```
 
+**`Timer1.OnTimerEnd`** (N6)
+
+```
+Set(varJetztTakt; Now());;
+If(
+  !varIsLoading && !varZeigeDialog && !varZeigeTischBuchungForm && !varZeigeVerwalten && !varZeigeVerwaltenTab && !varZeigeVerwaltenKlein && !varZeigeCheckin;
+  If(
+    varAnsichtsDatum < Today() && dpAnsichtsDatum.SelectedDate < Today();
+    Set(varAnsichtsDatum; Today());;
+    Reset(dpAnsichtsDatum);;
+    Set(varGrundrissStand; Blank())
+  );;
+  If(
+    varAktiverTab = "dashboard" && varAnsichtsDatum = Today() && !varZeigeDetails && !varZeigeRaumBuchungForm &&
+    Now() >= Coalesce(varErinnerungAb; Now()) &&
+    !IsBlank(LookUp(colGrundriss; Name = User().FullName && !Eingecheckt && Startzeit <= DateAdd(Now(); 30; TimeUnit.Minutes) && Endzeit > Now() && Startzeit > DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes)).TischName);
+    Set(varErinnerungAb; DateAdd(Now(); 5; TimeUnit.Minutes));;
+    Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));;
+    ClearCollect(colCheckinFrage; Filter(Tischbuchungen; Person.Email = User().Email && Startzeit <= DateAdd(Now(); 30; TimeUnit.Minutes) && Endzeit > Now()));;
+    RemoveIf(colCheckinFrage; CheckedIn || (Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze));;
+    If(
+      !IsEmpty(colCheckinFrage) && First(SortByColumns(colCheckinFrage; "Startzeit"; SortOrder.Ascending)).ID <> varCheckinGefragtID;
+      Set(varCheckinGefragtID; First(SortByColumns(colCheckinFrage; "Startzeit"; SortOrder.Ascending)).ID);;
+      Set(varSelectedBuchung; LookUp(Tischbuchungen; ID = varCheckinGefragtID));;
+      Set(varZeigeCheckin; true)
+    )
+  )
+)
+```
+
+**`galAlleTischbuchungen.Items`** (N7)
+
+```
+With(
+  { erzwingeNeuaufbau: varGalleryNeuAufbauen };
+  SortByColumns(
+    Filter(Tischbuchungen; Person.Email = User().Email && Endzeit >= Now());
+    "Startzeit";
+    SortOrder.Ascending
+  )
+)
+```
+
 ## Anhang B: Maschinelle Prüfung
 
 ```
-16 Properties in 5 Schritten, kein neues Steuerelement. Grundlage: Export 08.10. 14:26 (PCAppfertig).
+18 Properties in 7 Schritten, kein neues Steuerelement. Grundlage: Export 08.10. 14:26 (PCAppfertig).
 Je Property: Klammern, Rückübersetzung, Variablen gesetzt, Steuerelemente vorhanden, Schreibstellen mit Sperre, Ladezeile mit Stempel, Spaltennamen als Bezeichner.
 Storno: Frage-Zweig schreibt und fragt nicht ab, setzt 1-s-Sperre; Bestätigungs-Zweig = Export-Fassung unverändert (nur eingerückt); Frage wird vor dem Schreiben zurückgesetzt.
 Öffnen: an btnVerwalten/btnVerwalten_2 nur das Rücksetzen vorangestellt.

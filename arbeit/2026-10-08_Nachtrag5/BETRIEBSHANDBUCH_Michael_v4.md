@@ -32,6 +32,8 @@ Stand 08.10.2026 · Verantwortlich: Josias · Vertretung: Michael/IT · **Michae
 | „Ich sehe meine Buchung nicht“ / „Status Verfallen“ | App neu laden (Aktualisieren-Symbol). In der Liste `Tischbuchungen` nach Person filtern. „Verfallen“ heißt: nicht bis 30 Min nach Beginn eingecheckt, der Tisch ist frei. Das ist so gewollt. Neu buchen |
 | Buchung versehentlich gelöscht | SharePoint-Site → Papierkorb → wiederherstellen |
 | Tisch defekt | In `Tische` `Gesperrt = Ja`. Bestehende Buchungen für diesen Tisch in `Tischbuchungen` anpassen und Betroffene informieren |
+| Tisch wieder entsperrt, aber in der App noch gesperrt | Die Desktop-App lädt `Tische` nur beim Start: App neu laden (Browser aktualisieren) |
+| Tisch umbenennen oder neuer Tisch | **Nur zusammen mit der Desktop-App:** Der Grundriss ordnet jede Kachel über den Namen einer Position zu (`colTischPositionen`/`colTischPositionenUG` in `App.OnStart`). Erst die Positionen anpassen, dann umbenennen, und nur ohne laufende Buchungen. Titel müssen eindeutig sein (Spalte `Titel` → „Eindeutige Werte erzwingen“) |
 | Doppelbuchung gemeldet | In `Tischbuchungen` nach Tisch und Zeit filtern. **Überlappung ist normal, wenn die ältere Buchung nicht eingecheckt und verfallen war** (CheckedIn = Nein, **Beginn und Erstellt** der älteren liegen mehr als 30 Min vor dem **Erstellt** der neuen). Sonst ist die Buchung mit der **höheren ID** die spätere → mit der Person klären und löschen |
 | App zeigt rote Fehlermeldung | Screenshot und Uhrzeit notieren. App neu laden. Bei Wiederholung: Power Apps → App → **Monitor** öffnen, Aktion wiederholen, Trace exportieren → an Josias |
 | App nach einer Änderung kaputt | Power Apps → App → **Versionsverlauf** → letzte funktionierende Version **Wiederherstellen** → veröffentlichen |
@@ -52,6 +54,8 @@ Stand 08.10.2026 · Verantwortlich: Josias · Vertretung: Michael/IT · **Michae
 - Hintergrund, Regeln und frühere Fehler stehen im Repo in `CLAUDE.md`. Pläne liegen unter `arbeit/`.
 
 ## 6. Bekannte Grenzen
+- **Sonntag, 25.10. (Zeitumstellung):** Am PC gebuchte Termine **für diesen Sonntag** landen eine Stunde zu früh. Andere Tage sind nicht betroffen, die Handy-App auch nicht.
+- Die Liste `Tischbuchungen` hat Indizes auf `Startzeit`, `Endzeit`, `Tisch` und `Person` (anzulegen, solange die Liste leer ist). Ohne Indizes scheitern Abfragen ab 5.000 Zeilen.
 - SharePoint hat keine Transaktionen: Buchen zwei Personen in derselben Sekunde denselben Tisch, erkennt die App das **danach** und meldet es dem Zweiten (rote Meldung). Sie verhindert es nicht.
 - Die GoBright-Tischanzeigen sind ohne GoBright-Vertrag nicht nutzbar (Cloud-gebunden).
 - Raumbuchung läuft über Outlook, nicht über die App.

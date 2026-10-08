@@ -89,6 +89,20 @@ for k in ["recBuchungDavor1.X", "recBuchungDavor1.Width", "recBuchungDanach1.X",
     final[k] = "If(\n  varZeigeRaumBestätigung,\n" + eingerueckt + ",\n  0\n)"
     herkunft[k] = "N5"
 
+# --- N6 Check-in-Erinnerung über die eigene Liste (E-Mail) statt über den Anzeigenamen im Grundriss -------------------
+GR = "DateAdd(Now(), -Coalesce(varFreigabeMinuten, 30), TimeUnit.Minutes)"
+ersetze("Timer1.OnTimerEnd",
+        "!IsBlank(LookUp(colGrundriss, Name = User().FullName && !Eingecheckt && Startzeit <= DateAdd(Now(), 30, TimeUnit.Minutes) && Endzeit > Now() && Startzeit > " + GR + ").TischName)",
+        "!IsBlank(LookUp(galTischbuchungenHeute.AllItems, !CheckedIn && Startzeit <= DateAdd(Now(), 30, TimeUnit.Minutes) && Endzeit > Now() && (Startzeit > " + GR + " || Erstellt > " + GR + ")).ID)")
+herkunft["Timer1.OnTimerEnd"] = "N6"
+
+# --- N7 Tab „Buchungen“: Liste nur abfragen, wenn der Tab offen ist ---------------------------------------------------
+k = "galAlleTischbuchungen.Items"
+v = ist[k]
+assert v.startswith("With(\n  { erzwingeNeuaufbau: varGalleryNeuAufbauen },")
+final[k] = 'If(\n  varAktiverTab = "buchungen",\n' + "\n".join("  " + z for z in v.split("\n")) + "\n)"
+herkunft[k] = "N7"
+
 # --- Prüfungen ---------------------------------------------------------------------------------------------------------
 fehler = []
 end = dict(ist); end.update(final)
@@ -134,6 +148,11 @@ for knopf, var in [("btnStornieren", "Set(varStornoFrageID, 0);"), ("btnStornier
     v = final[f"{knopf}.OnSelect"]
     if v.index(var) > v.index("Remove("):
         fehler.append(f"{knopf}: Frage wird erst nach dem Schreiben zurückgesetzt")
+tm = final["Timer1.OnTimerEnd"]
+if "Refresh(" in tm or "With({neu:" in tm or len(re.findall(r"(Filter|LookUp)\(\s*Tischbuchungen", tm)) != 2 or "User().FullName" in tm:
+    fehler.append("Timer1: Abfragen/Anzeigename")
+if final["galAlleTischbuchungen.Items"].count("Tischbuchungen") != 1:
+    fehler.append("galAlleTischbuchungen.Items: mehr als die eine Abfrage")
 # Raumcode: keine ungeschützte Abfrage auf Raumbuchungen/Räume mehr außerhalb von Verhaltensformeln
 for k, v in end.items():
     c, p = k.split(".", 1)
@@ -156,6 +175,8 @@ SCHRITTE = [
     ("N3", "Frage beim Öffnen zurücksetzen", ["btnVerwalten.OnSelect", "btnVerwalten_2.OnSelect"]),
     ("N4", "Nachholen: im Export fehlende Teile (S3b, F5, G25)", ["lblStatusHeute.Text", "lblStatusHeute.Color", "btn5Std.Fill", "recBuchungDanach1.Visible"]),
     ("N5", "Raumcode: letzte Startabfragen abschalten", ["recBuchungDavor1.X", "recBuchungDavor1.Width", "recBuchungDanach1.X", "recBuchungDanach1.Width"]),
+    ("N6", "Check-in-Erinnerung über die E-Mail statt den Anzeigenamen", ["Timer1.OnTimerEnd"]),
+    ("N7", "Tab „Buchungen“ fragt nur ab, wenn er offen ist", ["galAlleTischbuchungen.Items"]),
 ]
 zug = [k for _, _, ks in SCHRITTE for k in ks]
 if sorted(zug) != sorted(final) or len(zug) != len(set(zug)):

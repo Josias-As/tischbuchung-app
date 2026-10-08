@@ -15,7 +15,7 @@ for z in open(os.path.join(A.REPO, "werkzeuge/nachtrag5_text.md"), encoding="utf
         T[k].append(z)
 T = {x: "\n".join(v).strip() for x, v in T.items()}
 
-out = [T["kopf"], "", T["kurzfassung"], "", T["abgleich"], "", "## 2. Schritte (Reihenfolge N1 → N5)", ""]
+out = [T["kopf"], "", T["kurzfassung"], "", T["abgleich"], "", "## 2. Schritte (Reihenfolge N1 → N7)", ""]
 akt = None
 for s in D["app"]:
     if s["schritt"] != akt:

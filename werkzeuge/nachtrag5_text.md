@@ -15,7 +15,9 @@ Für den Desktop-Chat. **Grundlage ist der Export „PCAppfertig“ vom 08.10., 
   - **F5** an `btn5Std.Fill`: Die Farbe zählt verfallene Buchungen noch als belegt, der Knopf selbst ist aber bedienbar.
   - **G25** an `recBuchungDanach1.Visible`: eine Abfrage beim Start.
 - **N5 Raumcode:** Die letzten 3 Abfragen auf `Raumbuchungen` beim Start (**gemessen** 07.10.: `recBuchungDavor1.X`, `recBuchungDanach1.X`/`.Width`) und `recBuchungDavor1.Width` laufen nur noch, wenn die Raumbestätigung offen ist. Zusammen mit N4 fragt die App beim Start den Raumcode **gar nicht mehr** ab (geschlussfolgert aus den Formeln).
-- **Umfang:** 16 Properties, kein neues Steuerelement. Maschinell 0 Fehler. In Studio ist nichts getestet.
+- **N6 (aus der unabhängigen Prüfung):** Die Check-in-Erinnerung im Timer sucht die eigene Buchung über die E-Mail (Dashboard-Liste) statt über den Anzeigenamen im Grundriss. Bisher kam bei abweichendem Anzeigenamen nie eine Erinnerung (F2.1 U8). Sie kennt jetzt auch die `Erstellt`-Hälfte der Freigabe-Regel. Es gibt keine zusätzliche Abfrage.
+- **N7 (aus der unabhängigen Prüfung):** Die Liste im Tab „Buchungen“ fragt nur noch ab, wenn der Tab offen ist. Bisher fragte sie beim Start und nach **jeder** Aktion mit, auch auf dem Dashboard. Das spart je Start und je Buchen, Stornieren, Verlängern, Einchecken und Aktualisieren 1 Abfrage, solange man auf dem Dashboard ist (geschlussfolgert aus den Formeln, `Refresh` lädt sichtbare und unsichtbare Galerien). Beim Öffnen des Tabs ist die Liste frisch, beendete Buchungen sind dann weg.
+- **Umfang:** 18 Properties, kein neues Steuerelement. Maschinell 0 Fehler. In Studio ist nichts getestet.
 - **Einzel-Storno auch mit Bestätigung, Begründung:**
   - `Remove` löscht endgültig, zurück geht es nur über den SharePoint-Papierkorb.
   - Der Knopf liegt neben „Verlängern“.
@@ -82,6 +84,21 @@ Jede der 4 Formeln steht unverändert in `If(varZeigeRaumBestätigung; …; 0)`.
 
 **Test:** Monitor beim Start: keine Abfrage auf `Raumbuchungen` oder `Räume`. Der Raumcode ist nicht erreichbar, ein Funktionstest entfällt.
 
+@@ N6
+Nur der Vorfilter ändert sich. Ob gefragt wird, entscheidet wie bisher die Abfrage per E-Mail dahinter.
+- Die Dashboard-Liste (`galTischbuchungenHeute`) zeigt genau die eigenen Buchungen des Ansichtstags, per `Person.Email` (belegt).
+- Der Timer fragt nur, wenn das Ansichtsdatum heute ist und das Dashboard offen (belegt).
+
+**Test:** Testbogen Punkt 8.
+
+@@ N7
+Die Formel ist unverändert, sie steht nur in `If(varAktiverTab = "buchungen"; …)`. Alle Formeln, die die Liste lesen, liegen im Tab „Buchungen“ (belegt: Auswahl, Alle auswählen, Leer-Hinweis, Breiten).
+
+**Test:**
+1. Tab „Buchungen“ öffnen → die Liste erscheint (kurz leer, solange sie lädt).
+2. Mehrfachauswahl → „Alle auswählen“ → alle sind angehakt.
+3. Zurück zum Dashboard, buchen, wieder zum Tab → die neue Buchung ist da.
+
 @@ testbogen
 ## 3. Abschluss-Testbogen (ersetzt F2.1 Abschnitt 6, Auftrag 2b)
 Stand: F2.1 F1–F7, Grundriss-Sperre S1–S4, Nachtrag 5. **F8 gibt es nicht mehr**, der Timer (`Timer1`) ist S3.
@@ -108,16 +125,20 @@ Stand: F2.1 F1–F7, Grundriss-Sperre S1–S4, Nachtrag 5. **F8 gibt es nicht me
 | ☐ | 11 Stornieren Dashboard, Tab, Mehrfach mit Bestätigung, Doppelklick (N1–N3) | siehe Tests N1–N3 |
 | ☐ | 12 **Testknopf löschen.** In `App.OnStart` steht `Set(varFreigabeMinuten; 30)` und `Set(varGrundrissSperreSekunden; 120)`. Keine Test-Steuerelemente mehr in der Strukturansicht | |
 | ☐ | 13 Alle Testbuchungen stornieren (eigene über den Mehrfach-Storno, die des Kollegen durch ihn) | Grundriss und Listen ohne Testbuchungen |
-| ☐ | 14 Sicherung (Datei → Speichern unter → Dieser Computer, `.msapp`), App-Prüfung ohne rote Fehler, **Veröffentlichen** | |
+| ☐ | 14 **Spätbuchung mit echten 30 Minuten (Muss).** Klärt, ob `Erstellt` in den Sammlungen der Desktop-App ankommt (Prüfung M3). Testknopf ist gelöscht. Ein Kollege bucht **am Handy** um hh:20 einen Tisch ab **hh:00**. Die Handy-Startliste beginnt bei der laufenden halben Stunde, die Desktop-App erlaubt das nicht. Er checkt nicht ein. Am PC um hh:35 und um hh:55 den Grundriss aktualisieren | hh:35: Der Tisch ist **belegt**, weil er erst 30 Min nach dem Buchungszeitpunkt (hh:50) verfällt. hh:55: frei. **Ist er schon um hh:35 frei, kommt `Erstellt` leer an** → nicht veröffentlichen, an Claude Code melden |
+| ☐ | 15 Rückmeldungen: Einchecken, Auschecken, Verlängern, Stornieren je einmal | jeweils die Erfolgsmeldung, nie „nicht angekommen“ |
+| ☐ | 16 Sicherung (Datei → Speichern unter → Dieser Computer, `.msapp`), App-Prüfung ohne rote Fehler, **Veröffentlichen** | |
 
 @@ unsicher
 ## 4. UNSICHER
 | Nr | Was | Test |
 |---|---|---|
 | N-U1 | Passt „Ja, stornieren“ in `btnStornieren` (etwa 137 px) ohne Umbruch? (geschlussfolgert) | Test N1. Wenn es umbricht: `btnStornieren.Size` auf 13 |
+| N-U3 | Tab „Buchungen“: Beim Öffnen ist die Liste kurz leer, und „Keine Buchungen“ kann aufblitzen (geschlussfolgert) | Test N7. Stört es, N7 zurücknehmen |
+| N-U4 | `galTischbuchungenHeute.AllItems` liefert im Timer dieselben Zeilen wie die sichtbare Liste (geschlussfolgert, Standardverhalten) | Testbogen Punkt 8 |
 | N-U2 | `Concat(…; Text(ID); ",")` ist in dieser App zulässig (powerfxv1 aus). Geschlussfolgert, `Concat` ist eine Standardfunktion | App-Prüfung nach N2 |
 
 @@ rueckfall
 ## 5. Rückfall
 - N1–N3 **zusammen** auf die Fassungen in Anhang A zurücksetzen. Ohne N3 bleibt eine alte Frage beim erneuten Öffnen bestehen. Harmlos, weil der Knopf dann „Ja, stornieren“ zeigt.
-- N4 und N5 einzeln auf Anhang A zurücksetzen.
+- N4 bis N7 einzeln auf Anhang A zurücksetzen.

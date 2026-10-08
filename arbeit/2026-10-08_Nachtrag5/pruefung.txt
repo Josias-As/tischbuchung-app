@@ -1,4 +1,4 @@
-16 Properties in 5 Schritten, kein neues Steuerelement. Grundlage: Export 08.10. 14:26 (PCAppfertig).
+18 Properties in 7 Schritten, kein neues Steuerelement. Grundlage: Export 08.10. 14:26 (PCAppfertig).
 Je Property: Klammern, Rückübersetzung, Variablen gesetzt, Steuerelemente vorhanden, Schreibstellen mit Sperre, Ladezeile mit Stempel, Spaltennamen als Bezeichner.
 Storno: Frage-Zweig schreibt und fragt nicht ab, setzt 1-s-Sperre; Bestätigungs-Zweig = Export-Fassung unverändert (nur eingerückt); Frage wird vor dem Schreiben zurückgesetzt.
 Öffnen: an btnVerwalten/btnVerwalten_2 nur das Rücksetzen vorangestellt.
