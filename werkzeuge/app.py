@@ -89,6 +89,13 @@ def lade_handy():
     return App(entpacke(EXPORT_HANDY, "handy_2026-10-07"))
 
 
+EXPORT_HANDY_0810 = os.path.join(REPO, "quellen/2026-10-08_HandyExport/handyappAnalyse8.10.26_20261008115132.zip")
+
+
+def lade_handy_0810():
+    return App(entpacke(EXPORT_HANDY_0810, "handy_2026-10-08"))
+
+
 def _string_ende(f, i):
     ch = f[i]
     j = i + 1
