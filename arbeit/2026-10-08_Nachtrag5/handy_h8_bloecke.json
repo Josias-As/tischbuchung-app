@@ -1,0 +1,42 @@
+{
+ "app": [
+  {
+   "control": "App",
+   "prop": "OnStart",
+   "neu": "Set(varTab, \"heute\"); Set(varIsLoading, false); Set(varBuchung, Defaults(Tischbuchungen)); Set(varNeuBuchung, Defaults(Tischbuchungen)); Set(varBuchungID, 0); Set(varCheckinID, 0); Set(varNeuID, 0); Set(varZeigeVerwalten, false); Set(varZeigeStorno, false); Set(varNeuLaden, 0); Set(varNeuEnde, Now()); Set(varTagesEnde, Now()); Set(varTischName, \"\"); Set(varEndeAlt, Now()); Set(varBuchStart, Now()); Set(varBuchEnde, Now()); Set(varTischID, 0); Set(varSperreBis, Now()); Set(varJetzt, Now()); Set(varHeute, Today()); Set(varFreigabeMinuten, 30); Set(varFreigabeGrenze, DateAdd(Now(), -Coalesce(varFreigabeMinuten, 30), TimeUnit.Minutes)); Set(varListeGrenze, DateAdd(Now(), -Coalesce(varFreigabeMinuten, 30), TimeUnit.Minutes)); ClearCollect(colTische, Tische);\nSet(\n  varProfilFarbe,\n  Switch(\n    RandBetween(1, 8),\n    1, ColorValue(\"#8CAFF4\"),\n    2, ColorValue(\"#82C7B3\"),\n    3, ColorValue(\"#EFA897\"),\n    4, ColorValue(\"#B59EDC\"),\n    5, ColorValue(\"#82CCC5\"),\n    6, ColorValue(\"#F5C295\"),\n    7, ColorValue(\"#A1AADB\"),\n    ColorValue(\"#A1B1BA\")\n  )\n)",
+   "de": "Set(varTab; \"heute\");; Set(varIsLoading; false);; Set(varBuchung; Defaults(Tischbuchungen));; Set(varNeuBuchung; Defaults(Tischbuchungen));; Set(varBuchungID; 0);; Set(varCheckinID; 0);; Set(varNeuID; 0);; Set(varZeigeVerwalten; false);; Set(varZeigeStorno; false);; Set(varNeuLaden; 0);; Set(varNeuEnde; Now());; Set(varTagesEnde; Now());; Set(varTischName; \"\");; Set(varEndeAlt; Now());; Set(varBuchStart; Now());; Set(varBuchEnde; Now());; Set(varTischID; 0);; Set(varSperreBis; Now());; Set(varJetzt; Now());; Set(varHeute; Today());; Set(varFreigabeMinuten; 30);; Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));; Set(varListeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));; ClearCollect(colTische; Tische);;\nSet(\n  varProfilFarbe;\n  Switch(\n    RandBetween(1; 8);\n    1; ColorValue(\"#8CAFF4\");\n    2; ColorValue(\"#82C7B3\");\n    3; ColorValue(\"#EFA897\");\n    4; ColorValue(\"#B59EDC\");\n    5; ColorValue(\"#82CCC5\");\n    6; ColorValue(\"#F5C295\");\n    7; ColorValue(\"#A1AADB\");\n    ColorValue(\"#A1B1BA\")\n  )\n)",
+   "vorher_de": "Set(varTab; \"heute\");; Set(varIsLoading; false);; Set(varBuchung; Defaults(Tischbuchungen));; Set(varNeuBuchung; Defaults(Tischbuchungen));; Set(varBuchungID; 0);; Set(varCheckinID; 0);; Set(varNeuID; 0);; Set(varZeigeVerwalten; false);; Set(varZeigeStorno; false);; Set(varNeuLaden; 0);; Set(varNeuEnde; Now());; Set(varTagesEnde; Now());; Set(varTischName; \"\");; Set(varEndeAlt; Now());; Set(varBuchStart; Now());; Set(varBuchEnde; Now());; Set(varTischID; 0);; Set(varSperreBis; Now());; Set(varJetzt; Now());; Set(varFreigabeMinuten; 30);; Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));; Set(varListeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));; ClearCollect(colTische; Tische);;\nSet(\n  varProfilFarbe;\n  Switch(\n    RandBetween(1; 8);\n    1; ColorValue(\"#8CAFF4\");\n    2; ColorValue(\"#82C7B3\");\n    3; ColorValue(\"#EFA897\");\n    4; ColorValue(\"#B59EDC\");\n    5; ColorValue(\"#82CCC5\");\n    6; ColorValue(\"#F5C295\");\n    7; ColorValue(\"#A1AADB\");\n    ColorValue(\"#A1B1BA\")\n  )\n)",
+   "diff": "@@ -1,2 +1,2 @@\n-Set(varTab; \"heute\");; Set(varIsLoading; false);; Set(varBuchung; Defaults(Tischbuchungen));; Set(varNeuBuchung; Defaults(Tischbuchungen));; Set(varBuchungID; 0);; Set(varCheckinID; 0);; Set(varNeuID; 0);; Set(varZeigeVerwalten; false);; Set(varZeigeStorno; false);; Set(varNeuLaden; 0);; Set(varNeuEnde; Now());; Set(varTagesEnde; Now());; Set(varTischName; \"\");; Set(varEndeAlt; Now());; Set(varBuchStart; Now());; Set(varBuchEnde; Now());; Set(varTischID; 0);; Set(varSperreBis; Now());; Set(varJetzt; Now());; Set(varFreigabeMinuten; 30);; Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));; Set(varListeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));; ClearCollect(colTische; Tische);;\n+Set(varTab; \"heute\");; Set(varIsLoading; false);; Set(varBuchung; Defaults(Tischbuchungen));; Set(varNeuBuchung; Defaults(Tischbuchungen));; Set(varBuchungID; 0);; Set(varCheckinID; 0);; Set(varNeuID; 0);; Set(varZeigeVerwalten; false);; Set(varZeigeStorno; false);; Set(varNeuLaden; 0);; Set(varNeuEnde; Now());; Set(varTagesEnde; Now());; Set(varTischName; \"\");; Set(varEndeAlt; Now());; Set(varBuchStart; Now());; Set(varBuchEnde; Now());; Set(varTischID; 0);; Set(varSperreBis; Now());; Set(varJetzt; Now());; Set(varHeute; Today());; Set(varFreigabeMinuten; 30);; Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));; Set(varListeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));; ClearCollect(colTische; Tische);;\n Set(",
+   "pfad": "App"
+  },
+  {
+   "control": "tmrJetzt",
+   "prop": "OnTimerEnd",
+   "neu": "Set(varJetzt, Now());\nIf(\n  !varIsLoading && Today() <> varHeute,\n  Set(varHeute, Today());\n  Reset(ddDatum);\n  Set(varNeuLaden, varNeuLaden + 1)\n)",
+   "de": "Set(varJetzt; Now());;\nIf(\n  !varIsLoading && Today() <> varHeute;\n  Set(varHeute; Today());;\n  Reset(ddDatum);;\n  Set(varNeuLaden; varNeuLaden + 1)\n)",
+   "vorher_de": "Set(varJetzt; Now())",
+   "diff": "@@ -1 +1,7 @@\n-Set(varJetzt; Now())\n+Set(varJetzt; Now());;\n+If(\n+  !varIsLoading && Today() <> varHeute;\n+  Set(varHeute; Today());;\n+  Reset(ddDatum);;\n+  Set(varNeuLaden; varNeuLaden + 1)\n+)",
+   "pfad": "Screen1 > tmrJetzt"
+  },
+  {
+   "control": "ddDatum",
+   "prop": "Items",
+   "neu": "ForAll(\n  Sequence(60, If(Hour(Now()) >= 22, 1, 0)) As n,\n  {\n    Value: If(n.Value = 0, \"Heute, \", n.Value = 1, \"Morgen, \", \"\") & Text(DateAdd(Coalesce(varHeute, Today()), n.Value, TimeUnit.Days), \"dddd, dd.mm.yyyy\"),\n    Tag: DateAdd(Coalesce(varHeute, Today()), n.Value, TimeUnit.Days)\n  }\n)",
+   "de": "ForAll(\n  Sequence(60; If(Hour(Now()) >= 22; 1; 0)) As n;\n  {\n    Value: If(n.Value = 0; \"Heute, \"; n.Value = 1; \"Morgen, \"; \"\") & Text(DateAdd(Coalesce(varHeute; Today()); n.Value; TimeUnit.Days); \"dddd, dd.mm.yyyy\");\n    Tag: DateAdd(Coalesce(varHeute; Today()); n.Value; TimeUnit.Days)\n  }\n)",
+   "vorher_de": "ForAll(\n  Sequence(60; If(Hour(Now()) >= 22; 1; 0)) As n;\n  {\n    Value: If(n.Value = 0; \"Heute, \"; n.Value = 1; \"Morgen, \"; \"\") & Text(DateAdd(Today(); n.Value; TimeUnit.Days); \"dddd, dd.mm.yyyy\");\n    Tag: DateAdd(Today(); n.Value; TimeUnit.Days)\n  }\n)",
+   "diff": "@@ -3,4 +3,4 @@\n   {\n-    Value: If(n.Value = 0; \"Heute, \"; n.Value = 1; \"Morgen, \"; \"\") & Text(DateAdd(Today(); n.Value; TimeUnit.Days); \"dddd, dd.mm.yyyy\");\n-    Tag: DateAdd(Today(); n.Value; TimeUnit.Days)\n+    Value: If(n.Value = 0; \"Heute, \"; n.Value = 1; \"Morgen, \"; \"\") & Text(DateAdd(Coalesce(varHeute; Today()); n.Value; TimeUnit.Days); \"dddd, dd.mm.yyyy\");\n+    Tag: DateAdd(Coalesce(varHeute; Today()); n.Value; TimeUnit.Days)\n   }",
+   "pfad": "Screen1 > conRoot > conInhalt > conBuchen > conBuchenForm > ddDatum"
+  },
+  {
+   "control": "lblHeuteTitel",
+   "prop": "Text",
+   "neu": "\"Heute, \" & Text(Coalesce(varHeute, Today()), \"dddd dd.mm.\")",
+   "de": "\"Heute, \" & Text(Coalesce(varHeute; Today()); \"dddd dd.mm.\")",
+   "vorher_de": "\"Heute, \" & Text(Today(); \"dddd dd.mm.\")",
+   "diff": "@@ -1 +1 @@\n-\"Heute, \" & Text(Today(); \"dddd dd.mm.\")\n+\"Heute, \" & Text(Coalesce(varHeute; Today()); \"dddd dd.mm.\")",
+   "pfad": "Screen1 > conRoot > conInhalt > conHeute > lblHeuteTitel"
+  }
+ ],
+ "fehler": [],
+ "timer_duration": null
+}
