@@ -54,5 +54,56 @@ out = [dict(control=k.split(".")[0], prop=k.split(".", 1)[1], neu=v, de=A.to_de(
             diff=diff(A.to_de(ist[k]), A.to_de(v)), pfad=h.pfad(k.split(".")[0])) for k, v in final.items()]
 json.dump(dict(app=out, fehler=fehler, timer_duration=ist.get("tmrJetzt.Duration")), open(os.path.join(ZIEL, "handy_h8_bloecke.json"), "w", encoding="utf-8"),
           ensure_ascii=False, indent=1)
+
+# --- Übergabe-Dokument ---------------------------------------------------------------------------------------------
+TXT = """# Handy H8: Tageswechsel bei offener App (08.10.2026)
+
+Für den Handy-Chat. Grundlage ist der **Handy-Export 08.10. 14:25** (veröffentlicht, = Umbauplan v2 + Profilfarbe). Erzeugt mit `werkzeuge/handy_h8.py`, unabhängig geprüft (keine Befunde über niedrig). Kennzeichnung: **belegt**, **geschlussfolgert**, **UNSICHER**.
+
+## Kurzfassung
+- **Problem (belegt aus den Formeln, mittel):** `ddDatum.Items` und `lblHeuteTitel.Text` rechnen mit `Today()`. Sie werden nicht neu berechnet, solange die App offen ist.
+  - Bleibt die App über Nacht in Power Apps Mobile offen, steht morgens „Heute“ noch auf gestern.
+  - Wer „Morgen“ wählt, bucht in Wahrheit für **heute**.
+  - `galHeute` und `galMeine` werden erst nach einer Aktion neu geladen.
+- **Lösung:** `varHeute` merkt sich den Tag. Bei einem neuen Tag macht `tmrJetzt` (läuft jede Minute) drei Dinge:
+  - `varHeute` neu setzen,
+  - `ddDatum` zurücksetzen,
+  - die Listen neu laden (`varNeuLaden + 1`).
+  - Keine zusätzliche Abfrage außer diesem einen Neuladen pro Tag.
+- **Umfang:** 4 Properties, kein neues Steuerelement. Maschinell 0 Fehler.
+
+## Einfügen
+**Wichtig zu `App.OnStart` (Prüfung B10):** Deine YAML-Quelle kann neuer sein als der Export.
+- Vergleiche zuerst dein `App.OnStart` mit „Fassung im Export“ unten.
+- **Ist sie gleich**, ganze Property ersetzen.
+- **Ist sie anders**, nur `Set(varHeute; Today());;` direkt hinter `Set(varJetzt; Now());;` einfügen.
+
+"""
+doc = [TXT]
+for b in out:
+    doc += [f"### `{b['control']}.{b['prop']}`", "", f"Ort: `{b['pfad']}` · **ganze Property ersetzen**", "",
+            "Änderung gegenüber dem Export (`-` alt, `+` neu):", "", "```diff", b["diff"], "```", "", "Vollständiger Block:", "", "```", b["de"], "```", ""]
+doc += ["""## Test (etwa 3 Minuten)
+1. Vorübergehend einen Knopf `btnTestTag` anlegen, `OnSelect`: `Set(varHeute; DateAdd(Today(); -1; TimeUnit.Days))`.
+2. In der Vorschau tippen. Titel „Heute, …“ und die Datumsliste zeigen jetzt **gestern** (so sähe die App morgens ohne H8 aus).
+3. Höchstens 1 Minute warten (`tmrJetzt` hat keine `Duration`, Standard 60 s, geschlussfolgert).
+   - Erwartet: Titel und Datumsliste zeigen wieder **heute**.
+   - Im Buchen-Tab ist „Heute, <Datum>“ ausgewählt, und der Beginn steht bei der laufenden halben Stunde.
+   - Die Listen „Heute“ und „Meine“ laden neu.
+4. **`btnTestTag` löschen.**
+
+## Bekannt und gewollt
+- Um Mitternacht verwirft `Reset(ddDatum)` auch ein bewusst gewähltes späteres Datum. Das ist selten, nach dem Zurücksetzen wählt man neu.
+- `Hour(Now()) >= 22` in `ddDatum.Items` wird weiter nicht neu berechnet (ab 22:00 „Heute“ ausblenden). Das ist harmlos, weil `btnBuchen` das 22:00-Ende ohnehin prüft.
+- Ist die App im Hintergrund, laufen keine Timer. Nach dem Zurückholen greift H8 beim nächsten Takt, also nach höchstens 1 Minute. Wer in dieser Minute bucht, sieht noch den alten Tag (UNSICHER, ob Power Apps Mobile die App nach einer Nacht ohnehin neu startet).
+
+## Rückfall
+Die vier Fassungen im Export (unten) wieder einsetzen. `varHeute` stört dann nicht.
+
+## Anhang: Fassungen im Export 08.10. 14:25
+"""]
+for b in out:
+    doc += [f"**`{b['control']}.{b['prop']}`**", "", "```", b["vorher_de"], "```", ""]
+open(os.path.join(ZIEL, "HANDY_H8_Tageswechsel.md"), "w", encoding="utf-8").write("\n".join(doc))
 print(f"{len(out)} Properties.", "Prüfung: 0 Fehler" if not fehler else "FEHLER: " + "; ".join(fehler))
 sys.exit(1 if fehler else 0)

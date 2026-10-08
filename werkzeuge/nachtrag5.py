@@ -34,8 +34,8 @@ for knopf, sel in [("btnStornieren", "varSelectedBuchung"), ("btnStornieren_1", 
     rumpf_neu = "\n".join("  " + z if z else z for z in rumpf.split("\n"))
     final[k] = ("If(\n  " + LOCK + ",\n"
                 f"  If(\n    !(varStornoFrageID > 0 && varStornoFrageID = {sel}.ID),\n"
-                f"    Set(varStornoFrageID, {sel}.ID);\n"
                 "    Set(varSperreBis, DateAdd(Now(), 1, TimeUnit.Seconds));\n"
+                f"    Set(varStornoFrageID, {sel}.ID);\n"
                 '    Notify("Wirklich stornieren? Zum Bestätigen auf „Ja, stornieren“ tippen.", NotificationType.Information),\n'
                 "    Set(varStornoFrageID, 0);\n"
                 + rumpf_neu + "\n  )\n)")
@@ -51,8 +51,8 @@ rumpf = v[len("If(\n  " + LOCK + ",\n"):-len("\n)")]
 rumpf_neu = "\n".join("  " + z if z else z for z in rumpf.split("\n"))
 final[k] = ("If(\n  " + LOCK + ",\n"
             f"  If(\n    CountRows(colAusgewaehlteBuchungen) > 0 && varStornoFrageAuswahl <> {AUSWAHL},\n"
-            f"    Set(varStornoFrageAuswahl, {AUSWAHL});\n"
             "    Set(varSperreBis, DateAdd(Now(), 1, TimeUnit.Seconds));\n"
+            f"    Set(varStornoFrageAuswahl, {AUSWAHL});\n"
             '    Notify("Wirklich " & CountRows(colAusgewaehlteBuchungen) & If(CountRows(colAusgewaehlteBuchungen) = 1, " Buchung", " Buchungen") & " stornieren? Zum Bestätigen noch einmal tippen.", NotificationType.Information),\n'
             '    Set(varStornoFrageAuswahl, "");\n'
             + rumpf_neu + "\n  )\n)")
@@ -68,6 +68,10 @@ k = "btnVerwalten_2.OnSelect"
 assert ist[k].startswith("If(\n  varAuswahlModusAktiv,\n")
 final[k] = 'Set(varStornoFrageID, 0);\nSet(varStornoFrageAuswahl, "");\n' + ist[k]
 herkunft["btnVerwalten.OnSelect"] = herkunft["btnVerwalten_2.OnSelect"] = "N3"
+for k in ["btnTabDashboard.OnSelect", "btnTabBuchungen.OnSelect"]:
+    assert ist[k].startswith("Set(varAktiverTab, ")
+    final[k] = "Set(varStornoFrageID, 0);\n" + ist[k]
+    herkunft[k] = "N3"
 
 # --- N4 Fehlende Teile aus früheren Paketen (Export weicht vom eingefügt gemeldeten Stand ab) -------------------------
 for s in GS["app"]:
@@ -102,6 +106,10 @@ v = ist[k]
 assert v.startswith("With(\n  { erzwingeNeuaufbau: varGalleryNeuAufbauen },")
 final[k] = 'If(\n  varAktiverTab = "buchungen",\n' + "\n".join("  " + z for z in v.split("\n")) + "\n)"
 herkunft[k] = "N7"
+k = "chkAuswahl.OnCheck"
+assert ist[k] == "Collect(colAusgewaehlteBuchungen, ThisItem)"
+final[k] = "If(IsBlank(LookUp(colAusgewaehlteBuchungen, ID = ThisItem.ID)), Collect(colAusgewaehlteBuchungen, ThisItem))"
+herkunft[k] = "N7"
 
 # --- Prüfungen ---------------------------------------------------------------------------------------------------------
 fehler = []
@@ -132,6 +140,8 @@ for knopf in ["btnStornieren", "btnStornieren_1", "btnStornierenKlein"]:
     frage = v.split("NotificationType.Information),")[0]
     if re.search(r"Remove\(|Patch\(|Tischbuchungen|varIsLoading, true", frage.split(LOCK, 1)[1]):
         fehler.append(f"{knopf}: Frage-Zweig schreibt oder fragt ab")
+    if not frage.split("NotificationType", 0)[0].split(",\n", 2)[-1].lstrip().startswith("Set(varSperreBis, DateAdd(Now(), 1, TimeUnit.Seconds));"):
+        fehler.append(f"{knopf}: 1-s-Sperre nicht die erste Anweisung im Frage-Zweig")
     if "DateAdd(Now(), 1, TimeUnit.Seconds)" not in frage:
         fehler.append(f"{knopf}: Frage-Zweig ohne 1-s-Sperre")
     rest = v.split("NotificationType.Information),\n", 1)[1]
@@ -140,7 +150,7 @@ for knopf in ["btnStornieren", "btnStornieren_1", "btnStornierenKlein"]:
     orig = ist[f"{knopf}.OnSelect"][len("If(\n  " + LOCK + ",\n"):-len("\n)")]
     if rest != orig:
         fehler.append(f"{knopf}: Bestätigungs-Zweig weicht vom Export ab")
-for k in ["btnVerwalten.OnSelect", "btnVerwalten_2.OnSelect"]:
+for k in ["btnVerwalten.OnSelect", "btnVerwalten_2.OnSelect", "btnTabDashboard.OnSelect", "btnTabBuchungen.OnSelect"]:
     if final[k].split("\n", 2 if "_2" in k else 1)[-1] != ist[k]:
         fehler.append(f"{k}: mehr geändert als das Rücksetzen")
 # Bestätigung setzt die Frage zurück, bevor geschrieben wird
@@ -172,11 +182,11 @@ def diff(x, y):
 SCHRITTE = [
     ("N1", "Stornieren mit Bestätigung: Dashboard und Tab", ["btnStornieren.OnSelect", "btnStornieren.Text", "btnStornieren_1.OnSelect", "btnStornieren_1.Text"]),
     ("N2", "Mehrfach-Stornieren mit Bestätigung", ["btnStornierenKlein.OnSelect", "btnStornierenKlein.Text"]),
-    ("N3", "Frage beim Öffnen zurücksetzen", ["btnVerwalten.OnSelect", "btnVerwalten_2.OnSelect"]),
+    ("N3", "Frage beim Öffnen und beim Tabwechsel zurücksetzen", ["btnVerwalten.OnSelect", "btnVerwalten_2.OnSelect", "btnTabDashboard.OnSelect", "btnTabBuchungen.OnSelect"]),
     ("N4", "Nachholen: im Export fehlende Teile (S3b, F5, G25)", ["lblStatusHeute.Text", "lblStatusHeute.Color", "btn5Std.Fill", "recBuchungDanach1.Visible"]),
     ("N5", "Raumcode: letzte Startabfragen abschalten", ["recBuchungDavor1.X", "recBuchungDavor1.Width", "recBuchungDanach1.X", "recBuchungDanach1.Width"]),
     ("N6", "Check-in-Erinnerung über die E-Mail statt den Anzeigenamen", ["Timer1.OnTimerEnd"]),
-    ("N7", "Tab „Buchungen“ fragt nur ab, wenn er offen ist", ["galAlleTischbuchungen.Items"]),
+    ("N7", "Tab „Buchungen“ fragt nur ab, wenn er offen ist", ["galAlleTischbuchungen.Items", "chkAuswahl.OnCheck"]),
 ]
 zug = [k for _, _, ks in SCHRITTE for k in ks]
 if sorted(zug) != sorted(final) or len(zug) != len(set(zug)):
@@ -191,7 +201,8 @@ json.dump(dict(app=out), open(os.path.join(ZIEL, "bloecke.json"), "w", encoding=
 z = [f"{len(out)} Properties in {len(SCHRITTE)} Schritten, kein neues Steuerelement. Grundlage: Export 08.10. 14:26 (PCAppfertig).",
      "Je Property: Klammern, Rückübersetzung, Variablen gesetzt, Steuerelemente vorhanden, Schreibstellen mit Sperre, Ladezeile mit Stempel, Spaltennamen als Bezeichner.",
      "Storno: Frage-Zweig schreibt und fragt nicht ab, setzt 1-s-Sperre; Bestätigungs-Zweig = Export-Fassung unverändert (nur eingerückt); Frage wird vor dem Schreiben zurückgesetzt.",
-     "Öffnen: an btnVerwalten/btnVerwalten_2 nur das Rücksetzen vorangestellt.",
+     "Öffnen und Tabwechsel: an btnVerwalten/btnVerwalten_2/btnTabDashboard/btnTabBuchungen nur das Rücksetzen vorangestellt.",
+     "Frage-Zweig: 1-s-Sperre ist die erste Anweisung.",
      "Raumcode: danach keine Raum-Abfrage außerhalb von Verhaltensformeln ohne Bedingung."]
 z += ["FEHLER: " + x for x in fehler] if fehler else ["Prüfung: 0 Fehler"]
 open(os.path.join(ZIEL, "pruefung.txt"), "w", encoding="utf-8").write("\n".join(z) + "\n")

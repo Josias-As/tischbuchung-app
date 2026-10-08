@@ -14,7 +14,7 @@
 
 **Farben im Grundriss:** grün = frei · orange = gebucht, noch nicht eingecheckt · rot = eingecheckt · grau = gesperrt.
 
-**Grundriss blass?** Der Grundriss zeigt den Stand vom letzten Laden. Nach 2 Minuten wird er blass und lässt sich nicht mehr antippen, bis du auf **„Grundriss aktualisieren“** tippst. So buchst du nie nach einem alten Stand. Auch die Listen im Dashboard und im Tab „Buchungen“ aktualisieren sich **nicht von selbst**: Eine Buchung vom Handy siehst du am PC nach „Aktualisieren“ (Symbol mit den Pfeilen).
+**Grundriss blass?** Der Grundriss zeigt den Stand vom letzten Laden. Nach 2 Minuten wird er blass und lässt sich nicht mehr antippen, bis du auf **„Grundriss aktualisieren“** tippst. So buchst du nie nach einem alten Stand. Die Liste im Dashboard aktualisiert sich **nicht von selbst**: Eine Buchung vom Handy siehst du am PC nach „Aktualisieren“ (Symbol mit den Pfeilen). Der Tab „Buchungen“ lädt jedes Mal neu, wenn du ihn öffnest.
 
 **Wichtig: Einchecken!** Einchecken geht von 30 Minuten vor bis 30 Minuten nach Beginn (Dashboard → „Einchecken“). Die App fragt dich einmal danach, wenn du sie zur Buchungszeit öffnest oder offen hast. **Wer bis 30 Minuten nach Beginn nicht eingecheckt hat, verliert den Tisch.** Die Buchung steht dann als „Verfallen“ im Dashboard, und der Tisch ist für andere frei.
 
@@ -23,7 +23,7 @@
 **Ändern:**
 - Dashboard bzw. Tab „Buchungen“ → Pfeil bei deiner Buchung.
 - **Verlängern/Verkürzen:** Dauer wählen → Speichern. Bis höchstens 22:00 und nur, wenn der Tisch frei ist.
-- **Stornieren:** „Stornieren“ tippen, dann **„Ja, stornieren“** tippen. Erst dann ist die Buchung weg. Du kannst nur deine eigenen Buchungen stornieren.
+- **Stornieren:** „Stornieren“ tippen, kurz warten, dann **„Ja, stornieren“** tippen. Erst dann ist die Buchung weg. Du kannst nur deine eigenen Buchungen stornieren.
 - **Mehrere stornieren:** im Tab „Buchungen“ Mehrfachauswahl einschalten, Buchungen anhaken, eine antippen → „Stornieren“ → „Ja, 3 stornieren“.
 
 **Regeln:** buchbar 06:00–22:00, nicht in der Vergangenheit, nur ein Tisch pro Person zur selben Zeit.

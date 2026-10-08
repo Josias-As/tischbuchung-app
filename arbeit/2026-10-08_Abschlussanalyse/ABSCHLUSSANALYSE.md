@@ -16,7 +16,7 @@ Kennzeichnung: **belegt**, **gemessen**, **geschlussfolgert**, **UNSICHER**.
   1. **Desktop-Nachtrag 5 einfügen.** Der Export zeigt: S3b, `btn5Std.Fill` (F5) und ein G25-Teil fehlen, obwohl sie als eingefügt gemeldet waren (**belegt**). Dazu kommen die Storno-Bestätigung (Auftrag 2a) und zwei Funde der Prüfung (N6, N7).
   2. **Handy H8 einfügen.** Ohne H8 erkennt die Handy-App keinen Tageswechsel, wenn sie über Nacht offen bleibt. Dann gilt „Heute“ noch für gestern, und „Morgen“ bucht für heute (**belegt** aus den Formeln, mittel).
   3. **Tische umbenennen, nur mit Grundriss-Positionen.** Die Desktop-App ordnet jede Kachel über den **Tischnamen** einer festen Position zu (`colTischPositionen`/`colTischPositionenUG` in `App.OnStart`, **belegt**). Nach „neuer Tisch, ab Desk 13 alles um 1 verschoben“ stehen die Kacheln am falschen Platz, und der neue Tisch steht oben links. **Josias muss sagen, welches Geschoss es betrifft und wo der neue Tisch steht.** Dann erzeuge ich `App.OnStart` neu.
-  4. **Zwei Tests, die nur echte Zeit klären** (Testbogen Nachtrag 5, Punkte 14 und 15):
+  4. **Zwei Tests, die nur echte Zeit klären** (Testbogen Nachtrag 5, Punkt 17 und „Erfolgsmeldung bei jedem Schreiben“):
      - Spätbuchung mit echten 30 Minuten: Kommt `Erstellt` in den Desktop-Sammlungen an?
      - Rückmeldungen: Erfolgsmeldungen statt „nicht angekommen“.
   5. **Betrieb:**
@@ -64,7 +64,7 @@ Kennzeichnung: **belegt**, **gemessen**, **geschlussfolgert**, **UNSICHER**.
 | A4 | PC | mittel | Check-in-Erinnerung sucht über den Anzeigenamen (UNSICHER, ob er abweicht) | **N6** |
 | A5 | PC | mittel | Tab-Liste fragt beim Start und nach jeder Aktion ab, auch unsichtbar. Beendete Buchungen bleiben stehen | **N7** |
 | A6 | PC | Auftrag | Stornieren ohne Rückfrage | **N1–N3** |
-| A7 | PC | mittel, UNSICHER | `Erstellt` in den Desktop-Sammlungen nicht nachgewiesen. Fehlt es, verfallen spät gebuchte Tische zu früh (Doppelvergabe möglich) | **Test 14** (Muss). Die Handy-App hat dasselbe Muster belegt (K1) |
+| A7 | PC | mittel, UNSICHER | `Erstellt` in den Desktop-Sammlungen nicht nachgewiesen. Fehlt es, verfallen spät gebuchte Tische zu früh (Doppelvergabe möglich) | **Test 17** (Muss). Die Handy-App hat dasselbe Muster belegt (K1) |
 | A8 | PC | hoch, wenn es eintritt | Grundriss-Positionen hängen am Tischnamen | **Muss**, Angaben von Josias nötig (siehe Kurzfassung 3) |
 | A9 | Handy | mittel | Kein Tageswechsel bei offener App | **H8** |
 | A10 | beide | mittel | Lese-Recht „nur eigene“ macht alle Tische frei. Betroffen sind Handy `ddTisch`, `btnBuchen`, `btnVerl1/2`, `btnEincheckenH` und PC 25 Properties, darunter alle Ladestellen (belegt). Josias' Besitzerkonto sieht den Fehler nicht | Betriebshandbuch v4: **Lesen immer alle** |
@@ -83,8 +83,8 @@ Kennzeichnung: **belegt**, **gemessen**, **geschlussfolgert**, **UNSICHER**.
 ## 3. Muss vor dem 14.10. (Checkliste)
 | ✓ | Was | Wer |
 |---|---|---|
-| ☐ | Desktop: Nachtrag 5 (N1–N7) einfügen, Testbogen Abschnitt 3 komplett, **Test 14 Spätbuchung** | Josias + Desktop-Chat |
-| ☐ | Handy: H8 einfügen, testen (Gerät über Nacht offen lassen oder Uhrzeit-Test unten) | Handy-Chat |
+| ☐ | Desktop: Nachtrag 5 (N1–N7) einfügen, Testbogen Abschnitt 3 komplett, **Test 17 Spätbuchung** | Josias + Desktop-Chat |
+| ☐ | Handy: H8 einfügen und testen (`HANDY_H8_Tageswechsel.md`) | Handy-Chat |
 | ☐ | Tische: Geschoss und Lage des neuen Tisches an Claude Code → neues `App.OnStart` mit Positionen. **Erst dann** in SharePoint umbenennen, von oben nach unten (Desk 17 → 18 zuerst), danach „Eindeutige Werte erzwingen“ | Josias |
 | ☐ | Bestehende Buchungen löschen, danach Indizes anlegen (Listeneinstellungen → Indizierte Spalten) | Josias |
 | ☐ | Rechte: Lesen auf `Tischbuchungen` und `Tische` = alle Elemente. Mit einem **normalen** Kollegen-Konto prüfen, ob fremde Buchungen im Grundriss erscheinen | Josias, Michael |
@@ -95,15 +95,15 @@ Kennzeichnung: **belegt**, **gemessen**, **geschlussfolgert**, **UNSICHER**.
 
 ## 4. Antworten an den Desktop-Chat
 - **(1) 17. Ladestelle:** `icoAktualisierenGrundriss.OnSelect` ist **zeichengleich** mit `Icon1_1.OnSelect` in der S2-Fassung, mit Stempel (**belegt**). **Behalten**, nichts zu tun. Es liegt unter der Sperrfläche (Ebene 7 unter 8). Gesperrt aktualisiert also nur der große Knopf, entsperrt geht beides. Optional: `AccessibleLabel` = `"Grundriss aktualisieren"`.
-- **(2a)** Nachtrag 5 N1–N3. Einzel-Storno ebenfalls mit Bestätigung, Begründung in der Kurzfassung dort. Diff gegen den **Export**, der der S2-Stand ist.
-- **(2b)** Der Testbogen steht in Nachtrag 5, Abschnitt 3, mit `Timer1` statt F8. Neu sind Test 14 (Spätbuchung, Muss) und Test 15.
-- **(2c)** Sicherung, App-Prüfung und Veröffentlichen sind Testbogen Punkt 16.
+- **(2a)** Nachtrag 5 N1–N3. Die Frage wird auch beim Tab-Wechsel zurückgesetzt, und die 1-s-Sperre ist die erste Anweisung. Einzel-Storno ebenfalls mit Bestätigung, Begründung in der Kurzfassung dort. Diff gegen den **Export**, der der S2-Stand ist.
+- **(2b)** Der Testbogen steht in Nachtrag 5, Abschnitt 3, mit `Timer1` statt F8. Er ist nach der Prüfung neu geordnet: Alle Tests sind mit den Eingabemöglichkeiten der App ausführbar, mit Zeitachse N/T. Neu ist Test 17 (Spätbuchung, Muss, mit Kontrollbuchung). Wichtig in Test 16: Nach dem Löschen des Testknopfs **OnStart ausführen**, sonst bleibt `varFreigabeMinuten` = 1.
+- **(2c)** Sicherung, App-Prüfung und Veröffentlichen sind Testbogen Punkt 18.
 - **(2d)** `KURZANLEITUNG_und_GoLive_Mail_v4.md` und `BETRIEBSHANDBUCH_Michael_v4.md` im Ordner `arbeit/2026-10-08_Nachtrag5/`. Enthalten: Satz „spätestens beim nächsten Bedienen“, Listen ohne automatisches Aktualisieren, Stornieren mit Bestätigung, Rechte nach Josias' Entscheidung, Lesezugriff nie einschränken.
 - **(2e) Grundriss-Sperre am Handy: nein, bewusst nur Desktop.** Die Handy-App hat keinen Grundriss. Sie zeigt freie Tische in `ddTisch`, und `btnBuchen` prüft vor und nach dem Schreiben frisch. Ein veralteter Stand kann dort nicht zu einer falschen Buchung führen, nur zu einer Ablehnungsmeldung.
 - **Achtung, Abweichungen im Export:** S3b, F5 an `btn5Std.Fill` und G25 an `recBuchungDanach1.Visible` fehlen trotz „passt“. Bitte nach dem Einfügen von N4 einmal neu exportieren, dann prüfe ich erneut maschinell.
 
 ## 5. Antworten an den Handy-Chat
-- **H8 Tageswechsel (neu, bitte einfügen):** 4 Properties in `handy_h8_bloecke.json`.
+- **H8 Tageswechsel (neu, bitte einfügen):** `arbeit/2026-10-08_Nachtrag5/HANDY_H8_Tageswechsel.md` (Blöcke, Diff, Test, Rückfall). 4 Properties.
   - `App.OnStart` (deine zusammengeführte Fassung mit Profilfarbe + `Set(varHeute; Today())`).
   - `tmrJetzt.OnTimerEnd` (bei neuem Tag `varHeute`, `Reset(ddDatum)`, `varNeuLaden + 1`).
   - `ddDatum.Items` und `lblHeuteTitel.Text` (`Coalesce(varHeute; Today())`).

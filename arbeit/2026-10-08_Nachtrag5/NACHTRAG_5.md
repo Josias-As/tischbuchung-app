@@ -7,7 +7,7 @@ Für den Desktop-Chat. **Grundlage ist der Export „PCAppfertig“ vom 08.10., 
   - Der erste Tipp schreibt nichts. Der Knopf zeigt dann „Ja, stornieren“ bzw. „Ja, 3 stornieren“, dazu kommt eine Meldung.
   - Erst ein zweiter Tipp frühestens nach 1 Sekunde storniert. Ein Doppelklick bestätigt also nicht.
   - Die Bestätigung führt die Export-Fassung **unverändert** aus. Maschinell geprüft: Sie ist nur eingerückt.
-- **N3:** Die Frage wird beim Öffnen eines Verwalten-Dialogs zurückgesetzt. Beim Mehrfach-Storno gilt sie nur für genau die Auswahl, für die gefragt wurde. Ändert sich die Auswahl, fragt die App neu.
+- **N3:** Die Frage wird beim Öffnen eines Verwalten-Dialogs und beim Tab-Wechsel zurückgesetzt. Beim Mehrfach-Storno gilt sie nur für genau die Auswahl, für die gefragt wurde. Ändert sich die Auswahl, fragt die App neu.
 - **N4 Nachholen:** Drei Teile, die laut Rückmeldung eingefügt sind, fehlen im Export (**belegt**):
   - **S3b** (`lblStatusHeute`, „Verfallen“ ohne Tippen).
   - **F5** an `btn5Std.Fill`: Die Farbe zählt verfallene Buchungen noch als belegt, der Knopf selbst ist aber bedienbar.
@@ -15,7 +15,7 @@ Für den Desktop-Chat. **Grundlage ist der Export „PCAppfertig“ vom 08.10., 
 - **N5 Raumcode:** Die letzten 3 Abfragen auf `Raumbuchungen` beim Start (**gemessen** 07.10.: `recBuchungDavor1.X`, `recBuchungDanach1.X`/`.Width`) und `recBuchungDavor1.Width` laufen nur noch, wenn die Raumbestätigung offen ist. Zusammen mit N4 fragt die App beim Start den Raumcode **gar nicht mehr** ab (geschlussfolgert aus den Formeln).
 - **N6 (aus der unabhängigen Prüfung):** Die Check-in-Erinnerung im Timer sucht die eigene Buchung über die E-Mail (Dashboard-Liste) statt über den Anzeigenamen im Grundriss. Bisher kam bei abweichendem Anzeigenamen nie eine Erinnerung (F2.1 U8). Sie kennt jetzt auch die `Erstellt`-Hälfte der Freigabe-Regel. Es gibt keine zusätzliche Abfrage.
 - **N7 (aus der unabhängigen Prüfung):** Die Liste im Tab „Buchungen“ fragt nur noch ab, wenn der Tab offen ist. Bisher fragte sie beim Start und nach **jeder** Aktion mit, auch auf dem Dashboard. Das spart je Start und je Buchen, Stornieren, Verlängern, Einchecken und Aktualisieren 1 Abfrage, solange man auf dem Dashboard ist (geschlussfolgert aus den Formeln, `Refresh` lädt sichtbare und unsichtbare Galerien). Beim Öffnen des Tabs ist die Liste frisch, beendete Buchungen sind dann weg.
-- **Umfang:** 18 Properties, kein neues Steuerelement. Maschinell 0 Fehler. In Studio ist nichts getestet.
+- **Umfang:** 21 Properties, kein neues Steuerelement. Maschinell 0 Fehler. Unabhängig geprüft: Formeln ohne kritischen oder hohen Befund, 11 Befunde (vor allem am Testbogen) eingearbeitet (`pruefung_nachtrag5.md`). In Studio ist nichts getestet.
 - **Einzel-Storno auch mit Bestätigung, Begründung:**
   - `Remove` löscht endgültig, zurück geht es nur über den SharePoint-Papierkorb.
   - Der Knopf liegt neben „Verlängern“.
@@ -68,8 +68,8 @@ Ort: `Screen1 > conVerwaltenDialog > btnStornieren` · **ganze Property ersetzen
 -        Set(varZeigeVerwalten; false);
 -        Notify("Die Stornierung ist nicht angekommen. Bitte aktualisieren und prüfen."; NotificationType.Warning)
 +    !(varStornoFrageID > 0 && varStornoFrageID = varSelectedBuchung.ID);
-+    Set(varStornoFrageID; varSelectedBuchung.ID);;
 +    Set(varSperreBis; DateAdd(Now(); 1; TimeUnit.Seconds));;
++    Set(varStornoFrageID; varSelectedBuchung.ID);;
 +    Notify("Wirklich stornieren? Zum Bestätigen auf „Ja, stornieren“ tippen."; NotificationType.Information);
 +    Set(varStornoFrageID; 0);;
 +    Set(varIsLoading; true);;
@@ -114,8 +114,8 @@ If(
   !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis);
   If(
     !(varStornoFrageID > 0 && varStornoFrageID = varSelectedBuchung.ID);
-    Set(varStornoFrageID; varSelectedBuchung.ID);;
     Set(varSperreBis; DateAdd(Now(); 1; TimeUnit.Seconds));;
+    Set(varStornoFrageID; varSelectedBuchung.ID);;
     Notify("Wirklich stornieren? Zum Bestätigen auf „Ja, stornieren“ tippen."; NotificationType.Information);
     Set(varStornoFrageID; 0);;
     Set(varIsLoading; true);;
@@ -190,8 +190,8 @@ Ort: `Screen1 > conBuchungen > conVerwaltenDialog_1 > btnStornieren_1` · **ganz
 -        Set(varZeigeVerwaltenTab; false);
 -        Notify("Die Stornierung ist nicht angekommen. Bitte aktualisieren und prüfen."; NotificationType.Warning)
 +    !(varStornoFrageID > 0 && varStornoFrageID = varSelectedBuchungTab.ID);
-+    Set(varStornoFrageID; varSelectedBuchungTab.ID);;
 +    Set(varSperreBis; DateAdd(Now(); 1; TimeUnit.Seconds));;
++    Set(varStornoFrageID; varSelectedBuchungTab.ID);;
 +    Notify("Wirklich stornieren? Zum Bestätigen auf „Ja, stornieren“ tippen."; NotificationType.Information);
 +    Set(varStornoFrageID; 0);;
 +    Set(varIsLoading; true);;
@@ -236,8 +236,8 @@ If(
   !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis);
   If(
     !(varStornoFrageID > 0 && varStornoFrageID = varSelectedBuchungTab.ID);
-    Set(varStornoFrageID; varSelectedBuchungTab.ID);;
     Set(varSperreBis; DateAdd(Now(); 1; TimeUnit.Seconds));;
+    Set(varStornoFrageID; varSelectedBuchungTab.ID);;
     Notify("Wirklich stornieren? Zum Bestätigen auf „Ja, stornieren“ tippen."; NotificationType.Information);
     Set(varStornoFrageID; 0);;
     Set(varIsLoading; true);;
@@ -287,7 +287,7 @@ If(varStornoFrageID > 0 && varStornoFrageID = varSelectedBuchungTab.ID; "Ja, sto
 ```
 
 **Ablauf beim Tippen:**
-1. **Erster Tipp:** Er setzt `varStornoFrageID` auf die ID der offenen Buchung und sperrt 1 Sekunde. Dazu kommt die Meldung „Wirklich stornieren? …“, und der Knopf zeigt „Ja, stornieren“. Es gibt keine Abfrage und kein Schreiben.
+1. **Erster Tipp:** Er sperrt 1 Sekunde (als erste Anweisung, Prüfung B7) und setzt `varStornoFrageID` auf die ID der offenen Buchung. Dazu kommt die Meldung „Wirklich stornieren? …“, und der Knopf zeigt „Ja, stornieren“. Es gibt keine Abfrage und kein Schreiben.
 2. **Zweiter Tipp** (nach 1 s, gleiche Buchung): Er setzt die Frage zurück und führt die Export-Fassung aus: frisch lesen, nur eigene, `IfError`, Nachlese, Ladezeile mit Stempel.
 3. **Doppelklick:** Der zweite Klick fällt in die 1-s-Sperre und tut nichts.
 
@@ -347,8 +347,8 @@ Ort: `Screen1 > conBuchungen > conVerwaltenKlein > btnStornierenKlein` · **ganz
 -  Set(varSperreBis; DateAdd(Now(); 2; TimeUnit.Seconds));;
 -  Set(varIsLoading; false)
 +    CountRows(colAusgewaehlteBuchungen) > 0 && varStornoFrageAuswahl <> Concat(colAusgewaehlteBuchungen; Text(ID); ",");
-+    Set(varStornoFrageAuswahl; Concat(colAusgewaehlteBuchungen; Text(ID); ","));;
 +    Set(varSperreBis; DateAdd(Now(); 1; TimeUnit.Seconds));;
++    Set(varStornoFrageAuswahl; Concat(colAusgewaehlteBuchungen; Text(ID); ","));;
 +    Notify("Wirklich " & CountRows(colAusgewaehlteBuchungen) & If(CountRows(colAusgewaehlteBuchungen) = 1; " Buchung"; " Buchungen") & " stornieren? Zum Bestätigen noch einmal tippen."; NotificationType.Information);
 +    Set(varStornoFrageAuswahl; "");;
 +    Set(varIsLoading; true);;
@@ -400,8 +400,8 @@ If(
   !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis);
   If(
     CountRows(colAusgewaehlteBuchungen) > 0 && varStornoFrageAuswahl <> Concat(colAusgewaehlteBuchungen; Text(ID); ",");
-    Set(varStornoFrageAuswahl; Concat(colAusgewaehlteBuchungen; Text(ID); ","));;
     Set(varSperreBis; DateAdd(Now(); 1; TimeUnit.Seconds));;
+    Set(varStornoFrageAuswahl; Concat(colAusgewaehlteBuchungen; Text(ID); ","));;
     Notify("Wirklich " & CountRows(colAusgewaehlteBuchungen) & If(CountRows(colAusgewaehlteBuchungen) = 1; " Buchung"; " Buchungen") & " stornieren? Zum Bestätigen noch einmal tippen."; NotificationType.Information);
     Set(varStornoFrageAuswahl; "");;
     Set(varIsLoading; true);;
@@ -476,7 +476,7 @@ If(CountRows(colAusgewaehlteBuchungen) > 0 && varStornoFrageAuswahl = Concat(col
 3. „Ja, 4 stornieren“ → „4 Buchungen storniert.“
 4. Doppelklick auf „Stornieren“ bei neuer Auswahl → nur die Frage.
 
-### N3 Frage beim Öffnen zurücksetzen
+### N3 Frage beim Öffnen und beim Tabwechsel zurücksetzen
 
 #### `btnVerwalten.OnSelect`
 
@@ -549,9 +549,55 @@ If(
 )
 ```
 
+#### `btnTabDashboard.OnSelect`
+
+Ort: `Screen1 > conHeader > btnTabDashboard` · **ganze Property ersetzen** · Herkunft: N3
+
+Änderung gegenüber dem Export 08.10. 14:26 (`-` alt, `+` neu):
+
+```diff
+@@ -1 +1,2 @@
++Set(varStornoFrageID; 0);;
+ Set(varAktiverTab; "dashboard")
+```
+
+Vollständiger Block zum Einfügen:
+
+```
+Set(varStornoFrageID; 0);;
+Set(varAktiverTab; "dashboard")
+```
+
+#### `btnTabBuchungen.OnSelect`
+
+Ort: `Screen1 > conHeader > btnTabBuchungen` · **ganze Property ersetzen** · Herkunft: N3
+
+Änderung gegenüber dem Export 08.10. 14:26 (`-` alt, `+` neu):
+
+```diff
+@@ -1 +1,2 @@
++Set(varStornoFrageID; 0);;
+ Set(varAktiverTab; "buchungen");;
+```
+
+Vollständiger Block zum Einfügen:
+
+```
+Set(varStornoFrageID; 0);;
+Set(varAktiverTab; "buchungen");;
+Set(varZeigeRaumVerwalten; false);;
+Set(varZeigeVerwalten; false);;
+Set(varZeigeDialog; false);;
+Set(varZeigeDetails; false);;
+Set(varZeigeCheckin; false);;
+Set(varZeigeVerlaengern; false)
+```
+
 Beide Formeln bekommen nur vorne die Rücksetzung, der Rest ist der Export (maschinell geprüft).
 
-**Test:** Dashboard: „Stornieren“ (Frage), Dialog schließen, **dieselbe** Buchung wieder öffnen → der Knopf zeigt „Stornieren“, der erste Tipp fragt erneut.
+Neu nach der Prüfung: Auch die Tab-Knöpfe (`btnTabDashboard`, `btnTabBuchungen`) setzen die Frage zurück. Sonst stünde nach einem Tab-Wechsel bei derselben Buchung im anderen Dialog schon „Ja, stornieren“.
+
+**Test:** Dashboard: „Stornieren“ (Frage), Dialog schließen, **dieselbe** Buchung wieder öffnen → der Knopf zeigt „Stornieren“, der erste Tipp fragt erneut. Dasselbe mit einem Tab-Wechsel dazwischen.
 
 ### N4 Nachholen: im Export fehlende Teile (S3b, F5, G25)
 
@@ -658,8 +704,8 @@ varZeigeRaumBestätigung && CountRows(Filter(Raumbuchungen; Raum.Value = varAusg
 Die Blöcke sind **zeichengleich** mit S3b (Grundriss-Sperre), F5 (F2.1) und G25 (Gesamtplan). Die Diffs zeigen, was im Export noch alt ist.
 
 **Test:**
-- **S3b:** Siehe Testbogen Punkt 9.
-- **F5:** Panel „Tisch buchen“, Tisch mit nur einer verfallenen Buchung (Testmodus) → „5 Std“ blau und bedienbar.
+- **S3b:** Siehe Testbogen Punkt 7.
+- **F5:** Testbogen Punkt 10: „5 Std“ hellgrün und bedienbar, obwohl dort eine verfallene Buchung liegt.
 - **G25:** Monitor beim Start: keine Zeile `recBuchungDanach1`.
 
 ### N5 Raumcode: letzte Startabfragen abschalten
@@ -936,7 +982,7 @@ Nur der Vorfilter ändert sich. Ob gefragt wird, entscheidet wie bisher die Abfr
 - Die Dashboard-Liste (`galTischbuchungenHeute`) zeigt genau die eigenen Buchungen des Ansichtstags, per `Person.Email` (belegt).
 - Der Timer fragt nur, wenn das Ansichtsdatum heute ist und das Dashboard offen (belegt).
 
-**Test:** Testbogen Punkt 8.
+**Test:** Testbogen Punkt 3.
 
 ### N7 Tab „Buchungen“ fragt nur ab, wenn er offen ist
 
@@ -982,53 +1028,79 @@ If(
 )
 ```
 
+#### `chkAuswahl.OnCheck`
+
+Ort: `Screen1 > conBuchungen > galAlleTischbuchungen > chkAuswahl` · **ganze Property ersetzen** · Herkunft: N7
+
+Änderung gegenüber dem Export 08.10. 14:26 (`-` alt, `+` neu):
+
+```diff
+@@ -1 +1 @@
+-Collect(colAusgewaehlteBuchungen; ThisItem)
++If(IsBlank(LookUp(colAusgewaehlteBuchungen; ID = ThisItem.ID)); Collect(colAusgewaehlteBuchungen; ThisItem))
+```
+
+Vollständiger Block zum Einfügen:
+
+```
+If(IsBlank(LookUp(colAusgewaehlteBuchungen; ID = ThisItem.ID)); Collect(colAusgewaehlteBuchungen; ThisItem))
+```
+
 Die Formel ist unverändert, sie steht nur in `If(varAktiverTab = "buchungen"; …)`. Alle Formeln, die die Liste lesen, liegen im Tab „Buchungen“ (belegt: Auswahl, Alle auswählen, Leer-Hinweis, Breiten).
+
+Dazu kommt `chkAuswahl.OnCheck` (Vorschlag der Prüfung): Er fügt eine Buchung nur einmal in die Auswahl ein. Baut sich die Liste beim Tab-Wechsel neu auf, kann sonst `OnCheck` erneut auslösen und dieselbe Buchung doppelt in die Auswahl legen. Folge wären falsche Zahlen („Ja, 6 stornieren“ bei 3 Haken), aber keine falsche Löschung (UNSICHER, ob es auslöst).
+
+**N7 ist eine Leistungsverbesserung, kein Muss.** Stört etwas, nur `galAlleTischbuchungen.Items` zurücknehmen. `chkAuswahl.OnCheck` darf bleiben.
 
 **Test:**
 1. Tab „Buchungen“ öffnen → die Liste erscheint (kurz leer, solange sie lädt).
 2. Mehrfachauswahl → „Alle auswählen“ → alle sind angehakt.
 3. Zurück zum Dashboard, buchen, wieder zum Tab → die neue Buchung ist da.
+4. Mehrfachauswahl, 2 Haken, Tab Dashboard, zurück zum Tab, eine Buchung antippen → „Stornieren“ → die Meldung nennt **2** (oder 0, wenn die Haken weg sind, siehe N-U5), nie 4.
 
 ## 3. Abschluss-Testbogen (ersetzt F2.1 Abschnitt 6, Auftrag 2b)
-Stand: F2.1 F1–F7, Grundriss-Sperre S1–S4, Nachtrag 5. **F8 gibt es nicht mehr**, der Timer (`Timer1`) ist S3.
+Stand: F2.1 F1–F7, Grundriss-Sperre S1–S4, Nachtrag 5. **F8 gibt es nicht mehr**, der Timer (`Timer1`) ist S3. Jeder Test ist gegen die Eingabemöglichkeiten der App geprüft: Startliste nur ab der nächsten halben Stunde, keine Buchung in der Vergangenheit, keine zwei eigenen Tische zur selben Zeit.
 
-**Vorbereitung:**
-1. Testknopf `btnTestFreigabe` **außerhalb** von `conGrundriss` anlegen, `OnSelect`: `Set(varFreigabeMinuten; 1)`. In der Vorschau tippen. **`App.OnStart` nicht ändern.**
-2. Testbuchungen immer zur **nächsten halben Stunde** anlegen. Die Startliste hat nur halbe Stunden.
-3. „Verfallen“ heißt im Testmodus: Beginn **und** Buchungszeitpunkt liegen mehr als 1 Minute zurück.
-4. Tests 2–5 bauen aufeinander auf. Wartezeit bis T + 1 Min: bis zu 30 Minuten. Tests 6–11 können in dieser Zeit laufen.
-5. Verlängern über eine **folgende** verfallene Buchung lässt sich nicht testen: Eine Buchung, die schon begonnen hat, kann nicht hinter einer noch laufenden eigenen liegen. Test 5 verlängert deshalb in eine **lange** verfallene Buchung hinein, die schon läuft.
+**Vorbereitung**
+- **N** = jetzt, **T** = nächste halbe Stunde. **Vor 16:00 beginnen**, damit „5 Std“ noch vor 22:00 endet. Dauer etwa 1 Std.
+- Du brauchst einen Kollegen **K** (oder ein zweites Konto) und vier Tische **X, Y, Z, W**.
+- Testknopf `btnTestFreigabe` **außerhalb** von `conGrundriss`, `OnSelect`: `Set(varFreigabeMinuten; 1)`. **`App.OnStart` nicht ändern.**
+- „Verfallen“ heißt im Testmodus: Beginn **und** Buchungszeitpunkt liegen mehr als 1 Minute zurück.
+- Bei jedem Schreiben gilt: Es kommt die Erfolgsmeldung, nie „nicht angekommen“.
 
-| ✓ | Test | Erwartung |
-|---|---|---|
-| ☐ | 1 App-Prüfung, OnStart ausführen, Vorschau | keine roten Fehler, kein Aufblitzen der Grundriss-Sperre, Check-in-Frage beim Start, wenn eine eigene Buchung ansteht |
-| ☐ | 2 Kollege (oder zweites Konto) bucht Tisch X von **T** (nächste halbe Stunde) bis **T + 3 Std** und checkt nicht ein. Testknopf tippen. Ab T + 1 Min: Aktualisieren | Kachel X **grün**, Klick → Buchungsdialog (F3) |
-| ☐ | 3 Du buchst X von T + 30 Min bis T + 60 Min | „Gebucht …“, die Buchung steht **ohne Aktualisieren** in der Liste (F4, Nachtrag 4) |
-| ☐ | 4 Panel „Tisch buchen“: heute, Beginn T + 60 Min | X steht in der Liste, „5 Std“ blau und bedienbar, solange bis 22:00 Platz ist (F5, N4) |
-| ☐ | 5 Deine Buchung aus 3 im Dashboard verlängern (+1 Std). Danach eine zweite eigene Buchung an einem anderen Tisch von T + 90 bis T + 120 Min anlegen und die Buchung aus 3 noch einmal verlängern | erst „verlängert“, weil die Buchung des Kollegen verfallen ist (F6), dann die Meldung „zwei Tische“ |
-| ☐ | 6 Einchecken: eigene Buchung zur nächsten halben Stunde. Mehr als 30 Min vorher, dann im Fenster, dann (im Testmodus) ab 1 Min nach Beginn ohne Check-in | „erst ab 30 Minuten vor Beginn“ → „Eingecheckt.“ bzw. „**Zu spät** …“ (F7) |
-| ☐ | 7 Auschecken nach Beginn: „Auschecken“ → „Wirklich auschecken?“ → tippen. Doppelklick testen | Ende = jetzt. Ein Doppelklick checkt nicht aus (F7) |
-| ☐ | 8 Erinnerung (ersetzt „F8 Timer aktualisiert“): eigene Buchung zur nächsten halben Stunde, auf dem Dashboard bleiben, kein Dialog offen | Check-in-Frage nach höchstens 15 s, nur einmal (Grundriss-Sperre Test 8) |
-| ☐ | 9 Status ohne Tippen: eigene Buchung zur nächsten halben Stunde, nicht einchecken, Testknopf | ab 1 Min nach Beginn „Verfallen“ (grau) **ohne Tippen**, nach höchstens 15 s (Grundriss-Sperre Test 9, braucht N4) |
-| ☐ | 10 Grundriss-Sperre: 2:15 Min warten, Kachel und Stockwerk tippen, dann „Grundriss aktualisieren“ | Fläche und Knopf erscheinen, darunter passiert nichts, nach dem Tippen ist die Fläche weg |
-| ☐ | 11 Stornieren Dashboard, Tab, Mehrfach mit Bestätigung, Doppelklick (N1–N3) | siehe Tests N1–N3 |
-| ☐ | 12 **Testknopf löschen.** In `App.OnStart` steht `Set(varFreigabeMinuten; 30)` und `Set(varGrundrissSperreSekunden; 120)`. Keine Test-Steuerelemente mehr in der Strukturansicht | |
-| ☐ | 13 Alle Testbuchungen stornieren (eigene über den Mehrfach-Storno, die des Kollegen durch ihn) | Grundriss und Listen ohne Testbuchungen |
-| ☐ | 14 **Spätbuchung mit echten 30 Minuten (Muss).** Klärt, ob `Erstellt` in den Sammlungen der Desktop-App ankommt (Prüfung M3). Testknopf ist gelöscht. Ein Kollege bucht **am Handy** um hh:20 einen Tisch ab **hh:00**. Die Handy-Startliste beginnt bei der laufenden halben Stunde, die Desktop-App erlaubt das nicht. Er checkt nicht ein. Am PC um hh:35 und um hh:55 den Grundriss aktualisieren | hh:35: Der Tisch ist **belegt**, weil er erst 30 Min nach dem Buchungszeitpunkt (hh:50) verfällt. hh:55: frei. **Ist er schon um hh:35 frei, kommt `Erstellt` leer an** → nicht veröffentlichen, an Claude Code melden |
-| ☐ | 15 Rückmeldungen: Einchecken, Auschecken, Verlängern, Stornieren je einmal | jeweils die Erfolgsmeldung, nie „nicht angekommen“ |
-| ☐ | 16 Sicherung (Datei → Speichern unter → Dieser Computer, `.msapp`), App-Prüfung ohne rote Fehler, **Veröffentlichen** | |
+| ✓ | Zeit | Test | Erwartung |
+|---|---|---|---|
+| ☐ | N | 1 App-Prüfung, **OnStart ausführen**, Vorschau | keine roten Fehler, kein Aufblitzen der Grundriss-Sperre |
+| ☐ | N | 2 Testknopf tippen. K bucht **X von T bis T + 3 Std**, checkt nicht ein. Du buchst **W von T bis T + 30** (S) und **Z von T + 30 bis T + 60** (E) | „Gebucht …“, beide ohne Aktualisieren in der Dashboard-Liste (Nachtrag 4) |
+| ☐ | N | 3 **Erinnerung** (ersetzt „F8 Timer aktualisiert“): auf dem Dashboard bleiben, kein Dialog offen | Check-in-Frage zu **W** nach höchstens 15 s (N6). Frage schließen, **nicht** einchecken. Sie kommt nicht noch einmal |
+| ☐ | N | 4 Einchecken **E** (Z) | „Einchecken ist erst ab 30 Minuten vor Beginn möglich.“ (F7) |
+| ☐ | N | 5 **Grundriss-Sperre:** 2:15 Min warten, Kachel und Stockwerk tippen, dann „Grundriss aktualisieren“ | Fläche und Knopf erscheinen, darunter passiert nichts, danach ist die Fläche weg |
+| ☐ | ab T | 6 Einchecken **E** | „Eingecheckt.“ |
+| ☐ | ab T + 1 | 7 **Status ohne Tippen:** Dashboard ansehen | **S** wird nach höchstens 15 s **„Verfallen“ (grau)** (S3b über N4) |
+| ☐ | ab T + 1 | 8 Einchecken **S** | „**Zu spät** …“ (F7) |
+| ☐ | ab T + 1 | 9 Aktualisieren. Kachel **X** | **grün**, Klick → Buchungsdialog (F3). Dialog schließen |
+| ☐ | ab T + 1 | 10 Panel „Tisch buchen“: heute, Beginn wie vorgeschlagen (T + 30), Tisch X wählen, **nicht speichern** | X steht in der Liste, „5 Std“ **hellgrün** und bedienbar (F5 über N4). Panel schließen |
+| ☐ | ab T + 1 | 11 Grundriss → X → **T + 60 bis T + 90** buchen | „Gebucht …“, ohne Aktualisieren in der Liste (F4) |
+| ☐ | ab T + 1 | 12 Buchung X verlängern (+1 Std) | verlängert, weil die Buchung von K verfallen ist (F6) |
+| ☐ | ab T + 1 | 13 **Y von T + 150 bis T + 180** buchen, dann X noch einmal +1 Std | Meldung „zwei Tische“, X bleibt bis T + 150 |
+| ☐ | ab T + 31 | 14 **Auschecken E:** „Auschecken“ → „Wirklich auschecken?“ → nach 1 s tippen. Vorher einmal doppelklicken | Der Doppelklick checkt nicht aus. Danach Ende = jetzt (F7) |
+| ☐ | nach 14 | 15 **Stornieren:** Dashboard **Y**: erst doppelklicken, dann „Ja, stornieren“. Tab **X**: „Stornieren“, Tab wechseln, zurück, X öffnen → wieder „Stornieren“, dann bestätigen. **Mehrfach:** zwei neue Buchungen für morgen anlegen, Test N2 (mit Auswahl ändern). S und E sind schon beendet und stehen nicht mehr in den Listen | erst die Frage, dann „storniert“. Ein Doppelklick löscht nicht. Nach dem Tab-Wechsel fragt die App neu (N3) |
+| ☐ | | 16 **Testknopf löschen. Dann OnStart ausführen** (oder Vorschau schließen und neu öffnen): Bis dahin bleibt `varFreigabeMinuten` = 1. In `App.OnStart` steht `Set(varFreigabeMinuten; 30)` und `Set(varGrundrissSperreSekunden; 120)`. Keine Test-Steuerelemente in der Strukturansicht. K storniert seine Buchung | |
+| ☐ | hh:20 | 17 **Spätbuchung mit echten 30 Minuten (Muss).** Klärt, ob `Erstellt` in den Sammlungen der Desktop-App ankommt (Prüfung M3). Nach Test 16. K bucht **am Handy** um hh:20 einen Tisch ab **hh:00**: Die Handy-Startliste beginnt bei der laufenden halben Stunde, die Desktop-App erlaubt das nicht. K checkt nicht ein, Dauer mindestens bis hh+1:00. **Kontrolle:** Du buchst um hh:20 am PC einen anderen Tisch ab hh:30 und checkst nicht ein. Am PC um hh:35 und hh:55 den Grundriss aktualisieren | **Kontrolle** um hh:35 orange (belegt). Ist sie grün, läuft noch der Testmodus → Test 16 wiederholen. **K** um hh:35: **belegt**, weil die Buchung erst 30 Min nach dem Buchungszeitpunkt verfällt (hh:50). Um hh:55 frei. **Ist K schon um hh:35 frei**, kommt `Erstellt` leer an → **nicht veröffentlichen**, an Claude Code melden. Danach beide Buchungen stornieren |
+| ☐ | | 18 Sicherung (Datei → Speichern unter → Dieser Computer, `.msapp`), App-Prüfung ohne rote Fehler, **Veröffentlichen** | |
 
 ## 4. UNSICHER
 | Nr | Was | Test |
 |---|---|---|
 | N-U1 | Passt „Ja, stornieren“ in `btnStornieren` (etwa 137 px) ohne Umbruch? (geschlussfolgert) | Test N1. Wenn es umbricht: `btnStornieren.Size` auf 13 |
 | N-U3 | Tab „Buchungen“: Beim Öffnen ist die Liste kurz leer, und „Keine Buchungen“ kann aufblitzen (geschlussfolgert) | Test N7. Stört es, N7 zurücknehmen |
-| N-U4 | `galTischbuchungenHeute.AllItems` liefert im Timer dieselben Zeilen wie die sichtbare Liste (geschlussfolgert, Standardverhalten) | Testbogen Punkt 8 |
+| N-U4 | `galTischbuchungenHeute.AllItems` liefert im Timer dieselben Zeilen wie die sichtbare Liste (geschlussfolgert, Standardverhalten) | Testbogen Punkt 3 |
+| N-U5 | N7: Beim Wechsel Tab → Dashboard wird die Liste leer. `chkAlleAuswählen.Default` springt dann eventuell auf falsch, und `OnUncheck` leert die Mehrfachauswahl still. Das ist nicht gemessen. Gelöscht wird dadurch nichts, nur die Haken sind weg. Doppelte Einträge durch erneutes `OnCheck` verhindert der neue `chkAuswahl.OnCheck` | Test N7 Schritt 4 |
 | N-U2 | `Concat(…; Text(ID); ",")` ist in dieser App zulässig (powerfxv1 aus). Geschlussfolgert, `Concat` ist eine Standardfunktion | App-Prüfung nach N2 |
 
 ## 5. Rückfall
 - N1–N3 **zusammen** auf die Fassungen in Anhang A zurücksetzen. Ohne N3 bleibt eine alte Frage beim erneuten Öffnen bestehen. Harmlos, weil der Knopf dann „Ja, stornieren“ zeigt.
-- N4 bis N7 einzeln auf Anhang A zurücksetzen.
+- N4 bis N7 einzeln auf Anhang A zurücksetzen. `chkAuswahl.OnCheck` darf auch ohne N7 bleiben.
 
 ## Anhang A: Fassungen im Export 08.10. 14:26 (Rückfall)
 
@@ -1203,6 +1275,24 @@ If(
 )
 ```
 
+**`btnTabDashboard.OnSelect`** (N3)
+
+```
+Set(varAktiverTab; "dashboard")
+```
+
+**`btnTabBuchungen.OnSelect`** (N3)
+
+```
+Set(varAktiverTab; "buchungen");;
+Set(varZeigeRaumVerwalten; false);;
+Set(varZeigeVerwalten; false);;
+Set(varZeigeDialog; false);;
+Set(varZeigeDetails; false);;
+Set(varZeigeCheckin; false);;
+Set(varZeigeVerlaengern; false)
+```
+
 **`lblStatusHeute.Text`** (N4)
 
 ```
@@ -1362,13 +1452,20 @@ With(
 )
 ```
 
+**`chkAuswahl.OnCheck`** (N7)
+
+```
+Collect(colAusgewaehlteBuchungen; ThisItem)
+```
+
 ## Anhang B: Maschinelle Prüfung
 
 ```
-18 Properties in 7 Schritten, kein neues Steuerelement. Grundlage: Export 08.10. 14:26 (PCAppfertig).
+21 Properties in 7 Schritten, kein neues Steuerelement. Grundlage: Export 08.10. 14:26 (PCAppfertig).
 Je Property: Klammern, Rückübersetzung, Variablen gesetzt, Steuerelemente vorhanden, Schreibstellen mit Sperre, Ladezeile mit Stempel, Spaltennamen als Bezeichner.
 Storno: Frage-Zweig schreibt und fragt nicht ab, setzt 1-s-Sperre; Bestätigungs-Zweig = Export-Fassung unverändert (nur eingerückt); Frage wird vor dem Schreiben zurückgesetzt.
-Öffnen: an btnVerwalten/btnVerwalten_2 nur das Rücksetzen vorangestellt.
+Öffnen und Tabwechsel: an btnVerwalten/btnVerwalten_2/btnTabDashboard/btnTabBuchungen nur das Rücksetzen vorangestellt.
+Frage-Zweig: 1-s-Sperre ist die erste Anweisung.
 Raumcode: danach keine Raum-Abfrage außerhalb von Verhaltensformeln ohne Bedingung.
 Prüfung: 0 Fehler
 ```
