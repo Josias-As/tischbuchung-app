@@ -59,7 +59,8 @@ Monitor-Dateien (`PowerAppsTraceEvents_*.json`, 23 MB) sind nicht im Repo, nur b
 - Namen bleiben sichtbar. Raumcode bleibt (nicht löschen). Liste: nur eigene Elemente bearbeiten.
 - Josias darf Spalten und Steuerelemente anlegen. Nur Josias sperrt Tische. Big Table bleibt für alle über den Grundriss buchbar.
 - Test mit 3–5 Kollegen möglich. Nach Paket K kommen ein Export und ein Trace. Vertretung: Michael/IT. Arbeitsweise: alles nach Wichtigkeit, möglichst vor dem Go-Live, nicht sparen.
-- Tisch-Anzeigen (GoBright-Hardware über ein Gateway) fallen mit dem Vertragsende weg. Modell unbekannt, eine Anbindung ist zu recherchieren.
+- Tisch-Anzeigen (GoBright-Hardware über ein Gateway) fallen mit dem Vertragsende weg. **Modelle belegt (Fotos von Michael, 08.10.):** Tischgerät **GoBright Connect DCF1-10P** (10er-Pack, 80-mm-Loch in der Tischplatte, LED-Ring, Desk Connection Cable), Gateway **GoBright Multi Gateway Mesh to Platform MGW211-DP28** (PoE, Ethernet, Zigbee-Mesh 2,4 GHz zu den Connects, Cloud-Anbindung an die GoBright-Plattform, bis 100 Geräte). Eine Lizenz pro Tisch nötig. Keine lokale Schnittstelle bekannt → Anbindung an die eigene App nicht machbar (Recherche 08.10.).
+- **Gateways hat der Dienstleister NHN in Betrieb genommen, NHN hat den Zugang.** Michael hat einen Karton mit Material im Archiv hinterlegt. **Michael ist in der Go-Live-Woche (ab 12.10.) im Urlaub und nicht erreichbar** → Vertretung für den Go-Live klären.
 
 ## 6. Stand der Arbeit
 - **Erledigt (Josias, veröffentlicht):** L2 Grundriss-Performance (Serie 11 Termine ~4,7 s statt ~101 s, gemessen), Sammel-Patch in `btnSpeichern`, Mehrfach-Stornieren neu.
