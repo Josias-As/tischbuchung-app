@@ -19,7 +19,7 @@ Stand 08.10.2026 · Verantwortlich: Josias · Vertretung: Michael/IT
 - Buchbar von **06:00 bis 22:00**, nicht in der Vergangenheit, Serien Mo–Fr für höchstens 14 Tage.
 - Kein Tisch doppelt belegt. Keine Person zur selben Zeit an zwei Tischen.
 - Einchecken ab 30 Min vor bis 30 Min nach Beginn. **Ohne Check-in verfällt die Buchung 30 Min nach Beginn** (bei später Buchung: 30 Min nach dem Buchungszeitpunkt). Sie bleibt in der Liste stehen, die Apps behandeln den Tisch aber als frei. **Es gibt keinen Flow dafür, die Regel steckt in der App** (`varFreigabeMinuten` in `App.OnStart`).
-- Auschecken beendet die Buchung (Ende = jetzt).
+- Auschecken nach Beginn beendet die Buchung (Ende = jetzt). Vor Beginn nimmt es nur den Check-in zurück.
 - Verlängern nie über 22:00. Stornieren nur mit Rückfrage.
 - Gesperrte Tische (`Tische.Gesperrt = Ja`) sind nicht buchbar. **Sperren/Entsperren: direkt in der Liste `Tische`.**
 - Liste `Tischbuchungen`: Jeder darf nur **eigene** Einträge bearbeiten. Besitzer dürfen alles.
@@ -30,7 +30,7 @@ Stand 08.10.2026 · Verantwortlich: Josias · Vertretung: Michael/IT
 | „Ich sehe meine Buchung nicht“ / „Status Verfallen“ | App neu laden (Aktualisieren-Symbol). In der Liste `Tischbuchungen` nach Person filtern. „Verfallen“ heißt: nicht bis 30 Min nach Beginn eingecheckt, der Tisch ist frei. Das ist so gewollt. Neu buchen |
 | Buchung versehentlich gelöscht | SharePoint-Site → Papierkorb → wiederherstellen |
 | Tisch defekt | In `Tische` `Gesperrt = Ja`. Bestehende Buchungen für diesen Tisch in `Tischbuchungen` anpassen und Betroffene informieren |
-| Doppelbuchung gemeldet | In `Tischbuchungen` nach Tisch und Zeit filtern. **Überlappung ist normal, wenn die ältere Buchung nicht eingecheckt und verfallen ist** (CheckedIn = Nein, Beginn bzw. Erstellt mehr als 30 Min vor der neuen). Sonst ist die Buchung mit der **höheren ID** die spätere → mit der Person klären und löschen |
+| Doppelbuchung gemeldet | In `Tischbuchungen` nach Tisch und Zeit filtern. **Überlappung ist normal, wenn die ältere Buchung nicht eingecheckt und verfallen war** (CheckedIn = Nein, **Beginn und Erstellt** der älteren liegen mehr als 30 Min vor dem **Erstellt** der neuen). Sonst ist die Buchung mit der **höheren ID** die spätere → mit der Person klären und löschen |
 | App zeigt rote Fehlermeldung | Screenshot und Uhrzeit notieren. App neu laden. Bei Wiederholung: Power Apps → App → **Monitor** öffnen, Aktion wiederholen, Trace exportieren → an Josias |
 | App nach einer Änderung kaputt | Power Apps → App → **Versionsverlauf** → letzte funktionierende Version **Wiederherstellen** → veröffentlichen |
 | Freigabe falsch (Tisch frei, obwohl jemand da ist) | Hat die Person eingecheckt? In der Liste `CheckedIn` prüfen. Notfalls die Person neu buchen lassen. Bei Häufung Josias informieren |

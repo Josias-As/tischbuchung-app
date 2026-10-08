@@ -26,6 +26,7 @@ Monitor-Dateien (`PowerAppsTraceEvents_*.json`, 23 MB) sind nicht im Repo, nur b
 - `werkzeuge/paket_k_v2.py`: erzeugt Paket K v2 aus dem Export. Bricht ab, wenn ein Anker nicht genau passt. Prüft Klammern, Rückübersetzung, Namen, Variablen, Sperre und Ladezeile an allen Schreibstellen → `arbeit/2026-10-07_PaketK_v2/bloecke.json`, `pruefung.txt`.
 - `werkzeuge/doc_paket_k_v2.py` + `werkzeuge/paket_k_v2_text.md`: erzeugen `UEBERGABE_PaketK_v2.md`.
 - `werkzeuge/gesamtplan.py` + `doc_gesamtplan.py`: Gesamtplan aus Export + K v2 + L + Interview-Entscheidungen (prüft: jede Property genau einmal, Schreibstellen mit Sperre/Ladezeile, Variablen, neue Steuerelemente).
+- `werkzeuge/paket_f.py` + `doc_paket_f.py` + `paket_f_text.md`: Paket F auf den Endfassungen des Gesamtplans (liest `gesamtplan_bloecke.json`). Prüft zusätzlich jede einzelne Abfrage auf `Tischbuchungen` (Freigabe-Regel oder begründete Ausnahme). Mutationstest bestanden (6/6).
 - **Nach einem neuen Export:** ZIP nach `quellen/<datum>…/` legen, Pfad in `app.py` anpassen, beide Skripte neu laufen lassen.
 
 ## 4. Formelregeln (alle schon einmal verletzt oder gemessen)
@@ -53,7 +54,7 @@ Monitor-Dateien (`PowerAppsTraceEvents_*.json`, 23 MB) sind nicht im Repo, nur b
 
 ## 5a. Entscheidungen von Josias (Interview 08.10., `arbeit/2026-10-08_Interview/ANTWORTEN.md`)
 - **Harter Umstieg am 14.10.**, der GoBright-Vertrag endet. Es gibt keinen Parallelbetrieb.
-- Automatische Freigabe nicht eingecheckter Buchungen nach **30 Min**, nur löschen, Flow unter Josias’ Konto.
+- Automatische Freigabe nicht eingecheckter Buchungen nach **30 Min**. ~~nur löschen, Flow unter Josias’ Konto~~ → **geändert 08.10.: kein Flow, Freigabe in der App, nichts löschen (Paket F).** Josias: „kein Fan von der Freigabe mit Flow, erscheint unsicher“.
 - Regeln E1–E7: Claude entscheidet → Vorschläge aus K v2. Frühester Start **06:00**, Ende 22:00, Serien Mo–Fr.
 - Namen bleiben sichtbar. Raumcode bleibt (nicht löschen). Liste: nur eigene Elemente bearbeiten.
 - Josias darf Spalten und Steuerelemente anlegen. Nur Josias sperrt Tische. Big Table bleibt für alle über den Grundriss buchbar.
@@ -70,6 +71,9 @@ Monitor-Dateien (`PowerAppsTraceEvents_*.json`, 23 MB) sind nicht im Repo, nur b
 - **Selbstprüfung (08.10.):** `arbeit/2026-10-08_Kritische_Analyse/SELBSTPRUEFUNG.md`. K v2 + L = 137 Properties. **Muss vor Go-Live: 43** (K: 0, A1–A10, B1, B2, C2, D3; L: L1, L13), Soll 51, nach Go-Live 43. L12 zurückgezogen.
 
 - **GESAMTPLAN (08.10.) = maßgeblich zum Einfügen:** `arbeit/2026-10-08_Gesamtplan/GESAMTPLAN.md`. Er ersetzt das Einfügen von K v2 und L einzeln: 26 App-Schritte, 253 Properties, jede genau einmal in ihrer Endfassung, 7 neue Steuerelemente (`conStornoFrage`, `lblStornoFrage`, `btnStornoJa`, `btnStornoNein`, `tmrAktualisieren`, `btnAndereZeit`, `lblBelegtHeute`). Dazu Phase 0 (Sicherung, Bestandsdaten, Spalte `Tische.Gesperrt`, Mail an Michael), Flow „Freigabe ohne Check-in“, Rechte, Handy-App 06:00 (2 Properties), Kollegentest, Go-Live-Checkliste, Rückfall, GoBright-Anzeigen. Erzeugt mit `werkzeuge/gesamtplan.py` + `doc_gesamtplan.py` + `gesamtplan_text.md`. Dazu gehören `START_PROMPT_fuer_Chat.md`, `BETRIEBSHANDBUCH_Michael.md` und `KURZANLEITUNG_und_GoLive_Mail.md`. **Interview-Ergänzungen (06:00, Gesperrt, Storno-Bestätigung, Timer, Andere Zeit, Raumcode ruhig, Barrierefreiheit, Handy) sind nur maschinell geprüft, nicht unabhängig.**
+
+- **Feedback einer unabhängigen Durchsicht (08.10.)** zum Gesamtplan: alle 4 Punkte stimmten (Storno löscht evtl. fremde Buchung, Flow löscht spät Gebuchte/Ausgecheckte, Handy-App ohne B1–B11, Umfang). Josias: Größe egal, solange es fertigen Code gibt; Handy-App macht ein anderer Chat. `arbeit/2026-10-08_Gesamtplan/NACHTRAG_1_an_Chat_Feedback.md`.
+- **Paket F (08.10.), nicht eingefügt:** `arbeit/2026-10-08_PaketF/UEBERGABE_PaketF.md`, nach dem vollständigen Gesamtplan einzufügen, ersetzt G-F. 8 Schritte, 44 Properties, 1 neues Steuerelement (`btnStornoHintergrund`). Regel: verfallen = `!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze` (Grenze = jetzt − `Coalesce(varFreigabeMinuten; 30)`), verfallene zählen überall als frei, nichts wird gelöscht. Server filtert nur Zeit/Tisch/Person, Ja/Nein und `Erstellt` lokal (ClearCollect + RemoveIf bzw. ForAll mit `Aktiv`). Ladezeile an 14 Stellen um `Erstellt` erweitert, Schema von `colGrundriss` per `DropColumns` gleich. Einchecken bis Frist, Auschecken = Ende jetzt, Check-in-Frage beim Start und im Timer, Verlängern prüft „zwei Tische“. Storno-Fix (`varStornoID`, Eigentümer mit `Lower()`, Vollbild-Hintergrund). Unabhängig geprüft, 13 Befunde eingearbeitet (`pruefung_paket_f.md`). Dazu `AUFTRAG_Handy_Freigabe.md` (für den Handy-Chat), `KURZANLEITUNG_und_GoLive_Mail_v2.md`, `BETRIEBSHANDBUCH_Michael_v2.md`, `NACHTRAG_2_an_Chat_PaketF.md`.
 
 ## 7. Backlog (nach Paket K v2)
 1. Josias: Paket K v2 einfügen und testen (Testbogen im Dokument). Entscheidungen E1–E7 bestätigen.
@@ -92,3 +96,7 @@ Monitor-Dateien (`PowerAppsTraceEvents_*.json`, 23 MB) sind nicht im Repo, nur b
 - `Now()`/`Today()` in Datenformeln (Items/Default) werden nicht von selbst neu berechnet: Zeitpunkt beim Öffnen in eine Variable setzen (`varDialogJetzt`, `varPanelJetzt`) und damit rechnen (zweite Prüfung, 08.10.).
 - Zustand von Eingaben beim erneuten Öffnen eines Dialogs nicht geprüft (F-L11: `DefaultDate` greift nur bei Änderung, ohne `Reset` bleibt die alte Eingabe stehen).
 - Eine Messung aus der Schwester-App (Handy E-07) nicht übertragen. Erkenntnisse der Handy-App immer gegen die PC-App prüfen.
+- Eine neue Sicherheitsabfrage (Storno-Rückfrage) ohne Hintergrund gebaut: Bei offener Frage blieb die App klickbar und eine globale Variable konnte sich ändern. Dialoge, die eine Aktion bestätigen, halten ihr Ziel in einer eigenen Variable fest und sperren den Rest.
+- Einen Flow-Filter nicht gegen alle Wege durchgespielt, auf denen Daten entstehen (spät gebucht, ausgecheckt). Regeln gegen jeden Schreibweg prüfen.
+- Tests geschrieben, die in der App so nicht ausführbar sind (Startliste rundet auf, `Erstellt` einer SharePoint-Testzeile ist „jetzt“). Jeden Test gegen die Eingabemöglichkeiten der App prüfen.
+- Rechte „nur eigene Elemente“: zählt der **Ersteller**. Wer für andere anlegt, nimmt ihnen Einchecken, Stornieren und Verlängern.

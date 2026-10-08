@@ -14,9 +14,9 @@
 
 **Farben im Grundriss:** grün = frei · orange = gebucht, noch nicht eingecheckt · rot = eingecheckt · grau = gesperrt.
 
-**Wichtig: Einchecken!** Einchecken geht von 30 Minuten vor bis 30 Minuten nach Beginn (Dashboard → „Einchecken“). Die App erinnert dich, wenn sie offen ist. **Wer bis 30 Minuten nach Beginn nicht eingecheckt hat, verliert den Tisch.** Die Buchung steht dann als „Verfallen“ im Dashboard, und der Tisch ist für andere frei.
+**Wichtig: Einchecken!** Einchecken geht von 30 Minuten vor bis 30 Minuten nach Beginn (Dashboard → „Einchecken“). Die App fragt dich einmal danach, wenn du sie zur Buchungszeit öffnest oder offen hast. **Wer bis 30 Minuten nach Beginn nicht eingecheckt hat, verliert den Tisch.** Die Buchung steht dann als „Verfallen“ im Dashboard, und der Tisch ist für andere frei.
 
-**Früher gehen?** Dashboard → „Auschecken“. Deine Buchung endet dann sofort und der Tisch ist wieder frei.
+**Früher gehen?** Dashboard → „Auschecken“. Deine Buchung endet dann sofort, und andere können den Tisch wieder buchen.
 
 **Ändern:**
 - Dashboard bzw. Tab „Buchungen“ → Pfeil bei deiner Buchung.
@@ -37,7 +37,7 @@
 >
 > **So geht’s:** [Link zur App]. Kurzanleitung im Anhang.
 >
-> **Neu und wichtig:** Bitte **spätestens 30 Minuten nach Beginn einchecken** (Dashboard → „Einchecken“, die App erinnert euch). Sonst ist der Tisch für andere frei. Wer früher geht, checkt aus, dann ist der Tisch sofort wieder frei.
+> **Neu und wichtig:** Bitte **spätestens 30 Minuten nach Beginn einchecken** (Dashboard → „Einchecken“, die App fragt beim Öffnen danach). Sonst ist der Tisch für andere frei. Wer früher geht, checkt aus, dann können andere den Tisch wieder buchen.
 >
 > Die kleinen Anzeigen an den Tischen funktionieren ab dem 14.10. nicht mehr. Ob ein Tisch frei ist, seht ihr im Grundriss der App.
 >

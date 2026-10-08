@@ -37,7 +37,7 @@ def setze(k, wert, tag):
     herkunft.setdefault(k, []).append(tag)
 
 
-GRENZE = "Set(varFreigabeGrenze, DateAdd(Now(), -varFreigabeMinuten, TimeUnit.Minutes))"
+GRENZE = "Set(varFreigabeGrenze, DateAdd(Now(), -Coalesce(varFreigabeMinuten, 30), TimeUnit.Minutes))"
 VERF = "!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze"
 
 
@@ -127,7 +127,7 @@ setze("btnHitArea.OnSelect", kopf + "  " + GRENZE + ";\n"
       "    ClearCollect(colKachel, Filter(Tischbuchungen, Tisch.Value = ThisItem.Titel && Startzeit >= varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum, 1, TimeUnit.Days)))\n"
       "  );\n"
       f"  RemoveIf(colKachel, {VERF});\n"
-      "  Set(varKachelID, First(colKachel).ID);\n" + inner + "\n)", "F3 Kachel")
+      "  Set(varKachelID, First(SortByColumns(colKachel, \"Startzeit\", SortOrder.Ascending)).ID);\n" + inner + "\n)", "F3 Kachel")
 
 # --- F4 Buchen: verfallene Buchungen blockieren nicht ---------------------------------------------------------------
 for c in ["btnSpeichern", "btnSpeichernTischePanel"]:
@@ -206,9 +206,17 @@ for c in ["btnVerlängern", "btnVerlängern_1"]:
     assert m, k
     e = m.group(1)
     setze(k, f[:m.end()] + f"{e}ClearCollect(colVerlKonflikt, Filter(Tischbuchungen, Tisch.Value = varVerlTisch && Startzeit < varVerlEndeNeu && Endzeit > varVerlEndeAlt));\n"
-          f"{e}RemoveIf(colVerlKonflikt, {VERF});\n" + f[m.end():], "F6 Verlängern")
+          f"{e}RemoveIf(colVerlKonflikt, {VERF});\n"
+          f"{e}ClearCollect(colVerlIch, Filter(Tischbuchungen, Person.Email = User().Email && Startzeit < varVerlEndeNeu && Endzeit > varVerlEndeAlt));\n"
+          f"{e}RemoveIf(colVerlIch, ID = varVerlBuchung.ID || ({VERF}));\n" + f[m.end():], "F6 Verlängern")
     aendere(k, "!IsBlank(LookUp(Tischbuchungen, Tisch.Value = varVerlTisch && Startzeit < varVerlEndeNeu && Endzeit > varVerlEndeAlt).ID)",
             "!IsEmpty(colVerlKonflikt)", "F6 Verlängern")
+    f = aktuell(k)
+    m = re.search(r"(?m)^([ \t]*)varAusgewaehltePlusDauer > 0 && !IsEmpty\(colVerlKonflikt\),\n", f)
+    assert m and len(re.findall("IsEmpty\\(colVerlKonflikt\\)", f)) == 1, k
+    e3 = m.group(1)
+    setze(k, f[:m.start()] + f"{e3}varAusgewaehltePlusDauer > 0 && !IsEmpty(colVerlIch),\n"
+          + f'{e3}Notify("Du hast in dieser Zeit schon einen anderen Tisch gebucht.", NotificationType.Warning),\n' + f[m.start():], "F6 Verlängern")
     f = aktuell(k)
     m = re.search(r"(?m)^([ \t]*)If\(\n([ \t]*)varVerlEndeNeu <= varVerlBuchung\.Startzeit,\n", f)
     assert m, k
@@ -279,7 +287,12 @@ setze("btnEinchecken.OnSelect", """If(
         Patch(Tischbuchungen, varCheckinBuchung, {CheckedIn: true}),
         Notify("Speichern fehlgeschlagen. Bitte erneut versuchen.", NotificationType.Error),
         Set(varSelectedBuchung, LookUp(Tischbuchungen, ID = varCheckinBuchung.ID));
+        ClearCollect(colCheckinAndere, Filter(Tischbuchungen, Tisch.Value = varCheckinTisch && Startzeit < varCheckinEnde && Endzeit > varCheckinStart));
+        RemoveIf(colCheckinAndere, ID = varCheckinBuchung.ID || (@VERF@));
         If(
+          varSelectedBuchung.CheckedIn && !IsEmpty(colCheckinAndere),
+          Notify("Eingecheckt, aber der Tisch wurde gleichzeitig an jemand anderen vergeben. Bitte unter Buchungen prüfen und klären.", NotificationType.Error);
+          Set(varZeigeCheckin, false),
           varSelectedBuchung.CheckedIn,
           Notify("Eingecheckt.", NotificationType.Success);
           Set(varZeigeCheckin, false),

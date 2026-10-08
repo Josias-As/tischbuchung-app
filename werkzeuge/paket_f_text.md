@@ -6,12 +6,13 @@ Stand 08.10.2026 · erzeugt aus dem Export 07.10. und den Endfassungen des Gesam
 @@ kurzfassung
 ## 0. Kurzfassung
 - **Was passiert:** Wer nicht bis 30 Minuten nach Beginn eingecheckt hat, **verliert den Tisch**. Die Buchung bleibt aber in der Liste stehen, sie heißt jetzt **„verfallen“**, und die App behandelt sie überall wie „frei“. **Es wird nichts gelöscht, und es gibt keinen Flow.**
-- **Spät gebucht ist kein Problem:** Die 30 Minuten zählen ab dem späteren der beiden Zeitpunkte **Beginn** und **Buchungszeitpunkt** (SharePoint-Spalte `Erstellt`). Wer um 09:29 für 09:00 bucht, hat bis 09:59 Zeit.
-- **Auschecken** beendet die Buchung jetzt (Ende = jetzt), der Tisch ist sofort wieder frei. Vor dem Beginn nimmt Auschecken nur den Check-in zurück.
+- **Spät gebucht ist kein Problem:** Die 30 Minuten zählen ab dem späteren der beiden Zeitpunkte **Beginn** und **Buchungszeitpunkt** (SharePoint-Spalte `Erstellt`). Wer um 09:29 für 09:00 bucht (geht in der Handy-App, oder wenn der Dialog vor 09:00 geöffnet wurde), hat bis 09:59 Zeit.
+- **Auschecken** nach Beginn beendet die Buchung (Ende = jetzt). Der Tisch ist für andere wieder buchbar (ab der nächsten halben Stunde, im Grundriss spätestens nach 5 Min grün). Vor dem Beginn nimmt Auschecken nur den Check-in zurück.
 - **Einchecken** geht ab 30 Minuten vor Beginn bis 30 Minuten nach Beginn (bisher: bis zum Ende).
-- **Neu:** Die App **fragt nach dem Check-in**, beim Öffnen und alle 5 Minuten, wenn eine eigene Buchung gerade ansteht. Das gilt einmal je Buchung. Ein Klick genügt, ohne neues Steuerelement.
+- **Neu:** Die App **fragt einmal je Buchung nach dem Check-in**: beim Öffnen, sonst im 5-Minuten-Takt, wenn das Dashboard für heute offen ist und kein Dialog. Ein Klick genügt, ohne neues Steuerelement.
 - **Storno-Fix:** Die Rückfrage merkt sich die Buchung beim Öffnen. Gelöscht werden nur eigene Buchungen. Ein dunkler Hintergrund sperrt alle anderen Klicks.
-- **Umfang:** 8 Schritte, 44 Properties, 1 neues Steuerelement (`btnStornoHintergrund`). Einfügen **nach** dem Gesamtplan (Phasen 1–7). Jeder Block ist die **ganze Property** in ihrer Endfassung, inklusive aller Gesamtplan-Änderungen.
+- **Umfang:** 8 Schritte, 44 Properties, 1 neues Steuerelement (`btnStornoHintergrund`). Einfügen **nach** dem vollständigen Gesamtplan (Phasen 1–7). Jeder Block ist die **ganze Property** in ihrer Endfassung, inklusive aller Gesamtplan-Änderungen.
+- **Unabhängig geprüft** (Prüf-Agent, 08.10.): kein kritischer Befund. 13 Befunde (Z-Order, leere Einstellung, zwei nicht ausführbare Tests, Texte, Nachlese beim Check-in, „zwei Tische“ beim Verlängern) sind eingearbeitet, siehe `pruefung_paket_f.md`.
 - **Ehrlich:**
   - Nichts davon ist in Studio getestet.
   - Alles ist aus dem Export erzeugt und maschinell geprüft: 0 Fehler, jede der 39 Abfragen auf `Tischbuchungen` einzeln eingeordnet.
@@ -25,7 +26,7 @@ Eine Buchung ist **verfallen**, wenn alle drei Bedingungen gelten:
 2. **Beginn** liegt mehr als 30 Minuten zurück,
 3. **Buchungszeitpunkt** (`Erstellt`) liegt mehr als 30 Minuten zurück.
 
-In der App steht das als `!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze`, mit `varFreigabeGrenze = jetzt − varFreigabeMinuten`. Die 30 stehen **einmal** in `App.OnStart` (`Set(varFreigabeMinuten; 30)`). Willst du später 15 oder 45 Minuten, änderst du nur diese Zahl.
+In der App steht das als `!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze`, mit `varFreigabeGrenze = jetzt − varFreigabeMinuten`. Die 30 stehen **einmal** in `App.OnStart` (`Set(varFreigabeMinuten; 30)`). Willst du später 15 oder 45 Minuten, änderst du nur diese Zahl. Ist die Variable einmal leer (z. B. in Studio, bevor `OnStart` lief), rechnet die App mit 30 (`Coalesce`).
 
 **Beispiele** (Buchung 09:00–17:00, heute um 08:00 angelegt):
 
@@ -39,8 +40,8 @@ In der App steht das als `!CheckedIn && Startzeit <= varFreigabeGrenze && Erstel
 
 | Sonderfall | Ergebnis |
 |---|---|
-| Um 09:29 für 09:00 gebucht | Frist bis 09:59 (ab Buchungszeitpunkt) |
-| Eingecheckt, um 11:17 ausgecheckt | Ende wird 11:18, der Tisch ist frei, die Buchung ist korrekt erledigt |
+| Um 09:29 für 09:00 gebucht (Handy-App oder Dialog vor 09:00 geöffnet) | Frist bis 09:59 (ab Buchungszeitpunkt) |
+| Eingecheckt, um 11:17 ausgecheckt | Ende wird 11:18, die Buchung ist korrekt erledigt. Andere können ab 11:30 buchen |
 | Vor 09:00 eingecheckt und wieder ausgecheckt | Nur der Check-in wird zurückgenommen, die Buchung bleibt |
 | Serie Mo–Fr | Jeder Termin für sich: Wer am Dienstag nicht eincheckt, verliert nur Dienstag |
 | Verfallene eigene Buchung verlängern | geht nicht („Diese Buchung ist verfallen …“), stornieren geht |
@@ -66,7 +67,7 @@ In der App steht das als `!CheckedIn && Startzeit <= varFreigabeGrenze && Erstel
 
 @@ nutzung
 ## 3. So arbeitest du das Paket ab
-1. **Erst den Gesamtplan** (Phasen 1–7, ohne G-F) einfügen und testen. Paket F baut auf dessen Endfassungen auf. Die Blöcke enthalten alle Gesamtplan-Änderungen, ein vergessener Gesamtplan-Schritt bei diesen Properties wird also mit erledigt.
+1. **Erst den Gesamtplan vollständig** (Phasen 1–7, ohne G-F) einfügen und testen. Paket F setzt ihn voraus: Die Blöcke lesen Steuerelemente, Spalten und Variablen aus dem Gesamtplan (`conStornoFrage`, `btnStornoJa`, `tmrAktualisieren`, `Tische.Gesperrt`, `varDialogJetzt`, `varPanelJetzt`, `lblBelegtHeute`). Fehlt einer davon, gibt es rote Fehler.
 2. **Reihenfolge F1 → F8 einhalten.** F1 legt `varFreigabeMinuten` an, alle anderen lesen sie.
 3. Je Property: Steuerelement suchen (Ort steht dabei), **ganze Property ersetzen**, Enter. Nach jedem Schritt App-Prüfung (keine neuen roten Fehler), Test, Strg+S.
 4. Zwischen den Schritten bleibt die App lauffähig. Die Ladestellen können einzeln umgestellt werden, weil `colGrundriss` dieselben Spalten behält.
@@ -77,6 +78,7 @@ In der App steht das als `!CheckedIn && Startzeit <= varFreigabeGrenze && Erstel
 @@ F1
 **Problem:** Die 30 Minuten standen bisher nirgends. Die App fragte nie nach dem Check-in.
 **Lösung:** `Set(varFreigabeMinuten; 30)` steht ganz oben (die eine Zahl zum Ändern). Am Ende, **vor** der Ladezeile, sucht die App die eigene Buchung, bei der gerade eingecheckt werden kann (Beginn in höchstens 30 Min, noch nicht zu Ende, nicht eingecheckt, nicht verfallen). Gibt es eine, öffnet sich der vorhandene Check-in-Dialog. Die Ladezeile lädt `Erstellt` mit und lässt verfallene Buchungen weg.
+**Danach sofort:** in der Strukturansicht `App` → **…** → **OnStart ausführen**, erst dann weiter mit F2.
 **Test (U1 zuerst):** Nach dem Einfügen: App-Prüfung ohne roten Fehler bei `Erstellt` (sonst siehe UNSICHER U1). Eigene Buchung „jetzt bis +1 Std“ anlegen, App schließen und neu öffnen (bzw. in Studio „App.OnStart ausführen“) → Check-in-Dialog erscheint. Ohne passende Buchung erscheint nichts.
 
 @@ F2
@@ -86,7 +88,7 @@ In der App steht das als `!CheckedIn && Startzeit <= varFreigabeGrenze && Erstel
 2. Vor dem Löschen prüft die App, ob die Buchung der angemeldeten Person gehört (`Lower(E-Mail)`, weil Groß-/Kleinschreibung abweichen kann). Sonst: „Nur eigene Buchungen können storniert werden.“
 3. Neuer Knopf `btnStornoHintergrund` über den ganzen Bildschirm, halb dunkel. Er fängt alle Klicks ab. Ein Klick daneben heißt „Nein“.
 
-**Anlegen:** `Screen1` markieren → Einfügen → Schaltfläche (klassisch) → umbenennen in `btnStornoHintergrund`. Danach **`conStornoFrage` markieren → … → Nach vorne bringen**. Die Frage muss **über** dem Hintergrund liegen.
+**Anlegen:** `Screen1` markieren → Einfügen → Schaltfläche (klassisch) → umbenennen in `btnStornoHintergrund`. Danach **`conStornoFrage` markieren → … → Neu anordnen → Ganz nach vorne bringen** (nicht nur „Nach vorne bringen“, das hebt nur um eine Ebene). **Prüfen in der Strukturansicht:** `conStornoFrage` ist der oberste Eintrag unter `Screen1`, `btnStornoHintergrund` direkt darunter. Sonst trifft jeder Klick auf „Ja“ den Hintergrund und wirkt wie „Nein“.
 **Test:** Dashboard → Verwalten → Stornieren → die Frage erscheint auf dunklem Hintergrund. Klick auf eine Kachel → nichts passiert, die Frage schließt sich (= Nein). Nochmal → „Ja, stornieren“ → genau die gewählte Buchung ist weg. Dasselbe im Tab „Buchungen“ und mit Mehrfachauswahl.
 
 @@ F3
@@ -95,7 +97,7 @@ In der App steht das als `!CheckedIn && Startzeit <= varFreigabeGrenze && Erstel
 - **Ladezeile** (an allen Stellen, die nur laden: Stockwerk, Datum, die vier Aktualisieren-Symbole): lädt `Erstellt` mit und übernimmt nur nicht verfallene Buchungen in `colGrundriss`. Kachel, Kreis, Initialen und „Belegt:“-Hinweis folgen automatisch.
 - **Kachel-Klick (`btnHitArea`)** fragt frisch: Buchungen des Tisches holen, verfallene entfernen. Ist nichts übrig, öffnet sich der Buchungsdialog, sonst das Details-Popup.
 
-**Test:** Testbuchung mit Beginn vor über 30 Min, ohne Check-in, z. B. direkt in der SharePoint-Liste angelegt (dann ist auch `Erstellt` alt genug, siehe Testbogen) → Aktualisieren → Kachel grün. Klick → Buchungsdialog.
+**Test:** Testbuchung mit Beginn vor über 30 Min, ohne Check-in, direkt in der SharePoint-Liste anlegen. **`Erstellt` ist dann „jetzt“**, die Kachel bleibt also noch `varFreigabeMinuten` lang orange (Testmodus, siehe Testbogen: 1 Min). Danach Aktualisieren → Kachel grün. Klick → Buchungsdialog.
 
 @@ F4
 **Problem:** Beide Speichern-Knöpfe würden eine verfallene Buchung als Kollision zählen. Die Nachlese hätte den eigenen neuen Termin sogar als „fast gleichzeitig vor dir gebucht“ gemeldet.
@@ -109,14 +111,15 @@ In der App steht das als `!CheckedIn && Startzeit <= varFreigabeGrenze && Erstel
 
 @@ F6
 **Problem:** Wer an einem Tisch verlängern will, an dem eine verfallene Buchung hängt (z. B. weil man selbst darüber gebucht hat), wird fälschlich blockiert. Die eigene verfallene Buchung ließ sich verlängern.
-**Lösung:** Beim Öffnen der Verwalten-Dialoge: die nächste Buchung am Tisch ohne verfallene bestimmen (Grenze für die Dauer-Knöpfe). Beim Verlängern: Kollisionen ohne verfallene. Eigene verfallene Buchung → „Diese Buchung ist verfallen … Bitte neu buchen.“
-**Test:** Eigene Buchung, die eine verfallene fremde überlappt → +1 Std geht. Eigene verfallene Buchung → +1 Std → Meldung.
+**Lösung:** Beim Öffnen der Verwalten-Dialoge: die nächste Buchung am Tisch ohne verfallene bestimmen (Grenze für die Dauer-Knöpfe). Beim Verlängern: Kollisionen ohne verfallene. **Neu (Prüf-Agent):** Verlängern prüft auch, ob du in der neuen Zeit schon einen anderen Tisch hast (Regel „keine zwei Tische zur selben Zeit“, fehlte bisher). Eigene verfallene Buchung → „Diese Buchung ist verfallen … Bitte neu buchen.“
+**Hinweis beim Einfügen:** `varVerlNaechste` wechselt den Typ (Datensatz aus der Collection statt aus der Liste). Zeigt Studio nach `btnVerwalten` einen roten Fehler bei `varVerlNaechste`, verschwindet er nach `btnVerwalten_2`.
+**Test:** Eigene Buchung, die eine verfallene fremde überlappt → +1 Std geht. Eigene verfallene Buchung → +1 Std → Meldung. Zwei eigene Buchungen nacheinander an verschiedenen Tischen → die erste um 1 Std in die zweite hinein verlängern → „Du hast in dieser Zeit schon einen anderen Tisch gebucht.“
 
 @@ F7
 **Problem:** Einchecken ging bis zum Ende der Buchung. Mit der Freigabe könnte man um 11:00 einchecken, obwohl der Tisch seit 09:40 jemand anderem gehört. Auschecken setzte nur `CheckedIn` zurück, die Buchung blieb belegt.
 **Lösung:**
 - Einchecken nur von 30 Min vor Beginn bis zur Frist.
-- Zusätzlich frisch prüfen, ob der Tisch in der Zeit schon an jemand anderen vergeben ist. Das schützt bei falsch gehender Uhr auf einem Gerät.
+- Zusätzlich frisch prüfen, ob der Tisch in der Zeit schon an jemand anderen vergeben ist, und nach dem Einchecken noch einmal nachlesen (falls jemand in derselben Sekunde gebucht hat). Das verhindert eine **Doppelbelegung**, auch bei falsch gehender Uhr. Einen zu frühen Verlust durch eine vorgehende Uhr bei jemand anderem verhindert es nicht (U3).
 - Auschecken nach Beginn: Ende = jetzt (auf die nächste Minute), der Tisch ist frei. Vor Beginn: nur Check-in zurücknehmen.
 - Im Dashboard steht bei verfallenen Buchungen „Verfallen“ in Grau.
 
@@ -124,7 +127,7 @@ In der App steht das als `!CheckedIn && Startzeit <= varFreigabeGrenze && Erstel
 
 @@ F8
 **Problem:** Wer die App morgens öffnet und offen lässt, bekommt keinen Hinweis, wenn die nächste Buchung ansteht.
-**Lösung:** Der vorhandene 5-Minuten-Timer fragt zusätzlich nach dem Check-in. Bedingungen: Dashboard sichtbar, heutiger Tag, kein Dialog offen, und nur einmal je Buchung (`varCheckinGefragtID`).
+**Lösung:** Der vorhandene 5-Minuten-Timer fragt zusätzlich nach dem Check-in. Bedingungen: Dashboard sichtbar, heutiger Tag, kein Dialog offen, und nur einmal je Buchung (`varCheckinGefragtID`). Wer die Frage wegklickt, wird für diese Buchung nicht noch einmal gefragt.
 **Test:** App offen lassen, eigene Buchung mit Beginn in 20 Min (vorher angelegt) → spätestens nach 5 Min erscheint der Check-in-Dialog. Schließen → er kommt für diese Buchung nicht wieder.
 
 @@ handy
@@ -148,18 +151,18 @@ Die neuen Fassungen liegen als eigene Dateien daneben, die alten bleiben erhalte
 |---|---|---|
 | U1 | Studio nimmt die Spalte unter dem Anzeigenamen **`Erstellt`** an. Der Export führt `Created` mit Anzeigename „Erstellt“, und die App schreibt auch sonst Anzeigenamen (`CheckedIn` statt intern `Checkedin`), das ist belegt | Nach F1: App-Prüfung. Ist `Erstellt` rot, Claude Code melden: Der Generator setzt dann überall `Created` ein (ein Wort im Skript) |
 | U2 | `DropColumns(…; "Erstellt")` mit Spaltenname als Text gilt bei `powerfxv1 = false` (wie `SortByColumns(…; "Startzeit")` in derselben App) | App-Prüfung nach F1. Rot → melden |
-| U3 | Uhrzeiten der Geräte: Die Regel rechnet mit der Uhr des jeweiligen Geräts. Weicht sie ab, verschiebt sich die Freigabe um diese Abweichung. Abgesichert: Einchecken prüft frisch, ob der Tisch schon an jemand anderen vergeben ist | Firmengeräte gehen per Zeitserver richtig. Kein Test nötig |
+| U3 | Uhrzeiten der Geräte: Die Regel rechnet mit der Uhr des jeweiligen Geräts. Geht die Uhr bei jemandem vor, kann er über eine Buchung buchen, die noch nicht ganz verfallen ist. Der Besitzer bekommt dann beim Einchecken „schon vergeben“ und verliert den Tisch zu früh. Eine **Doppelbelegung** verhindert die Prüfung beim Einchecken (vorher und danach) | Firmengeräte gehen per Zeitserver auf Sekunden genau. Kein Test nötig |
 | U4 | Position des Check-in-Dialogs beim App-Start: `conCheckinDialog.Y` richtet sich nach der Zeile in der Dashboard-Liste. Beim Start könnte die Liste noch laden | Test F1. Sitzt der Dialog falsch, wird er nach dem Laden richtig gesetzt (Formel reagiert). Sonst melden |
 | U5 | Die Anzeige wechselt erst beim nächsten Laden von orange auf grün (Timer 5 Min, Aktualisieren-Symbol, jede Buchung). Der Klick auf die Kachel prüft immer frisch | gewollt, wie beim Flow (5 Min) |
-| U7 | „Explizite Spaltenauswahl“: Power Apps lädt nur Spalten, die irgendwo benutzt werden. `Erstellt` wird überall direkt benutzt (`RemoveIf(col; … Erstellt …)`, `B.Erstellt`, `ThisItem.Erstellt`), sollte also geladen werden. Fehlt die Spalte doch, ist sie leer, und nur der Sonderfall „spät gebucht“ verliert seine Schonfrist (leer zählt wie „lange her“). Alles andere funktioniert | Testbogen: um hh:20 für hh:00 buchen, nicht einchecken → nach hh:30 muss die Kachel **orange** bleiben bis hh:50 |
-| U6 | Testbuchungen „in der Vergangenheit“ kann die App nicht anlegen (Sperre). Für die Tests F3–F7 eine Zeile **direkt in der SharePoint-Liste** anlegen (Beginn vor 1 Std). `Erstellt` ist dann jetzt, die Frist läuft also erst 30 Min nach dem Anlegen ab | Testbogen: Testzeile anlegen, 30 Min warten oder `varFreigabeMinuten` in Studio vorübergehend auf 1 setzen (danach zurück auf 30!) |
+| U7 | „Explizite Spaltenauswahl“ (in dieser App an, belegt): Power Apps lädt nur Spalten, die benutzt werden. `Erstellt` wird überall direkt benutzt (`RemoveIf(col; … Erstellt …)`, `B.Erstellt`, `ThisItem.Erstellt`), sollte also geladen werden. Fehlt die Spalte doch, ist sie leer, und nur „spät gebucht“ verliert die Schonfrist. Alles andere funktioniert | **Monitor:** Grundriss aktualisieren und Kachel anklicken, in der `getRows`-Anfrage auf `Tischbuchungen` muss `$select` die Spalte `Created` enthalten. **Praxistest:** in der Handy-App um hh:20 für hh:00 buchen (oder den Dialog vor hh:00 öffnen und nach hh:00 speichern), nicht einchecken → Kachel bleibt bis hh:50 orange |
+| U6 | Testbuchungen „in der Vergangenheit“ kann die App nicht anlegen (Sperre). Für die Tests F3–F7 eine Zeile **direkt in der SharePoint-Liste** anlegen (Beginn vor 1 Std). `Erstellt` ist dann jetzt, die Frist läuft also erst 30 Min nach dem Anlegen ab | Testmodus mit einem **Testknopf** (Testbogen), **nicht** `App.OnStart` ändern |
 
 @@ testbogen
 ## 6. Testbogen Paket F
 
 | ✓ | Test | Ergebnis | Notiz |
 |---|---|---|---|
-| ☐ | Vorbereitung: in Studio `varFreigabeMinuten` in `App.OnStart` vorübergehend auf **1** setzen (schnelle Tests), am Ende **zurück auf 30** | | |
+| ☐ | Vorbereitung Testmodus: in Studio einen **Testknopf** `btnTestFreigabe` einfügen, `OnSelect`: `Set(varFreigabeMinuten; 1)`. In der Vorschau einmal drücken. `App.OnStart` **nicht** ändern | | |
 | ☐ | F1 App-Prüfung ohne rote Fehler (U1, U2) | | |
 | ☐ | F1 Check-in-Frage beim Start erscheint bei anstehender Buchung, sonst nicht | | |
 | ☐ | F2 Storno: Hintergrund dunkel, Klick daneben = Nein, richtige Buchung gelöscht (Dashboard, Tab, Mehrfach) | | |
@@ -169,8 +172,8 @@ Die neuen Fassungen liegen als eigene Dateien daneben, die alten bleiben erhalte
 | ☐ | F6 Verlängern über verfallene fremde Buchung geht, eigene verfallene → Meldung | | |
 | ☐ | F7 Einchecken zu früh → Meldung; laufend → eingecheckt; Auschecken → Ende jetzt, Kachel grün; verfallen → „Zu spät“, Status grau | | |
 | ☐ | F8 Erinnerung nach ≤ 5 Min, nur einmal | | |
-| ☐ | U7 spät gebucht (mit 30 Min): um hh:20 für hh:00 buchen → Kachel bleibt bis hh:50 orange, erst danach grün | | |
-| ☐ | **`varFreigabeMinuten` wieder 30** | | |
+| ☐ | U7: Monitor zeigt `Created` im `$select`. Spät gebucht (Handy-App, hh:20 für hh:00, Testmodus aus) → Kachel bis hh:50 orange | | |
+| ☐ | **Testknopf `btnTestFreigabe` löschen.** In `App.OnStart` steht `Set(varFreigabeMinuten; 30)` | | |
 | ☐ | Doppelklick auf Einchecken → eine Änderung | | |
 | ☐ | Veröffentlichen | | |
 

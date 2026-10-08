@@ -2,7 +2,7 @@
 Grundlage: Export 07.10. + Endfassungen Gesamtplan (23 Properties bauen auf dem Gesamtplan auf).
 Ladezeile neu an 14 Stellen, alte Ladezeile an 0 Stellen.
 Schreibstellen: 6 (btnEinchecken.OnSelect, btnSpeichern.OnSelect, btnSpeichernTischePanel.OnSelect, btnStornoJa.OnSelect, btnVerlängern.OnSelect, btnVerlängern_1.OnSelect), alle mit Zweifach-Sperre und neuer Ladezeile.
-Abfragen auf Tischbuchungen (ohne reine ID-Abfragen, auch mehrzeilige): 39, jede einzeln geprüft: Freigabe-Regel lokal angewandt oder bewusst ausgenommen (3: eigene Listen und Mehrfach-Stornieren).
+Abfragen auf Tischbuchungen (ohne reine ID-Abfragen, auch mehrzeilige): 42, jede einzeln geprüft: Freigabe-Regel lokal angewandt oder bewusst ausgenommen (3: eigene Listen und Mehrfach-Stornieren).
 Je Property geprüft: Klammern, Rückübersetzung deutsch->englisch, keine Kommentare, Steuerelemente bekannt/neu, jede gelesene var/col wird gesetzt, varFreigabeGrenze vor Gebrauch gesetzt.
 Jede Property kommt genau einmal vor.
 Prüfung: 0 Fehler
