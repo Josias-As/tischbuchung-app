@@ -102,3 +102,5 @@ Quellen zu GoBright (Herstellerangaben, abgerufen 08.10.2026): [GoBright Desk Bo
 
 
 **Nachtrag 08.10.:** Weitere Fehler (darunter Startzeit 22:00 ergibt eine Buchung mit Ende 00:00, kein Timer, kein erkennbarer aktiver Tab), zehn Umbaupläne und ein Stil-Audit stehen in `FEHLER_UMBAUPLAN_STIL_PaketL.md` (Paket L, 57 Properties, unabhängig geprüft).
+
+**Korrekturen nach Selbstprüfung (08.10.):** siehe `SELBSTPRUEFUNG.md`. Wichtigste Punkte: Den Doppelklick-Fehler habe ich in der Handy-App gemessen, in der Desktop-App ist er nur geschlussfolgert. Die Go-Live-Wahrscheinlichkeiten waren zu optimistisch: Vor dem Go-Live nur die 40 Muss-Properties einfügen. Neuer Fehler F-L11: Das Datum im Buchungsdialog bleibt stehen, dadurch ist eine Buchung am falschen Tag möglich. „Lizenz 0 €“ gilt nur mit passender M365-Lizenz. § 87 BetrVG gilt nur, wenn es einen Betriebsrat gibt.

@@ -1,13 +1,13 @@
 # Weitere Fehler, Umbaupläne und Stil-Audit (Paket L)
-**08.10.2026, nachts · Basis: veröffentlichter Export vom 07.10. · Paket L: 80 Properties, maschinell erzeugt und geprüft (`werkzeuge/paket_l.py`), ändert keine Property, die Paket K v2 ändert · Reihenfolge: erst Paket K v2, dann L · unabhängig geprüft, Befunde eingearbeitet**
+**08.10.2026, nachts · Basis: veröffentlichter Export vom 07.10. · Paket L: 82 Properties, maschinell erzeugt und geprüft (`werkzeuge/paket_l.py`), ändert keine Property, die Paket K v2 ändert · Reihenfolge: erst Paket K v2, dann L · unabhängig geprüft, Befunde eingearbeitet**
 
 Kennzeichnung: **belegt** (Export), **geschlussfolgert**, **UNSICHER**, **Einschätzung**.
 
 ## 0. Kurzfassung
-- **Unabhängig geprüft** (`pruefung_paket_l.md`): Das Ergebnis waren 2 Fehler, 4 Risiken und 23 Hinweise. Eingearbeitet sind: Tab-Kontrast (L4), Titelbreite (L9: `lblTitel3` ohne Präfix), Outlook-Plan P5 neu, P3 mit Listen-Aktualisierung, P1-Datumsbedingung, P9 „nur eigene Elemente“, UTC-Hinweis bei P2 und die Zahlen im Stil-Audit. Danach wurde alles neu erzeugt und maschinell geprüft. **L10–L12 (23 Properties: Auswahl, Hover, Dialoghintergründe) kamen nach der Prüfung dazu, sind maschinell geprüft, aber nicht unabhängig.**
-- **Zehn neue Befunde** (F-L1 bis F-L10), die Paket K v2 nicht abdeckt. Sechs davon behebt Paket L direkt, vier brauchen einen Umbau (P1, P3). Der wichtigste: Die Startliste bietet **22:00** an. Wählt man das, ist die Endliste leer, und die Buchung wird mit Ende **00:00 desselben Tages** gespeichert, also mit Ende vor Beginn (L1).
+- **Unabhängig geprüft** (`pruefung_paket_l.md`): Das Ergebnis waren 2 Fehler, 4 Risiken und 23 Hinweise. Eingearbeitet sind: Tab-Kontrast (L4), Titelbreite (L9: `lblTitel3` ohne Präfix), Outlook-Plan P5 neu, P3 mit Listen-Aktualisierung, P1-Datumsbedingung, P9 „nur eigene Elemente“, UTC-Hinweis bei P2 und die Zahlen im Stil-Audit. Danach wurde alles neu erzeugt und maschinell geprüft. **L10–L13 (25 Properties: Auswahl, Hover, Dialoghintergründe, Zurücksetzen) und die P1-Formeln kamen nach der Prüfung dazu. Sie sind maschinell geprüft, die zweite unabhängige Prüfung steht in `pruefung_paket_l_2.md`.**
+- **Elf neue Befunde** (F-L1 bis F-L11), die Paket K v2 nicht abdeckt. Sieben davon behebt Paket L direkt, vier brauchen einen Umbau (P1, P3). **F-L11 (Datum bleibt stehen → Buchung am falschen Tag) wurde erst bei der Selbstprüfung gefunden und ist neben F-L1 der wichtigste.** Der wichtigste: Die Startliste bietet **22:00** an. Wählt man das, ist die Endliste leer, und die Buchung wird mit Ende **00:00 desselben Tages** gespeichert, also mit Ende vor Beginn (L1).
 - **Die Oberfläche wirkt aus zwei Apps zusammengesetzt** (belegt). Der Buchungsdialog aus dem Grundriss nutzt das graublaue Standarddesign von Power Apps, das Tische-Panel das Markenblau `#171496`. „Speichern“ ist einmal grün, sonst blau. „Stornieren“ sieht aus wie „Speichern“. Bei sieben Knöpfen verschwindet beim Drücken die Schrift. Man sieht nicht, welcher Tab aktiv ist. Deutsch und Englisch sind gemischt.
-- **Paket L** behebt das mit 80 kleinen Properties: nur Farben, Hover/Auswahl, Texte, Sortierung, eine Liste. Kein Schreibvorgang wird geändert. Risiko: niedrig.
+- **Paket L** behebt das mit 82 kleinen Properties: nur Farben, Hover/Auswahl, Texte, Sortierung, eine Liste. Kein Schreibvorgang wird geändert. Risiko: niedrig.
 - **Zehn größere Umbaupläne** (Abschnitt 3) sind durchdacht, aber nicht als Formel ausgearbeitet, weil sie neue Steuerelemente, Spalten oder Flows brauchen oder deine Entscheidung. Der wichtigste: **Im Grundriss kann man einen Tisch, der zu irgendeiner Zeit des Tages belegt ist, nicht für die freien Stunden buchen.**
 
 ## 1. Neue Fehler (nicht in Paket K v2)
@@ -21,6 +21,7 @@ Kennzeichnung: **belegt** (Export), **geschlussfolgert**, **UNSICHER**, **Einsch
 | F-L6 | Details-Popup zeigt immer **„Besetzt“ in Rot**, auch wenn nicht eingecheckt (Kachel ist dann orange) | `lblStatus.Text = "Besetzt"`, `Color = #EB3951` | Widerspricht der Kachelfarbe | **L6** |
 | F-L7 | **App über Mitternacht offen**: `varAnsichtsDatum` bleibt auf gestern | wird nur in `App.OnStart` und `dpAnsichtsDatum.OnChange` gesetzt (belegt) | Wer die App morgens im alten Browser-Tab weiter benutzt, sieht gestern. Paket K verhindert immerhin Buchungen in der Vergangenheit | Plan P3 |
 | F-L8 | **Grundriss: freie Restzeit eines belegten Tisches nicht buchbar** | `btnHitArea.OnSelect`: Ist irgendeine Buchung „relevant“, öffnet sich nur das Details-Popup. Heute: aktive Buchung oder Beginn in 30 Min. Anderer Tag: **irgendeine** Buchung an dem Tag | Tisch 08:00–10:00 gebucht → für 13:00–17:00 muss man ins Panel. Wer das nicht weiß, hält den Tisch für den ganzen Tag belegt | Plan P1 |
+| F-L11 | **Eingaben bleiben vom letzten Öffnen stehen**: Datum, Start, Ende und Wiederholen-bis im Buchungsdialog (und Zeiten im Panel) werden beim Öffnen nicht zurückgesetzt | `Reset` gibt es im Export nur für Panel-Listen und -Schalter. `dpDatum`, `dpWiederholenBis(_1)` werden nirgends zurückgesetzt; `ddStart`/`ddEnde` nur bei Datumswechsel (belegt). `DefaultDate = varAnsichtsDatum` greift nur, wenn sich `varAnsichtsDatum` ändert (geschlussfolgert, Standardverhalten klassischer Steuerelemente) | **Stille Buchung am falschen Tag**: Wer im Dialog „morgen“ wählt, abbricht und eine andere Kachel anklickt, sieht wieder „morgen“, obwohl der Grundriss heute zeigt. Mit Paket K v2 kommt bei alten Uhrzeiten von heute die Meldung „Vergangenheit“, was ohne L13 verwirrt | **L13** (bei Paket K v2 Pflicht) |
 | F-L10 | **Keine automatische Aktualisierung** (kein Timer in der App) | Steuerelement-Typen im Export: kein Timer (belegt) | Grundriss und Listen veralten, solange die App offen ist | Plan P3 |
 | F-L9 | Heute ist eine Kachel **grün**, obwohl der Tisch ab 14:00 belegt ist. Der Buchungsdialog zeigt keine Belegung an | Kachelformel prüft nur „jetzt bis +30 Min“ (belegt) | Nutzer wählt 09:00–17:00 und bekommt „Tisch belegt“ ohne Hinweis, wann frei | Plan P1 |
 
@@ -615,6 +616,80 @@ Color.White
 
 **Test:** Buchungen-Tab → Verwalten: Der Dialog ist weiß wie der Verwalten-Dialog im Dashboard. Der kleine Mehrfach-Dialog ebenso.
 
+### L13 Buchungsdialog öffnet immer mit dem Grundriss-Datum und frischen Zeiten
+
+**`btnHitArea.OnSelect`** (Ort: `Screen1 > conGrundriss > Gallery1 > btnHitArea`) ersetzen durch:
+
+```
+With(
+  {
+    relevanteBuchung:
+      If(
+        varAnsichtsDatum = Today();
+        LookUp(Tischbuchungen; Tisch.Value = ThisItem.Titel && Endzeit >= Now() && Startzeit <= DateAdd(Now(); 30; TimeUnit.Minutes));
+        LookUp(Tischbuchungen; Tisch.Value = ThisItem.Titel && Startzeit >= varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days))
+      )
+  };
+  If(
+    IsBlank(relevanteBuchung);
+      Set(varSelectedTisch; ThisItem);;
+      Reset(dpDatum);;
+      Reset(ddStart);;
+      Reset(ddEnde);;
+      Reset(dpWiederholenBis);;
+      Set(varZeigeDialog; true);;
+      Set(varZeigeDetails; false);;
+      Set(varZeigeCheckin; false);;
+      Set(varZeigeVerwalten; false);;
+      Set(varWiederholen; false);;
+      Set(varWiederholenModus; "Wochentage");;
+      Set(varTagMo; false);;
+      Set(varTagDi; false);;
+      Set(varTagMi; false);;
+      Set(varTagDo; false);;
+      Set(varTagFr; false);;
+      Set(varTagSa; false);;
+      Set(varTagSo; false);
+      Set(varDetailsTisch; ThisItem);; Set(varSelectedBuchung; relevanteBuchung);;
+      Set(varZeigeDetails; true);;
+      Set(varZeigeDialog; false);;
+      Set(varZeigeCheckin; false);;
+      Set(varZeigeVerwalten; false)
+  )
+)
+```
+
+**`btnTischHinzufügen.OnSelect`** (Ort: `Screen1 > conDashboard > btnTischHinzufügen`) ersetzen durch:
+
+```
+Set(varZeigeTischBuchungForm; true);;
+Reset(dpDatumTischePanel);;
+Reset(ddTischePanel);;
+Set(varWiederholen; false);;
+Reset(chkWiederholenPanel);;
+Set(varWiederholenModus; "Wochentage");;
+Set(varTagMo; false);;
+Set(varTagDi; false);;
+Set(varTagMi; false);;
+Set(varTagDo; false);;
+Set(varTagFr; false);;
+Set(varTagSa; false);;
+Set(varTagSo; false);;
+Reset(tglTagMo_1);;
+Reset(tglTagDi_1);;
+Reset(tglTagMi_1);;
+Reset(tglTagDo_1);;
+Reset(tglTagFr_1);;
+Set(varAusgewaehltePanelDauer; Blank());;
+Set(varStartOverridePanel; "");;
+Set(varEndeOverridePanel; "");;
+Reset(ddStartTischePanel);;
+Reset(ddEndTischePanel);;
+Reset(dpWiederholenBis_1)
+```
+
+**Test:** (1) Grundriss → freie Kachel → im Dialog Datum auf morgen und 14:00 stellen → Abbrechen. Andere freie Kachel → Dialog zeigt wieder das Grundriss-Datum und die nächste halbe Stunde. (2) Panel öffnen, 09:00–10:00 wählen, mit „<“ schließen, wieder öffnen → Zeiten stehen auf dem Standard. (3) Wiederholen-bis auf in 10 Tagen stellen, abbrechen, neu öffnen → Bis-Datum zurückgesetzt.
+
 ## 3. Umbaupläne für größere Punkte (durchdacht, nicht als Formel)
 Jeder Plan: Problem → Lösung → was du anlegen musst → Risiko → Aufwand (Einschätzung).
 
@@ -624,9 +699,13 @@ Jeder Plan: Problem → Lösung → was du anlegen musst → Risiko → Aufwand 
 - *Risiko:* niedrig. *Aufwand:* ~1 Std. Die Steuerelemente legst du an (Knopf im Popup, Label im Dialog unter dem Tischnamen).
 - *Formeln (aus dem Export erzeugt, Klammern und Rückübersetzung geprüft; die beiden Steuerelemente sind neu):*
   - `btnAndereZeit.Text`: `"Andere Zeit buchen"`
-  - `btnAndereZeit.OnSelect` (übernimmt wörtlich den „frei“-Zweig aus `btnHitArea.OnSelect`, nur mit `varDetailsTisch` statt `ThisItem`; beide sind Datensätze aus `Tische`, also kein Typkonflikt):
+  - `btnAndereZeit.OnSelect` (übernimmt den „frei“-Zweig aus `btnHitArea.OnSelect` in der Fassung nach L13, nur mit `varDetailsTisch` statt `ThisItem`; beide sind Datensätze aus `Tische`, also kein Typkonflikt):
 ```
 Set(varSelectedTisch; varDetailsTisch);;
+Reset(dpDatum);;
+Reset(ddStart);;
+Reset(ddEnde);;
+Reset(dpWiederholenBis);;
 Set(varZeigeDialog; true);;
 Set(varZeigeDetails; false);;
 Set(varZeigeCheckin; false);;
@@ -1319,6 +1398,69 @@ RGBA(234; 234; 236; 1)
 
 ```
 RGBA(234; 234; 236; 1)
+```
+
+**`btnHitArea.OnSelect`**
+
+```
+With(
+  {
+    relevanteBuchung:
+      If(
+        varAnsichtsDatum = Today();
+        LookUp(Tischbuchungen; Tisch.Value = ThisItem.Titel && Endzeit >= Now() && Startzeit <= DateAdd(Now(); 30; TimeUnit.Minutes));
+        LookUp(Tischbuchungen; Tisch.Value = ThisItem.Titel && Startzeit >= varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days))
+      )
+  };
+  If(
+    IsBlank(relevanteBuchung);
+      Set(varSelectedTisch; ThisItem);;
+      Set(varZeigeDialog; true);;
+      Set(varZeigeDetails; false);;
+      Set(varZeigeCheckin; false);;
+      Set(varZeigeVerwalten; false);;
+      Set(varWiederholen; false);;
+      Set(varWiederholenModus; "Wochentage");;
+      Set(varTagMo; false);;
+      Set(varTagDi; false);;
+      Set(varTagMi; false);;
+      Set(varTagDo; false);;
+      Set(varTagFr; false);;
+      Set(varTagSa; false);;
+      Set(varTagSo; false);
+      Set(varDetailsTisch; ThisItem);; Set(varSelectedBuchung; relevanteBuchung);;
+      Set(varZeigeDetails; true);;
+      Set(varZeigeDialog; false);;
+      Set(varZeigeCheckin; false);;
+      Set(varZeigeVerwalten; false)
+  )
+)
+```
+
+**`btnTischHinzufügen.OnSelect`**
+
+```
+Set(varZeigeTischBuchungForm; true);;
+Reset(dpDatumTischePanel);;
+Reset(ddTischePanel);;
+Set(varWiederholen; false);;
+Reset(chkWiederholenPanel);;
+Set(varWiederholenModus; "Wochentage");;
+Set(varTagMo; false);;
+Set(varTagDi; false);;
+Set(varTagMi; false);;
+Set(varTagDo; false);;
+Set(varTagFr; false);;
+Set(varTagSa; false);;
+Set(varTagSo; false);;
+Reset(tglTagMo_1);;
+Reset(tglTagDi_1);;
+Reset(tglTagMi_1);;
+Reset(tglTagDo_1);;
+Reset(tglTagFr_1);;
+Set(varAusgewaehltePanelDauer; Blank());;
+Set(varStartOverridePanel; "");;
+Set(varEndeOverridePanel; "")
 ```
 
 ## Anhang B: Zustände aller bedienbaren Steuerelemente (Export 07.10., vor Paket K/L)

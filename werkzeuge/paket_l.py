@@ -105,11 +105,24 @@ for c in ["btnHitArea", "btnEincheckenHeute", "btnVerwalten", "btnVerwalten_2", 
 for c in ["conVerwaltenDialog_1", "conVerwaltenKlein"]:
     schritt("L12", c, "Fill", "Color.White", "Dialog weiß wie alle anderen Dialoge")
 
+# L13 Eingaben beim Öffnen zurücksetzen (Datum/Zeit blieben vom letzten Mal stehen)
+schritt("L13", "btnHitArea", "OnSelect", ersetze("btnHitArea", "OnSelect",
+        "      Set(varSelectedTisch, ThisItem);\n",
+        "      Set(varSelectedTisch, ThisItem);\n      Reset(dpDatum);\n      Reset(ddStart);\n      Reset(ddEnde);\n      Reset(dpWiederholenBis);\n"),
+        "Buchungsdialog öffnet immer mit dem Grundriss-Datum und frischen Zeiten")
+KV2 = {f"{s['control']}.{s['prop']}": s for s in json.load(open(os.path.join(A.REPO, "arbeit/2026-10-07_PaketK_v2/bloecke.json"), encoding="utf-8"))}
+f = KV2["btnTischHinzufügen.OnSelect"]["neu"]
+assert f.rstrip().endswith('Set(varEndeOverridePanel, "")')
+schritt("L13", "btnTischHinzufügen", "OnSelect",
+        f.rstrip() + ";\nReset(ddStartTischePanel);\nReset(ddEndTischePanel);\nReset(dpWiederholenBis_1)",
+        "Panel öffnet mit frischen Zeiten (baut auf Paket K v2 C2 auf)")
+AUF_K = {"btnTischHinzufügen.OnSelect"}
+
 # Prüfungen
 fehler = []
 for s in S:
     k = f"{s['control']}.{s['prop']}"
-    if k in K:
+    if k in K and k not in AUF_K:
         fehler.append(f"{k}: wird schon von Paket K v2 geändert")
     if s["control"] not in a.typ:
         fehler.append(f"{k}: Steuerelement fehlt")
@@ -123,7 +136,7 @@ for s in S:
     for n in set(re.findall(r"\b((?:btn|dd|dp|gal|con|lbl|chk|tgl)[A-ZÄÖÜa-zäöü0-9_]*)\.", A.ausserhalb_strings(s["neu"]))):
         if n not in a.typ:
             fehler.append(f"{k}: unbekanntes Steuerelement {n}")
-    s["de"], s["orig"] = de, a.props.get(k)
+    s["de"], s["orig"] = de, (KV2[k]["neu"] if k in AUF_K else a.props.get(k))
     s["orig_de"] = A.to_de(s["orig"]) if s["orig"] else None
     s["pfad"] = a.pfad(s["control"])
 keys = [f"{s['control']}.{s['prop']}" for s in S]
