@@ -5,7 +5,7 @@
 Kennzeichnung: **belegt** (Export), **geschlussfolgert**, **UNSICHER**, **Einschätzung**.
 
 ## 0. Kurzfassung
-- **Sechs neue Fehler**, die Paket K v2 nicht abdeckt. Der wichtigste: Die Startliste bietet **22:00** an. Wählt man das, ist die Endliste leer, und die Buchung wird mit Ende **00:00 desselben Tages** gespeichert, also mit Ende vor Beginn (L1).
+- **Zehn neue Befunde** (F-L1 bis F-L10), die Paket K v2 nicht abdeckt. Sechs davon behebt Paket L direkt, vier brauchen einen Umbau (P1, P3). Der wichtigste: Die Startliste bietet **22:00** an. Wählt man das, ist die Endliste leer, und die Buchung wird mit Ende **00:00 desselben Tages** gespeichert, also mit Ende vor Beginn (L1).
 - **Die Oberfläche wirkt aus zwei Apps zusammengesetzt** (belegt). Der Buchungsdialog aus dem Grundriss nutzt das graublaue Standarddesign von Power Apps, das Tische-Panel das Markenblau `#171496`. „Speichern“ ist einmal grün, sonst blau. „Stornieren“ sieht aus wie „Speichern“. Bei sieben Knöpfen verschwindet beim Drücken die Schrift. Man sieht nicht, welcher Tab aktiv ist. Deutsch und Englisch sind gemischt.
 - **Paket L** behebt das mit 57 kleinen Properties: nur Farben, Texte, Sortierung, eine Liste. Kein Schreibvorgang wird geändert. Risiko: niedrig.
 - **Zehn größere Umbaupläne** (Abschnitt 3) sind durchdacht, aber nicht als Formel ausgearbeitet, weil sie neue Steuerelemente, Spalten oder Flows brauchen oder deine Entscheidung. Der wichtigste: **Im Grundriss kann man einen Tisch, der zu irgendeiner Zeit des Tages belegt ist, nicht für die freien Stunden buchen.**
@@ -21,6 +21,7 @@ Kennzeichnung: **belegt** (Export), **geschlussfolgert**, **UNSICHER**, **Einsch
 | F-L6 | Details-Popup zeigt immer **„Besetzt“ in Rot**, auch wenn nicht eingecheckt (Kachel ist dann orange) | `lblStatus.Text = "Besetzt"`, `Color = #EB3951` | Widerspricht der Kachelfarbe | **L6** |
 | F-L7 | **App über Mitternacht offen**: `varAnsichtsDatum` bleibt auf gestern | wird nur in `App.OnStart` und `dpAnsichtsDatum.OnChange` gesetzt (belegt) | Wer die App morgens im alten Browser-Tab weiter benutzt, sieht gestern. Paket K verhindert immerhin Buchungen in der Vergangenheit | Plan P3 |
 | F-L8 | **Grundriss: freie Restzeit eines belegten Tisches nicht buchbar** | `btnHitArea.OnSelect`: Ist irgendeine Buchung „relevant“, öffnet sich nur das Details-Popup. Heute: aktive Buchung oder Beginn in 30 Min. Anderer Tag: **irgendeine** Buchung an dem Tag | Tisch 08:00–10:00 gebucht → für 13:00–17:00 muss man ins Panel. Wer das nicht weiß, hält den Tisch für den ganzen Tag belegt | Plan P1 |
+| F-L10 | **Keine automatische Aktualisierung** (kein Timer in der App) | Steuerelement-Typen im Export: kein Timer (belegt) | Grundriss und Listen veralten, solange die App offen ist | Plan P3 |
 | F-L9 | Heute ist eine Kachel **grün**, obwohl der Tisch ab 14:00 belegt ist. Der Buchungsdialog zeigt keine Belegung an | Kachelformel prüft nur „jetzt bis +30 Min“ (belegt) | Nutzer wählt 09:00–17:00 und bekommt „Tisch belegt“ ohne Hinweis, wann frei | Plan P1 |
 
 ## 2. Paket L (Formeln, nach Paket K v2 einfügen)
@@ -68,9 +69,23 @@ Jeder Plan: Problem → Lösung → was du anlegen musst → Risiko → Aufwand 
 - *Risiko (a):* Leute verlieren ihren Tisch, wenn sie den Check-in vergessen. Das braucht Kommunikation und wahrscheinlich die Zustimmung des Betriebsrats.
 - *Aufwand:* (a) ~½ Tag, (b) 10 Min.
 
-**P3 App über Mitternacht offen (F-L7)**
-- *Lösung:* Ein unsichtbarer Timer (`tmrTageswechsel`, 60 s, Wiederholen, AutoStart) mit `OnTimerEnd`: Wenn `varAnsichtsDatum < Today()` und `dpAnsichtsDatum` nicht von Hand auf einen anderen Tag gestellt ist, dann `Set(varAnsichtsDatum; Today());; Reset(dpAnsichtsDatum)` und die L2-Ladezeile ausführen. Das Muster stammt aus der Handy-App (`tmrJetzt`).
-- *Risiko:* niedrig. *Aufwand:* 30 Min.
+**P3 Automatisch aktualisieren und Tageswechsel (F-L7, F-L10)**
+- *Problem (belegt):* Die App hat **keinen Timer**. Der Grundriss lädt nur bei einer Aktion neu, und `Now()` in den Kachelformeln wird nur dann neu berechnet. Bleibt die App offen, bleibt eine Kachel orange, obwohl die Buchung längst vorbei ist, und fremde neue Buchungen erscheinen nicht. Über Mitternacht bleibt `varAnsichtsDatum` auf gestern. GoBright aktualisiert live.
+- *Lösung:* Josias fügt einen **Timer** `tmrAktualisieren` ein (irgendwo auf `Screen1`, `Visible = false`) mit `Duration = 300000` (5 Min), `Repeat = true`, `AutoStart = true` und `OnTimerEnd`:
+```
+If(
+  !varIsLoading;
+  If(
+    varAnsichtsDatum < Today() && dpAnsichtsDatum.SelectedDate < Today();
+    Set(varAnsichtsDatum; Today());;
+    Reset(dpAnsichtsDatum)
+  );;
+  With({neu: ForAll(Filter(Tischbuchungen; (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(); 60; TimeUnit.Minutes))) As B; {TischName: B.Tisch.Value; Startzeit: B.Startzeit; Endzeit: B.Endzeit; Eingecheckt: B.CheckedIn; Name: B.Person.DisplayName})}; If(IsError(neu) || IsError(First(neu)); false; ClearCollect(colGrundriss; neu)))
+)
+```
+  Das ist die L2-Ladezeile, nur ohne Warnmeldung (alle 5 Minuten eine gelbe Meldung bei kurzem Netzausfall wäre lästig), plus der Tageswechsel. Kosten: **eine** delegierte Abfrage pro Nutzer alle 5 Minuten, bei 30 Nutzern 6 Abfragen pro Minute, weit unter dem Limit (geschlussfolgert).
+- *Nebenwirkung:* Wer bewusst einen **vergangenen** Tag ansieht, wird nach spätestens 5 Minuten auf heute zurückgesetzt (selten, akzeptabel).
+- *Aufwand:* 10 Min. *Risiko:* niedrig. (Formel aus dem Export erzeugt, Klammern und Rückübersetzung geprüft. Der Timer-Name ist neu.)
 
 **P4 Tisch sperren (Admin)**
 - *Lösung:* In der Liste `Tische` eine Ja/Nein-Spalte **„Gesperrt“** anlegen. `Gallery1` zeigt gesperrte Tische grau und ohne Klick. Panel-Liste (C1) und Speichern filtern sie heraus. Gesperrt wird direkt in der SharePoint-Liste, nur Admins haben dort Schreibrechte auf `Tische`.
@@ -141,6 +156,10 @@ Jeder Plan: Problem → Lösung → was du anlegen musst → Risiko → Aufwand 
 - Leere Listen: „---“ und „-Keine Einträge-“.
 - „Tisch Buchen“ und „Raum Buchen“ mit großem B.
 - Adresse „Matthäus-Merian-Strasse“ (ss) steht dreimal hart im Code.
+
+**Sonstiges:**
+- **Drei Stellen zum Aktualisieren** (Symbol im Dashboard, Symbol im Buchungen-Tab, Symbol in der Kopfzeile mit eigener Klickfläche `btnHitArea_1`), alle mit derselben Formel (belegt). Eine in der Kopfzeile reicht. Mit dem Timer aus P3 braucht man sie fast nie.
+- Die **Handy-App** nutzt schon das Markenblau `RGBA(23, 20, 150)` = `#171496` (belegt). L7 zieht die Desktop-App in dieselbe Richtung, damit beide Apps gleich aussehen.
 
 **Bewusst nicht in Paket L (deine Entscheidung):**
 - Farbe für **eingecheckt** (BD-14).
