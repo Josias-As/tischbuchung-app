@@ -31,15 +31,16 @@ def setze(k, v, tag):
 
 LOCK = "!varIsLoading && Now() >= varSperreBis"
 GRENZE = "Set(varFreigabeGrenze, DateAdd(Now(), -Coalesce(varFreigabeMinuten, 30), TimeUnit.Minutes))"
-VERF = "!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze"
+VERF = "!CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze"
 MIN = "Coalesce(varFreigabeMinuten, 30)"
 VERF_ITEM = (f"!ThisItem.CheckedIn && DateAdd(ThisItem.Startzeit, {MIN}, TimeUnit.Minutes) <= varJetzt"
-             f" && DateAdd(ThisItem.Erstellt, {MIN}, TimeUnit.Minutes) <= varJetzt")
+             f" && !IsBlank(ThisItem.Erstellt) && DateAdd(ThisItem.Erstellt, {MIN}, TimeUnit.Minutes) <= varJetzt")
+GRENZE_LISTE = "Set(varListeGrenze, DateAdd(Now(), -Coalesce(varFreigabeMinuten, 30), TimeUnit.Minutes))"
 EINDEUTIG = "-(Hour(Now()) * 3600 + Minute(Now()) * 60 + Second(Now()) + 1)"
 
 # H1 App.OnStart: Einstellung und Grenze -------------------------------------------------------------------------------
 aendere("App.OnStart", "Set(varJetzt, Now()); ClearCollect(colTische, Tische)",
-        "Set(varJetzt, Now()); Set(varFreigabeMinuten, 30); " + GRENZE + "; ClearCollect(colTische, Tische)", "H1")
+        "Set(varJetzt, Now()); Set(varFreigabeMinuten, 30); " + GRENZE + "; " + GRENZE_LISTE + "; ClearCollect(colTische, Tische)", "H1")
 
 # H2 Stornieren / Jetzt beenden: nur eigene ----------------------------------------------------------------------------
 aendere("btnStornoJa.OnSelect",
@@ -57,12 +58,12 @@ f = akt("ddTisch.Items")
 m = re.search(r"\{ belegt: ForAll\(Filter\(Tischbuchungen, (.*?)\), Tisch\.Value\) \}", f)
 assert m, "ddTisch belegt"
 setze("ddTisch.Items", f[:m.start()] + "{ belegt: Filter(ForAll(Filter(Tischbuchungen, " + m.group(1) + ") As X, "
-      "{ TischName: X.Tisch.Value, Aktiv: X.CheckedIn || X.Startzeit > varFreigabeGrenze || X.Erstellt > varFreigabeGrenze }), Aktiv) }" + f[m.end():], "H3")
+      "{ TischName: X.Tisch.Value, Aktiv: X.CheckedIn || X.Startzeit > varListeGrenze || IsBlank(X.Erstellt) || X.Erstellt > varListeGrenze }), Aktiv) }" + f[m.end():], "H3")
 aendere("ddTisch.Items", 'Filter(colTische, !("big table" in Lower(Titel)) && !(Titel in belegt))',
         'Filter(colTische, !Gesperrt && !("big table" in Lower(Titel)) && !(Titel in belegt.TischName))', "H3")
-aendere("btnTabBuchen.OnSelect", 'Set(varTab, "buchen");\n', 'Set(varTab, "buchen");\n' + GRENZE + ";\n", "H3")
-aendere("btnZumBuchen.OnSelect", 'Set(varTab, "buchen")', 'Set(varTab, "buchen"); ' + GRENZE, "H3")
-aendere("icoAktualisieren_1.OnSelect", "Refresh(Tische);\n", "Refresh(Tische);\nClearCollect(colTische, Tische);\n" + GRENZE + ";\n", "H3")
+aendere("btnTabBuchen.OnSelect", 'Set(varTab, "buchen");\n', 'Set(varTab, "buchen");\n' + GRENZE_LISTE + ";\n", "H3")
+aendere("btnZumBuchen.OnSelect", 'Set(varTab, "buchen")', 'Set(varTab, "buchen"); ' + GRENZE_LISTE, "H3")
+aendere("icoAktualisieren_1.OnSelect", "Refresh(Tische);\n", "Refresh(Tische);\nClearCollect(colTische, Tische);\n" + GRENZE_LISTE + ";\n", "H3")
 
 # H4 Buchen ------------------------------------------------------------------------------------------------------------
 k = "btnBuchen.OnSelect"
@@ -99,7 +100,7 @@ for c in ["btnVerl1", "btnVerl2"]:
           + f"{e}RemoveIf(colVerlIch, ID = varBuchungID || ({VERF}));\n" + f[m.end():], "H5")
     aendere(k, "      varEndeAlt <= Now(),\n      Notify(\"Diese Buchung ist bereits beendet.\", NotificationType.Information); Set(varZeigeVerwalten, false),\n",
             "      varEndeAlt <= Now(),\n      Notify(\"Diese Buchung ist bereits beendet.\", NotificationType.Information); Set(varZeigeVerwalten, false),\n"
-            "      !varBuchung.CheckedIn && varBuchung.Startzeit <= varFreigabeGrenze && varBuchung.Erstellt <= varFreigabeGrenze,\n"
+            "      !varBuchung.CheckedIn && varBuchung.Startzeit <= varFreigabeGrenze && !IsBlank(varBuchung.Erstellt) && varBuchung.Erstellt <= varFreigabeGrenze,\n"
             "      Notify(\"Diese Buchung ist verfallen, weil nicht rechtzeitig eingecheckt wurde. Bitte neu buchen.\", NotificationType.Warning),\n", "H5")
     aendere(k, "      !IsBlank(LookUp(Tischbuchungen, Tisch.Value = varTischName && Startzeit < varNeuEnde && Endzeit > varEndeAlt).ID),\n",
             "      !IsEmpty(colVerlBelegt),\n", "H5")
@@ -129,10 +130,10 @@ setze("btnEincheckenH.OnSelect", f"""If(
     Notify("Einchecken ist erst ab 30 Minuten vor Beginn möglich.", NotificationType.Warning),
     Now() >= varCheckinEnde,
     Notify("Diese Buchung ist schon zu Ende.", NotificationType.Warning),
-    varCheckinStart <= varFreigabeGrenze && varCheckinBuchung.Erstellt <= varFreigabeGrenze,
+    varCheckinStart <= varFreigabeGrenze && !IsBlank(varCheckinBuchung.Erstellt) && varCheckinBuchung.Erstellt <= varFreigabeGrenze,
     Notify("Zu spät: Ohne Check-in bis " & {MIN} & " Minuten nach Beginn verfällt die Buchung. Bitte neu buchen.", NotificationType.Warning),
     ClearCollect(colCheckinAndere, Filter(Tischbuchungen, Tisch.Value = varCheckinTisch && Startzeit < varCheckinEnde && Endzeit > varCheckinStart));
-    RemoveIf(colCheckinAndere, ID = varCheckinID || ({VERF}));
+    RemoveIf(colCheckinAndere, ID >= varCheckinID || ({VERF}));
     If(
       !IsEmpty(colCheckinAndere),
       Notify("Der Tisch ist in dieser Zeit schon an jemand anderen vergeben. Bitte neu buchen.", NotificationType.Error),
@@ -144,7 +145,7 @@ setze("btnEincheckenH.OnSelect", f"""If(
         If(
           !LookUp(colCheckinAndere, ID = varCheckinID).CheckedIn,
           Notify("Der Check-in ist nicht angekommen. Bitte aktualisieren und erneut versuchen.", NotificationType.Warning),
-          !IsBlank(LookUp(colCheckinAndere, ID <> varCheckinID && Endzeit > varCheckinStart && !({VERF})).ID),
+          !IsBlank(LookUp(colCheckinAndere, ID < varCheckinID && Endzeit > varCheckinStart && !({VERF})).ID),
           Notify("Eingecheckt, aber der Tisch wurde gleichzeitig an jemand anderen vergeben. Bitte unter „Meine“ prüfen und klären.", NotificationType.Error),
           Notify("Eingecheckt.", NotificationType.Success)
         )

@@ -3,15 +3,14 @@
 Für den Chat, der die Handy-App weiterbaut. Erzeugt von Claude Code (Desktop-Repo `tischbuchung-app`) mit `werkzeuge/handy_plan.py` aus dem **Handy-Export vom 08.10., 11:51** und maschinell geprüft. Kennzeichnung: **belegt**, **gemessen**, **geschlussfolgert**, **UNSICHER**. Ersetzt `AUFTRAG_Handy_Freigabe.md` (jetzt mit fertigen Formeln).
 
 ## 0. Startprompt für den Handy-Chat (so übergeben)
-> Du baust mit Josias die Handy-App „Tischbuchung Handy“ (App-ID `e218702e-…`) weiter. Sie nutzt dieselben SharePoint-Listen wie die Desktop-App „Tischbuchung“. Die Desktop-App bekommt gerade dieselben Regeln (Paket F Fassung 2). Damit beide Apps zusammenpassen, setze bitte diesen Umbauplan **Schritt für Schritt** um (H0 → H7). Pro Schritt: ganze Property ersetzen (Block unverändert, deutsche Schreibweise), App-Prüfung, Test, Strg+S. Arbeitest du lieber mit YAML, stehen die englischen Formeln in `handy_bloecke.json` (Feld `yaml`). **Formeln nicht umschreiben.** Passt ein Block nicht zum Stand im Studio (der Diff zeigt, was vorher dort stehen muss), stoppen und Claude Code einen neuen Export geben. Die Handy-App wird erst geteilt, wenn H1–H6 drin und getestet sind. Lege diesen Plan und `handy_bloecke.json` im Vault unter `Tischbuchung/2026-10-08_Handy` ab.
+> Du baust mit Josias die Handy-App „Tischbuchung Handy“ (App-ID `e218702e-…`) weiter. Sie nutzt dieselben SharePoint-Listen wie die Desktop-App „Tischbuchung“. Die Desktop-App bekommt gerade dieselben Regeln (Paket F Fassung 2). Damit beide Apps zusammenpassen, setze bitte diesen Umbauplan **Schritt für Schritt** um (H0 → H7). Pro Schritt: ganze Property ersetzen (Block unverändert, deutsche Schreibweise), App-Prüfung, Test, Strg+S. Arbeitest du lieber mit YAML, stehen die englischen Formeln in `handy_bloecke.json` (Feld `yaml`). **Formeln nicht umschreiben.** Passt ein Block nicht zum Stand im Studio (der Diff zeigt, was vorher dort stehen muss), stoppen und Claude Code einen neuen Export geben. Die Handy-App wird erst geteilt, wenn H1–H7 drin und getestet sind. Lege diesen Plan und `handy_bloecke.json` im Vault unter `Tischbuchung/2026-10-08_Handy` ab.
 
 ## 1. Kurzfassung
 - **Warum jetzt:** Die Desktop-App gibt ab Paket F nicht eingecheckte Buchungen **in der App** frei. Es gibt keinen Flow, und nichts wird gelöscht. Eine Buchung **verfällt**, wenn sie nicht eingecheckt ist und Beginn **und** Buchungszeitpunkt (`Erstellt`) mehr als 30 Minuten zurückliegen. Verfallene Buchungen zählen überall als frei.
-- **Ohne denselben Umbau in der Handy-App** passiert Folgendes (geschlussfolgert aus den Formeln):
-  1. Die Handy-App zeigt freigegebene Tische weiter als belegt. Das ist harmlos.
-  2. Sie lässt **Einchecken auf eine verfallene Buchung** zu, auch wenn der Tisch inzwischen neu vergeben ist. Dann sind zwei Personen am selben Tisch eingecheckt.
-  3. **Fehlalarm beim Buchen:** Die Nachprüfung nach dem Patch meldet „Jemand hat diesen Tisch fast gleichzeitig vor dir gebucht“, sobald auf dem Tisch eine verfallene Buchung liegt. Der Grund: Sie zählt jede ältere Zeile mit.
-  4. **Falsche Rücknahme beim Verlängern:** Die Nachprüfung nimmt die Verlängerung zurück, sobald irgendeine andere Zeile im Zeitraum liegt, auch eine verfallene.
+- **Ohne denselben Umbau in der Handy-App** passiert Folgendes (belegt aus den Formeln, unabhängig geprüft):
+  1. **Einchecken auf eine verfallene Buchung** geht weiter, auch wenn der Tisch inzwischen neu vergeben ist. Dann sind zwei Personen am selben Tisch eingecheckt. **Das ist der Grund, warum die Handy-App vor dem Teilen umgebaut werden muss.**
+  2. Freigegebene Tische bleiben am Handy belegt (nicht in der Liste, „schon belegt“ beim Buchen und Verlängern). Das ist vorsichtig und harmlos.
+- **Falle beim Umbau:** Wer nur die **Vor**prüfungen anpasst, bekommt zwei neue Fehler. Die Nachprüfung meldet beim Buchen fälschlich „Jemand hat diesen Tisch fast gleichzeitig vor dir gebucht“, und beim Verlängern nimmt sie die Verlängerung zurück. Grund: Sie zählt die verfallene Zeile mit. Deshalb ändert dieser Plan Vor- **und** Nachprüfung zusammen.
 - **Umfang:** 7 Schritte, **17 Properties**, **kein neues Steuerelement**. Dazu ein Vorab-Test (H0).
 - **Enthalten:**
   - Freigabe-Regel.
@@ -20,7 +19,7 @@ Für den Chat, der die Handy-App weiterbaut. Erzeugt von Claude Code (Desktop-Re
   - Nachprüfungen ohne Fehlalarm und pro Klick eindeutig (kein Zwischenspeicher).
   - Stornieren und Jetzt beenden nur für eigene Buchungen.
   - Startzeiten ab 06:00.
-- **Geprüft:** maschinell 0 Fehler (Anhang B) und unabhängig (`pruefung_handy.md`). In Studio nichts getestet.
+- **Geprüft:** maschinell 0 Fehler (Anhang B) und unabhängig: kein kritischer oder hoher Befund, alle 12 Befunde eingearbeitet (`pruefung_handy.md`). In Studio nichts getestet.
 
 ## 2. Stand der Handy-App (Export 08.10., belegt)
 - 69 Steuerelemente, 793 Properties. Gegenüber dem 07.10. sind 18 Properties geändert und 7 neu.
@@ -36,7 +35,7 @@ Für den Chat, der die Handy-App weiterbaut. Erzeugt von Claude Code (Desktop-Re
 ## 3. Gemeinsame Regeln Desktop + Handy (Stand 08.10.)
 | Regel | Desktop | Handy nach diesem Plan |
 |---|---|---|
-| Buchbar | 06:00–22:00, nicht in der Vergangenheit | gleich (H7, vorhanden) |
+| Buchbar | 06:00–22:00, nicht in der Vergangenheit; Startliste ab der **nächsten** halben Stunde | 06:00–22:00 (H7); Startliste ab der **laufenden** halben Stunde (Beginn bis 29 Min zurück), bleibt so |
 | Einchecken | ab 30 Min vor Beginn bis zur Frist (Beginn bzw. Buchungszeitpunkt + 30 Min) | gleich (H6) |
 | Verfallen | nicht eingecheckt, Beginn **und** Erstellt > 30 Min her; zählt als frei, nichts gelöscht | gleich (H3–H6) |
 | Gesperrte Tische | nicht buchbar | gleich (H3, H4) |
@@ -51,8 +50,9 @@ Für den Chat, der die Handy-App weiterbaut. Erzeugt von Claude Code (Desktop-Re
 2. Je Property: Steuerelement suchen (Ort steht dabei), **ganze Property ersetzen**. Der Diff zeigt, was sich gegenüber dem Export vom 08.10. ändert (`-` alt, `+` neu). **Steht im Studio etwas anderes als die `-`-Zeilen:** stoppen, neuen Export an Claude Code.
 3. Nach jedem Schritt App-Prüfung (keine neuen roten Fehler), Test, Strg+S. Nach H1 in Studio **OnStart ausführen**.
 4. **Daten aktualisieren:** Vor H3 in Studio Daten → `Tische` → **Aktualisieren**, damit die Spalte `Gesperrt` bekannt ist (gibt es seit Phase 0).
-5. **Rückfall:** Anhang A enthält die Fassung vor dem Umbau (Export 08.10.). Ganz zurück nur in umgekehrter Reihenfolge (H7 → H1).
+5. **Rückfall:** Anhang A enthält die Fassung vor dem Umbau (Export 08.10.). Ganz zurück nur in umgekehrter Reihenfolge (H7 → H1). **H1 erst zurücksetzen, wenn H2–H7 schon zurück sind**, sonst werden sie rot.
 6. **YAML:** Arbeitest du mit YAML (`… → Ansichtscode`), nimm die englischen Formeln aus `handy_bloecke.json` (Feld `yaml`, mit `=` davor).
+7. **H7 ersetzt Phase 8 des Gesamtplans** (gleiche Blöcke). Nicht doppelt einfügen.
 
 ## 5. Schritte
 
@@ -78,6 +78,7 @@ Für den Chat, der die Handy-App weiterbaut. Erzeugt von Claude Code (Desktop-Re
 ```
 ClearCollect(colTestErstellt; Filter(Tischbuchungen; Endzeit > DateAdd(Now(); -14; TimeUnit.Days)));; Notify(CountRows(colTestErstellt) & " Zeilen, Erstellt der ersten: " & Text(First(colTestErstellt).Erstellt; "dd.mm.yyyy hh:mm"); NotificationType.Information)
 ```
+3. Daten → `Tische` → Aktualisieren. In `lblTestErstellt` vorübergehend `Text(First(colTische).Gesperrt)` anzeigen (OnStart vorher ausführen) → „false“/„true“, kein roter Fehler. Damit ist die Spalte `Gesperrt` bekannt.
 - Erwartung: Datum in beiden, mindestens 1 Zeile. Danach **beide löschen**.
 - Rot bei `Erstellt` → mit `Created` probieren und an Claude Code melden. Der Plan wird dann neu erzeugt. Nicht selbst ersetzen.
 
@@ -96,13 +97,13 @@ Ort: `App` · **ganze Property ersetzen**
 ```diff
 @@ -1 +1 @@
 -Set(varTab; "heute");; Set(varIsLoading; false);; Set(varBuchung; Defaults(Tischbuchungen));; Set(varNeuBuchung; Defaults(Tischbuchungen));; Set(varBuchungID; 0);; Set(varCheckinID; 0);; Set(varNeuID; 0);; Set(varZeigeVerwalten; false);; Set(varZeigeStorno; false);; Set(varNeuLaden; 0);; Set(varNeuEnde; Now());; Set(varTagesEnde; Now());; Set(varTischName; "");; Set(varEndeAlt; Now());; Set(varBuchStart; Now());; Set(varBuchEnde; Now());; Set(varTischID; 0);; Set(varSperreBis; Now());; Set(varJetzt; Now());; ClearCollect(colTische; Tische)
-+Set(varTab; "heute");; Set(varIsLoading; false);; Set(varBuchung; Defaults(Tischbuchungen));; Set(varNeuBuchung; Defaults(Tischbuchungen));; Set(varBuchungID; 0);; Set(varCheckinID; 0);; Set(varNeuID; 0);; Set(varZeigeVerwalten; false);; Set(varZeigeStorno; false);; Set(varNeuLaden; 0);; Set(varNeuEnde; Now());; Set(varTagesEnde; Now());; Set(varTischName; "");; Set(varEndeAlt; Now());; Set(varBuchStart; Now());; Set(varBuchEnde; Now());; Set(varTischID; 0);; Set(varSperreBis; Now());; Set(varJetzt; Now());; Set(varFreigabeMinuten; 30);; Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));; ClearCollect(colTische; Tische)
++Set(varTab; "heute");; Set(varIsLoading; false);; Set(varBuchung; Defaults(Tischbuchungen));; Set(varNeuBuchung; Defaults(Tischbuchungen));; Set(varBuchungID; 0);; Set(varCheckinID; 0);; Set(varNeuID; 0);; Set(varZeigeVerwalten; false);; Set(varZeigeStorno; false);; Set(varNeuLaden; 0);; Set(varNeuEnde; Now());; Set(varTagesEnde; Now());; Set(varTischName; "");; Set(varEndeAlt; Now());; Set(varBuchStart; Now());; Set(varBuchEnde; Now());; Set(varTischID; 0);; Set(varSperreBis; Now());; Set(varJetzt; Now());; Set(varFreigabeMinuten; 30);; Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));; Set(varListeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));; ClearCollect(colTische; Tische)
 ```
 
 Vollständiger Block:
 
 ```
-Set(varTab; "heute");; Set(varIsLoading; false);; Set(varBuchung; Defaults(Tischbuchungen));; Set(varNeuBuchung; Defaults(Tischbuchungen));; Set(varBuchungID; 0);; Set(varCheckinID; 0);; Set(varNeuID; 0);; Set(varZeigeVerwalten; false);; Set(varZeigeStorno; false);; Set(varNeuLaden; 0);; Set(varNeuEnde; Now());; Set(varTagesEnde; Now());; Set(varTischName; "");; Set(varEndeAlt; Now());; Set(varBuchStart; Now());; Set(varBuchEnde; Now());; Set(varTischID; 0);; Set(varSperreBis; Now());; Set(varJetzt; Now());; Set(varFreigabeMinuten; 30);; Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));; ClearCollect(colTische; Tische)
+Set(varTab; "heute");; Set(varIsLoading; false);; Set(varBuchung; Defaults(Tischbuchungen));; Set(varNeuBuchung; Defaults(Tischbuchungen));; Set(varBuchungID; 0);; Set(varCheckinID; 0);; Set(varNeuID; 0);; Set(varZeigeVerwalten; false);; Set(varZeigeStorno; false);; Set(varNeuLaden; 0);; Set(varNeuEnde; Now());; Set(varTagesEnde; Now());; Set(varTischName; "");; Set(varEndeAlt; Now());; Set(varBuchStart; Now());; Set(varBuchEnde; Now());; Set(varTischID; 0);; Set(varSperreBis; Now());; Set(varJetzt; Now());; Set(varFreigabeMinuten; 30);; Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));; Set(varListeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));; ClearCollect(colTische; Tische)
 ```
 
 **Rückfall H1:** Fassung aus Anhang A wieder einsetzen.
@@ -233,11 +234,12 @@ If(
 - `ddTisch.Items` zählt nur **aktive** Buchungen als belegt. Gesperrte Tische fehlen.
 - Die Grenze wird beim Öffnen des Buchen-Tabs (Tab-Knopf, „Zum Buchen“) und beim Aktualisieren gesetzt.
 - Aktualisieren lädt `colTische` neu (gesperrte Tische ohne Neustart).
+- Die Liste hat eine **eigene Grenze** (`varListeGrenze`). Sie wird nur beim Öffnen des Buchen-Tabs und beim Aktualisieren gesetzt. Buchen, Verlängern und Einchecken lösen damit keine zusätzliche Abfrage der (unsichtbaren) Liste aus.
 - **Absichtlich nicht im Minutentakt:** Die Grenze ändert sich nur bei diesen Klicks. Sonst würde die Tischliste jede Minute neu abfragen, auch unsichtbar (gemessen: versteckte Steuerelemente fragen trotzdem ab). Eine alte Grenze ist vorsichtig: Es werden höchstens zu wenige Tische als frei gezeigt.
 
 **Test:**
 - In SharePoint eine Testzeile anlegen (Tisch X, Beginn vor 1 Std, CheckedIn = Nein). `Erstellt` ist dann „jetzt“: 30 Min warten oder `varFreigabeMinuten` per Testknopf auf 1 setzen (Testknopf danach löschen).
-- Tab „Buchen“ öffnen, heute, die Zeit der Testzeile → Tisch X steht in der Liste.
+- Die Testzeile braucht ein **Ende in der Zukunft** (z. B. Beginn vor 1 Std, Ende in 2 Std). Tab „Buchen“ öffnen, heute, eine Startzeit ab jetzt, die die Testzeile überlappt → Tisch X steht in der Liste.
 - Tisch Y in `Tische` auf Gesperrt = Ja → Aktualisieren → Tisch Y fehlt.
 
 #### `ddTisch.Items`
@@ -251,7 +253,7 @@ Ort: `Screen1 > conRoot > conInhalt > conBuchen > conBuchenForm > ddTisch` · **
    { neuLaden: varNeuLaden };
    With(
 -    { belegt: ForAll(Filter(Tischbuchungen; Startzeit < DateAdd(ddDatum.Selected.Tag; ddEnde.Selected.Min; TimeUnit.Minutes) && Endzeit > DateAdd(ddDatum.Selected.Tag; ddStart.Selected.Min; TimeUnit.Minutes)); Tisch.Value) };
-+    { belegt: Filter(ForAll(Filter(Tischbuchungen; Startzeit < DateAdd(ddDatum.Selected.Tag; ddEnde.Selected.Min; TimeUnit.Minutes) && Endzeit > DateAdd(ddDatum.Selected.Tag; ddStart.Selected.Min; TimeUnit.Minutes)) As X; { TischName: X.Tisch.Value; Aktiv: X.CheckedIn || X.Startzeit > varFreigabeGrenze || X.Erstellt > varFreigabeGrenze }); Aktiv) };
++    { belegt: Filter(ForAll(Filter(Tischbuchungen; Startzeit < DateAdd(ddDatum.Selected.Tag; ddEnde.Selected.Min; TimeUnit.Minutes) && Endzeit > DateAdd(ddDatum.Selected.Tag; ddStart.Selected.Min; TimeUnit.Minutes)) As X; { TischName: X.Tisch.Value; Aktiv: X.CheckedIn || X.Startzeit > varListeGrenze || IsBlank(X.Erstellt) || X.Erstellt > varListeGrenze }); Aktiv) };
      ForAll(
        Sort(
 -        Filter(colTische; !("big table" in Lower(Titel)) && !(Titel in belegt));
@@ -266,7 +268,7 @@ Vollständiger Block:
 With(
   { neuLaden: varNeuLaden };
   With(
-    { belegt: Filter(ForAll(Filter(Tischbuchungen; Startzeit < DateAdd(ddDatum.Selected.Tag; ddEnde.Selected.Min; TimeUnit.Minutes) && Endzeit > DateAdd(ddDatum.Selected.Tag; ddStart.Selected.Min; TimeUnit.Minutes)) As X; { TischName: X.Tisch.Value; Aktiv: X.CheckedIn || X.Startzeit > varFreigabeGrenze || X.Erstellt > varFreigabeGrenze }); Aktiv) };
+    { belegt: Filter(ForAll(Filter(Tischbuchungen; Startzeit < DateAdd(ddDatum.Selected.Tag; ddEnde.Selected.Min; TimeUnit.Minutes) && Endzeit > DateAdd(ddDatum.Selected.Tag; ddStart.Selected.Min; TimeUnit.Minutes)) As X; { TischName: X.Tisch.Value; Aktiv: X.CheckedIn || X.Startzeit > varListeGrenze || IsBlank(X.Erstellt) || X.Erstellt > varListeGrenze }); Aktiv) };
     ForAll(
       Sort(
         Filter(colTische; !Gesperrt && !("big table" in Lower(Titel)) && !(Titel in belegt.TischName));
@@ -287,7 +289,7 @@ Ort: `Screen1 > conRoot > conTabLeiste > btnTabBuchen` · **ganze Property erset
 ```diff
 @@ -1,3 +1,4 @@
  Set(varTab; "buchen");;
-+Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));;
++Set(varListeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));;
  Set(varZeigeVerwalten; false);;
  Set(varZeigeStorno; false)
 ```
@@ -296,7 +298,7 @@ Vollständiger Block:
 
 ```
 Set(varTab; "buchen");;
-Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));;
+Set(varListeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));;
 Set(varZeigeVerwalten; false);;
 Set(varZeigeStorno; false)
 ```
@@ -310,13 +312,13 @@ Ort: `Screen1 > conRoot > conInhalt > conHeute > conHeuteLeer > btnZumBuchen` ·
 ```diff
 @@ -1 +1 @@
 -Set(varTab; "buchen")
-+Set(varTab; "buchen");; Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes))
++Set(varTab; "buchen");; Set(varListeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes))
 ```
 
 Vollständiger Block:
 
 ```
-Set(varTab; "buchen");; Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes))
+Set(varTab; "buchen");; Set(varListeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes))
 ```
 
 #### `icoAktualisieren_1.OnSelect`
@@ -330,7 +332,7 @@ Ort: `Screen1 > conRoot > conHeader > icoAktualisieren_1` · **ganze Property er
  Refresh(Tischbuchungen);;
  Refresh(Tische);;
 +ClearCollect(colTische; Tische);;
-+Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));;
++Set(varListeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));;
  Set(varNeuLaden; varNeuLaden + 1);;
  Set(varIsLoading; false);;
 ```
@@ -342,7 +344,7 @@ Set(varIsLoading; true);;
 Refresh(Tischbuchungen);;
 Refresh(Tische);;
 ClearCollect(colTische; Tische);;
-Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));;
+Set(varListeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));;
 Set(varNeuLaden; varNeuLaden + 1);;
 Set(varIsLoading; false);;
 Notify("Aktualisiert."; NotificationType.Success)
@@ -373,9 +375,9 @@ Ort: `Screen1 > conRoot > conInhalt > conBuchen > conBuchenForm > btnBuchen` · 
    Set(varTischID; ddTisch.Selected.ID);;
 +  Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));;
 +  ClearCollect(colBuchBelegt; Filter(Tischbuchungen; Tisch.Value = varTischName && Startzeit < varBuchEnde && Endzeit > varBuchStart));;
-+  RemoveIf(colBuchBelegt; !CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze);;
++  RemoveIf(colBuchBelegt; !CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze);;
 +  ClearCollect(colBuchIch; Filter(Tischbuchungen; Person.Email = User().Email && Startzeit < varBuchEnde && Endzeit > varBuchStart));;
-+  RemoveIf(colBuchIch; !CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze);;
++  RemoveIf(colBuchIch; !CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze);;
    If(
      IsBlank(varTischName) || IsBlank(varTischID) || IsBlank(ddStart.Selected.Min) || IsBlank(ddEnde.Selected.Min);
 @@ -16,7 +21,9 @@
@@ -396,7 +398,7 @@ Ort: `Screen1 > conRoot > conInhalt > conBuchen > conBuchenForm > btnBuchen` · 
 -      ClearCollect(colKollision; Filter(Tischbuchungen; Tisch.Value = varTischName && Startzeit < varBuchEnde && Endzeit > varBuchStart));;
 +      Set(varBuchNachVon; DateAdd(varBuchStart; -(Hour(Now()) * 3600 + Minute(Now()) * 60 + Second(Now()) + 1); TimeUnit.Seconds));;
 +      ClearCollect(colKollision; Filter(Tischbuchungen; Tisch.Value = varTischName && Startzeit < varBuchEnde && Endzeit > varBuchNachVon));;
-+      RemoveIf(colKollision; (!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze) || Endzeit <= varBuchStart);;
++      RemoveIf(colKollision; (!CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze) || Endzeit <= varBuchStart);;
        Set(varBuchung; LookUp(colKollision; Person.Email = User().Email && Startzeit = varBuchStart && Endzeit = varBuchEnde));;
        If(
 @@ -48,5 +57,5 @@
@@ -421,9 +423,9 @@ If(
   Set(varTischID; ddTisch.Selected.ID);;
   Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));;
   ClearCollect(colBuchBelegt; Filter(Tischbuchungen; Tisch.Value = varTischName && Startzeit < varBuchEnde && Endzeit > varBuchStart));;
-  RemoveIf(colBuchBelegt; !CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze);;
+  RemoveIf(colBuchBelegt; !CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze);;
   ClearCollect(colBuchIch; Filter(Tischbuchungen; Person.Email = User().Email && Startzeit < varBuchEnde && Endzeit > varBuchStart));;
-  RemoveIf(colBuchIch; !CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze);;
+  RemoveIf(colBuchIch; !CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze);;
   If(
     IsBlank(varTischName) || IsBlank(varTischID) || IsBlank(ddStart.Selected.Min) || IsBlank(ddEnde.Selected.Min);
     Notify("Bitte Datum, Uhrzeit und Tisch auswählen."; NotificationType.Warning);
@@ -460,7 +462,7 @@ If(
       Notify("Das Buchen ist fehlgeschlagen. Bitte erneut versuchen."; NotificationType.Error);
       Set(varBuchNachVon; DateAdd(varBuchStart; -(Hour(Now()) * 3600 + Minute(Now()) * 60 + Second(Now()) + 1); TimeUnit.Seconds));;
       ClearCollect(colKollision; Filter(Tischbuchungen; Tisch.Value = varTischName && Startzeit < varBuchEnde && Endzeit > varBuchNachVon));;
-      RemoveIf(colKollision; (!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze) || Endzeit <= varBuchStart);;
+      RemoveIf(colKollision; (!CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze) || Endzeit <= varBuchStart);;
       Set(varBuchung; LookUp(colKollision; Person.Email = User().Email && Startzeit = varBuchStart && Endzeit = varBuchEnde));;
       If(
         IsBlank(varBuchung.ID);
@@ -490,7 +492,7 @@ If(
 - Eigene verfallene Buchung → „verfallen“, kein Verlängern.
 - **Nachprüfung eindeutig und ohne verfallene oder früher endende Zeilen.** Die vorhandene Rücknahme greift damit nur noch bei echten gleichzeitigen Buchungen.
 
-**Test:** Eigene laufende Buchung, die eine verfallene fremde Buchung desselben Tisches überlappt (Testzeile) → +1 Std → „Buchung verlängert.“, **keine** Rücknahme.
+**Test:** Eigene laufende Buchung **zuerst einchecken** (sonst ist sie im Testmodus selbst verfallen). Sie überlappt eine verfallene fremde Testzeile desselben Tisches → +1 Std → „Buchung verlängert.“, **keine** Rücknahme.
 
 #### `btnVerl1.OnSelect`
 
@@ -509,13 +511,13 @@ Ort: `Screen1 > conDlgVerwalten > btnVerl1` · **ganze Property ersetzen**
      Set(varNeuEnde; DateAdd(varEndeAlt; 60; TimeUnit.Minutes));;
      Set(varTagesEnde; DateTime(Year(varBuchung.Startzeit); Month(varBuchung.Startzeit); Day(varBuchung.Startzeit); 22; 0; 0));;
 +    ClearCollect(colVerlBelegt; Filter(Tischbuchungen; Tisch.Value = varTischName && Startzeit < varNeuEnde && Endzeit > varEndeAlt));;
-+    RemoveIf(colVerlBelegt; !CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze);;
++    RemoveIf(colVerlBelegt; !CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze);;
 +    ClearCollect(colVerlIch; Filter(Tischbuchungen; Person.Email = User().Email && Startzeit < varNeuEnde && Endzeit > varEndeAlt));;
-+    RemoveIf(colVerlIch; ID = varBuchungID || (!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze));;
++    RemoveIf(colVerlIch; ID = varBuchungID || (!CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze));;
      If(
        varEndeAlt <= Now();
        Notify("Diese Buchung ist bereits beendet."; NotificationType.Information);; Set(varZeigeVerwalten; false);
-+      !varBuchung.CheckedIn && varBuchung.Startzeit <= varFreigabeGrenze && varBuchung.Erstellt <= varFreigabeGrenze;
++      !varBuchung.CheckedIn && varBuchung.Startzeit <= varFreigabeGrenze && !IsBlank(varBuchung.Erstellt) && varBuchung.Erstellt <= varFreigabeGrenze;
 +      Notify("Diese Buchung ist verfallen, weil nicht rechtzeitig eingecheckt wurde. Bitte neu buchen."; NotificationType.Warning);
        varNeuEnde > varTagesEnde;
        Notify("Eine Buchung kann nicht nach 22:00 Uhr enden."; NotificationType.Warning);
@@ -531,7 +533,7 @@ Ort: `Screen1 > conDlgVerwalten > btnVerl1` · **ganze Property ersetzen**
 -        ClearCollect(colKollision; Filter(Tischbuchungen; Tisch.Value = varTischName && Startzeit < varNeuEnde && Endzeit > varEndeAlt));;
 +        Set(varVerlNachVon; DateAdd(varEndeAlt; -(Hour(Now()) * 3600 + Minute(Now()) * 60 + Second(Now()) + 1); TimeUnit.Seconds));;
 +        ClearCollect(colKollision; Filter(Tischbuchungen; Tisch.Value = varTischName && Startzeit < varNeuEnde && Endzeit > varVerlNachVon));;
-+        RemoveIf(colKollision; ID <> varBuchungID && ((!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze) || Endzeit <= varEndeAlt));;
++        RemoveIf(colKollision; ID <> varBuchungID && ((!CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze) || Endzeit <= varEndeAlt));;
          If(
            LookUp(colKollision; ID = varBuchungID).Endzeit <> varNeuEnde;
 ```
@@ -552,13 +554,13 @@ If(
     Set(varNeuEnde; DateAdd(varEndeAlt; 60; TimeUnit.Minutes));;
     Set(varTagesEnde; DateTime(Year(varBuchung.Startzeit); Month(varBuchung.Startzeit); Day(varBuchung.Startzeit); 22; 0; 0));;
     ClearCollect(colVerlBelegt; Filter(Tischbuchungen; Tisch.Value = varTischName && Startzeit < varNeuEnde && Endzeit > varEndeAlt));;
-    RemoveIf(colVerlBelegt; !CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze);;
+    RemoveIf(colVerlBelegt; !CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze);;
     ClearCollect(colVerlIch; Filter(Tischbuchungen; Person.Email = User().Email && Startzeit < varNeuEnde && Endzeit > varEndeAlt));;
-    RemoveIf(colVerlIch; ID = varBuchungID || (!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze));;
+    RemoveIf(colVerlIch; ID = varBuchungID || (!CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze));;
     If(
       varEndeAlt <= Now();
       Notify("Diese Buchung ist bereits beendet."; NotificationType.Information);; Set(varZeigeVerwalten; false);
-      !varBuchung.CheckedIn && varBuchung.Startzeit <= varFreigabeGrenze && varBuchung.Erstellt <= varFreigabeGrenze;
+      !varBuchung.CheckedIn && varBuchung.Startzeit <= varFreigabeGrenze && !IsBlank(varBuchung.Erstellt) && varBuchung.Erstellt <= varFreigabeGrenze;
       Notify("Diese Buchung ist verfallen, weil nicht rechtzeitig eingecheckt wurde. Bitte neu buchen."; NotificationType.Warning);
       varNeuEnde > varTagesEnde;
       Notify("Eine Buchung kann nicht nach 22:00 Uhr enden."; NotificationType.Warning);
@@ -571,7 +573,7 @@ If(
         Notify("Das Verlängern ist fehlgeschlagen. Bitte erneut versuchen."; NotificationType.Error);
         Set(varVerlNachVon; DateAdd(varEndeAlt; -(Hour(Now()) * 3600 + Minute(Now()) * 60 + Second(Now()) + 1); TimeUnit.Seconds));;
         ClearCollect(colKollision; Filter(Tischbuchungen; Tisch.Value = varTischName && Startzeit < varNeuEnde && Endzeit > varVerlNachVon));;
-        RemoveIf(colKollision; ID <> varBuchungID && ((!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze) || Endzeit <= varEndeAlt));;
+        RemoveIf(colKollision; ID <> varBuchungID && ((!CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze) || Endzeit <= varEndeAlt));;
         If(
           LookUp(colKollision; ID = varBuchungID).Endzeit <> varNeuEnde;
           Notify("Die Verlängerung ist nicht angekommen. Bitte aktualisieren."; NotificationType.Warning);
@@ -610,13 +612,13 @@ Ort: `Screen1 > conDlgVerwalten > btnVerl2` · **ganze Property ersetzen**
      Set(varNeuEnde; DateAdd(varEndeAlt; 120; TimeUnit.Minutes));;
      Set(varTagesEnde; DateTime(Year(varBuchung.Startzeit); Month(varBuchung.Startzeit); Day(varBuchung.Startzeit); 22; 0; 0));;
 +    ClearCollect(colVerlBelegt; Filter(Tischbuchungen; Tisch.Value = varTischName && Startzeit < varNeuEnde && Endzeit > varEndeAlt));;
-+    RemoveIf(colVerlBelegt; !CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze);;
++    RemoveIf(colVerlBelegt; !CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze);;
 +    ClearCollect(colVerlIch; Filter(Tischbuchungen; Person.Email = User().Email && Startzeit < varNeuEnde && Endzeit > varEndeAlt));;
-+    RemoveIf(colVerlIch; ID = varBuchungID || (!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze));;
++    RemoveIf(colVerlIch; ID = varBuchungID || (!CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze));;
      If(
        varEndeAlt <= Now();
        Notify("Diese Buchung ist bereits beendet."; NotificationType.Information);; Set(varZeigeVerwalten; false);
-+      !varBuchung.CheckedIn && varBuchung.Startzeit <= varFreigabeGrenze && varBuchung.Erstellt <= varFreigabeGrenze;
++      !varBuchung.CheckedIn && varBuchung.Startzeit <= varFreigabeGrenze && !IsBlank(varBuchung.Erstellt) && varBuchung.Erstellt <= varFreigabeGrenze;
 +      Notify("Diese Buchung ist verfallen, weil nicht rechtzeitig eingecheckt wurde. Bitte neu buchen."; NotificationType.Warning);
        varNeuEnde > varTagesEnde;
        Notify("Eine Buchung kann nicht nach 22:00 Uhr enden."; NotificationType.Warning);
@@ -632,7 +634,7 @@ Ort: `Screen1 > conDlgVerwalten > btnVerl2` · **ganze Property ersetzen**
 -        ClearCollect(colKollision; Filter(Tischbuchungen; Tisch.Value = varTischName && Startzeit < varNeuEnde && Endzeit > varEndeAlt));;
 +        Set(varVerlNachVon; DateAdd(varEndeAlt; -(Hour(Now()) * 3600 + Minute(Now()) * 60 + Second(Now()) + 1); TimeUnit.Seconds));;
 +        ClearCollect(colKollision; Filter(Tischbuchungen; Tisch.Value = varTischName && Startzeit < varNeuEnde && Endzeit > varVerlNachVon));;
-+        RemoveIf(colKollision; ID <> varBuchungID && ((!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze) || Endzeit <= varEndeAlt));;
++        RemoveIf(colKollision; ID <> varBuchungID && ((!CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze) || Endzeit <= varEndeAlt));;
          If(
            LookUp(colKollision; ID = varBuchungID).Endzeit <> varNeuEnde;
 ```
@@ -653,13 +655,13 @@ If(
     Set(varNeuEnde; DateAdd(varEndeAlt; 120; TimeUnit.Minutes));;
     Set(varTagesEnde; DateTime(Year(varBuchung.Startzeit); Month(varBuchung.Startzeit); Day(varBuchung.Startzeit); 22; 0; 0));;
     ClearCollect(colVerlBelegt; Filter(Tischbuchungen; Tisch.Value = varTischName && Startzeit < varNeuEnde && Endzeit > varEndeAlt));;
-    RemoveIf(colVerlBelegt; !CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze);;
+    RemoveIf(colVerlBelegt; !CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze);;
     ClearCollect(colVerlIch; Filter(Tischbuchungen; Person.Email = User().Email && Startzeit < varNeuEnde && Endzeit > varEndeAlt));;
-    RemoveIf(colVerlIch; ID = varBuchungID || (!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze));;
+    RemoveIf(colVerlIch; ID = varBuchungID || (!CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze));;
     If(
       varEndeAlt <= Now();
       Notify("Diese Buchung ist bereits beendet."; NotificationType.Information);; Set(varZeigeVerwalten; false);
-      !varBuchung.CheckedIn && varBuchung.Startzeit <= varFreigabeGrenze && varBuchung.Erstellt <= varFreigabeGrenze;
+      !varBuchung.CheckedIn && varBuchung.Startzeit <= varFreigabeGrenze && !IsBlank(varBuchung.Erstellt) && varBuchung.Erstellt <= varFreigabeGrenze;
       Notify("Diese Buchung ist verfallen, weil nicht rechtzeitig eingecheckt wurde. Bitte neu buchen."; NotificationType.Warning);
       varNeuEnde > varTagesEnde;
       Notify("Eine Buchung kann nicht nach 22:00 Uhr enden."; NotificationType.Warning);
@@ -672,7 +674,7 @@ If(
         Notify("Das Verlängern ist fehlgeschlagen. Bitte erneut versuchen."; NotificationType.Error);
         Set(varVerlNachVon; DateAdd(varEndeAlt; -(Hour(Now()) * 3600 + Minute(Now()) * 60 + Second(Now()) + 1); TimeUnit.Seconds));;
         ClearCollect(colKollision; Filter(Tischbuchungen; Tisch.Value = varTischName && Startzeit < varNeuEnde && Endzeit > varVerlNachVon));;
-        RemoveIf(colKollision; ID <> varBuchungID && ((!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze) || Endzeit <= varEndeAlt));;
+        RemoveIf(colKollision; ID <> varBuchungID && ((!CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze) || Endzeit <= varEndeAlt));;
         If(
           LookUp(colKollision; ID = varBuchungID).Endzeit <> varNeuEnde;
           Notify("Die Verlängerung ist nicht angekommen. Bitte aktualisieren."; NotificationType.Warning);
@@ -701,7 +703,7 @@ If(
 **Was neu ist:**
 - **B5:** eigene Variable `varCheckinID`, nicht mehr `varBuchungID` (die der Verwalten-Dialog nutzt).
 - Frisch lesen. Fenster ab 30 Min vor Beginn bis zur **Frist**.
-- Vor dem Check-in prüfen, ob der Tisch schon an jemand anderen vergeben ist.
+- Vor dem Check-in prüfen, ob der Tisch schon an jemand anderen vergeben ist. Bei einer gleichzeitigen Doppelbuchung gewinnt die **ältere** Buchung (kleinere ID), wie beim Buchen.
 - Nachprüfung (eindeutig): angekommen? Gleichzeitig neu vergeben?
 - **B8:** Die Knopfanzeige rechnet mit `varJetzt` (`tmrJetzt`, jede Minute). Der Knopf wird also zur richtigen Zeit aktiv und nach der Frist grau.
 - Status „Verfallen“ (grau) in Karte und Knopf.
@@ -736,10 +738,10 @@ Ort: `Screen1 > conRoot > conInhalt > conHeute > galHeute > conKarteH > btnEinch
 +    Notify("Einchecken ist erst ab 30 Minuten vor Beginn möglich."; NotificationType.Warning);
 +    Now() >= varCheckinEnde;
 +    Notify("Diese Buchung ist schon zu Ende."; NotificationType.Warning);
-+    varCheckinStart <= varFreigabeGrenze && varCheckinBuchung.Erstellt <= varFreigabeGrenze;
++    varCheckinStart <= varFreigabeGrenze && !IsBlank(varCheckinBuchung.Erstellt) && varCheckinBuchung.Erstellt <= varFreigabeGrenze;
 +    Notify("Zu spät: Ohne Check-in bis " & Coalesce(varFreigabeMinuten; 30) & " Minuten nach Beginn verfällt die Buchung. Bitte neu buchen."; NotificationType.Warning);
 +    ClearCollect(colCheckinAndere; Filter(Tischbuchungen; Tisch.Value = varCheckinTisch && Startzeit < varCheckinEnde && Endzeit > varCheckinStart));;
-+    RemoveIf(colCheckinAndere; ID = varCheckinID || (!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze));;
++    RemoveIf(colCheckinAndere; ID >= varCheckinID || (!CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze));;
      If(
 -      IsBlank(frisch.ID);
 -      Notify("Diese Buchung gibt es nicht mehr. Bitte aktualisieren."; NotificationType.Warning);
@@ -767,7 +769,7 @@ Ort: `Screen1 > conRoot > conInhalt > conHeute > galHeute > conKarteH > btnEinch
 -          )
 +          !LookUp(colCheckinAndere; ID = varCheckinID).CheckedIn;
 +          Notify("Der Check-in ist nicht angekommen. Bitte aktualisieren und erneut versuchen."; NotificationType.Warning);
-+          !IsBlank(LookUp(colCheckinAndere; ID <> varCheckinID && Endzeit > varCheckinStart && !(!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze)).ID);
++          !IsBlank(LookUp(colCheckinAndere; ID < varCheckinID && Endzeit > varCheckinStart && !(!CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze)).ID);
 +          Notify("Eingecheckt, aber der Tisch wurde gleichzeitig an jemand anderen vergeben. Bitte unter „Meine“ prüfen und klären."; NotificationType.Error);
 +          Notify("Eingecheckt."; NotificationType.Success)
          )
@@ -795,10 +797,10 @@ If(
     Notify("Einchecken ist erst ab 30 Minuten vor Beginn möglich."; NotificationType.Warning);
     Now() >= varCheckinEnde;
     Notify("Diese Buchung ist schon zu Ende."; NotificationType.Warning);
-    varCheckinStart <= varFreigabeGrenze && varCheckinBuchung.Erstellt <= varFreigabeGrenze;
+    varCheckinStart <= varFreigabeGrenze && !IsBlank(varCheckinBuchung.Erstellt) && varCheckinBuchung.Erstellt <= varFreigabeGrenze;
     Notify("Zu spät: Ohne Check-in bis " & Coalesce(varFreigabeMinuten; 30) & " Minuten nach Beginn verfällt die Buchung. Bitte neu buchen."; NotificationType.Warning);
     ClearCollect(colCheckinAndere; Filter(Tischbuchungen; Tisch.Value = varCheckinTisch && Startzeit < varCheckinEnde && Endzeit > varCheckinStart));;
-    RemoveIf(colCheckinAndere; ID = varCheckinID || (!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze));;
+    RemoveIf(colCheckinAndere; ID >= varCheckinID || (!CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze));;
     If(
       !IsEmpty(colCheckinAndere);
       Notify("Der Tisch ist in dieser Zeit schon an jemand anderen vergeben. Bitte neu buchen."; NotificationType.Error);
@@ -810,7 +812,7 @@ If(
         If(
           !LookUp(colCheckinAndere; ID = varCheckinID).CheckedIn;
           Notify("Der Check-in ist nicht angekommen. Bitte aktualisieren und erneut versuchen."; NotificationType.Warning);
-          !IsBlank(LookUp(colCheckinAndere; ID <> varCheckinID && Endzeit > varCheckinStart && !(!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze)).ID);
+          !IsBlank(LookUp(colCheckinAndere; ID < varCheckinID && Endzeit > varCheckinStart && !(!CheckedIn && Startzeit <= varFreigabeGrenze && !IsBlank(Erstellt) && Erstellt <= varFreigabeGrenze)).ID);
           Notify("Eingecheckt, aber der Tisch wurde gleichzeitig an jemand anderen vergeben. Bitte unter „Meine“ prüfen und klären."; NotificationType.Error);
           Notify("Eingecheckt."; NotificationType.Success)
         )
@@ -844,7 +846,7 @@ Ort: `Screen1 > conRoot > conInhalt > conHeute > galHeute > conKarteH > btnEinch
 -      DisplayMode.Disabled
 -    )
 -  )
-+  varJetzt >= DateAdd(ThisItem.Startzeit; -30; TimeUnit.Minutes) && varJetzt < ThisItem.Endzeit && !(!ThisItem.CheckedIn && DateAdd(ThisItem.Startzeit; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt && DateAdd(ThisItem.Erstellt; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt);
++  varJetzt >= DateAdd(ThisItem.Startzeit; -30; TimeUnit.Minutes) && varJetzt < ThisItem.Endzeit && !(!ThisItem.CheckedIn && DateAdd(ThisItem.Startzeit; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt && !IsBlank(ThisItem.Erstellt) && DateAdd(ThisItem.Erstellt; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt);
 +  DisplayMode.Edit;
 +  DisplayMode.Disabled
  )
@@ -856,7 +858,7 @@ Vollständiger Block:
 If(
   ThisItem.CheckedIn || varIsLoading;
   DisplayMode.Disabled;
-  varJetzt >= DateAdd(ThisItem.Startzeit; -30; TimeUnit.Minutes) && varJetzt < ThisItem.Endzeit && !(!ThisItem.CheckedIn && DateAdd(ThisItem.Startzeit; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt && DateAdd(ThisItem.Erstellt; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt);
+  varJetzt >= DateAdd(ThisItem.Startzeit; -30; TimeUnit.Minutes) && varJetzt < ThisItem.Endzeit && !(!ThisItem.CheckedIn && DateAdd(ThisItem.Startzeit; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt && !IsBlank(ThisItem.Erstellt) && DateAdd(ThisItem.Erstellt; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt);
   DisplayMode.Edit;
   DisplayMode.Disabled
 )
@@ -871,13 +873,13 @@ Ort: `Screen1 > conRoot > conInhalt > conHeute > galHeute > conKarteH > btnEinch
 ```diff
 @@ -1 +1 @@
 -If(ThisItem.CheckedIn; "Eingecheckt"; "Einchecken")
-+If(ThisItem.CheckedIn; "Eingecheckt"; !ThisItem.CheckedIn && DateAdd(ThisItem.Startzeit; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt && DateAdd(ThisItem.Erstellt; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt; "Verfallen"; "Einchecken")
++If(ThisItem.CheckedIn; "Eingecheckt"; !ThisItem.CheckedIn && DateAdd(ThisItem.Startzeit; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt && !IsBlank(ThisItem.Erstellt) && DateAdd(ThisItem.Erstellt; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt; "Verfallen"; "Einchecken")
 ```
 
 Vollständiger Block:
 
 ```
-If(ThisItem.CheckedIn; "Eingecheckt"; !ThisItem.CheckedIn && DateAdd(ThisItem.Startzeit; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt && DateAdd(ThisItem.Erstellt; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt; "Verfallen"; "Einchecken")
+If(ThisItem.CheckedIn; "Eingecheckt"; !ThisItem.CheckedIn && DateAdd(ThisItem.Startzeit; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt && !IsBlank(ThisItem.Erstellt) && DateAdd(ThisItem.Erstellt; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt; "Verfallen"; "Einchecken")
 ```
 
 #### `lblStatusH.Text`
@@ -889,13 +891,13 @@ Ort: `Screen1 > conRoot > conInhalt > conHeute > galHeute > conKarteH > lblStatu
 ```diff
 @@ -1 +1 @@
 -If(ThisItem.CheckedIn; "Eingecheckt"; "Nicht eingecheckt")
-+If(ThisItem.CheckedIn; "Eingecheckt"; !ThisItem.CheckedIn && DateAdd(ThisItem.Startzeit; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt && DateAdd(ThisItem.Erstellt; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt; "Verfallen"; "Nicht eingecheckt")
++If(ThisItem.CheckedIn; "Eingecheckt"; !ThisItem.CheckedIn && DateAdd(ThisItem.Startzeit; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt && !IsBlank(ThisItem.Erstellt) && DateAdd(ThisItem.Erstellt; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt; "Verfallen"; "Nicht eingecheckt")
 ```
 
 Vollständiger Block:
 
 ```
-If(ThisItem.CheckedIn; "Eingecheckt"; !ThisItem.CheckedIn && DateAdd(ThisItem.Startzeit; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt && DateAdd(ThisItem.Erstellt; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt; "Verfallen"; "Nicht eingecheckt")
+If(ThisItem.CheckedIn; "Eingecheckt"; !ThisItem.CheckedIn && DateAdd(ThisItem.Startzeit; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt && !IsBlank(ThisItem.Erstellt) && DateAdd(ThisItem.Erstellt; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt; "Verfallen"; "Nicht eingecheckt")
 ```
 
 #### `lblStatusH.Color`
@@ -907,13 +909,13 @@ Ort: `Screen1 > conRoot > conInhalt > conHeute > galHeute > conKarteH > lblStatu
 ```diff
 @@ -1 +1 @@
 -If(ThisItem.CheckedIn; RGBA(0; 169; 107; 1); RGBA(255; 165; 0; 1))
-+If(ThisItem.CheckedIn; RGBA(0; 169; 107; 1); !ThisItem.CheckedIn && DateAdd(ThisItem.Startzeit; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt && DateAdd(ThisItem.Erstellt; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt; RGBA(166; 166; 166; 1); RGBA(255; 165; 0; 1))
++If(ThisItem.CheckedIn; RGBA(0; 169; 107; 1); !ThisItem.CheckedIn && DateAdd(ThisItem.Startzeit; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt && !IsBlank(ThisItem.Erstellt) && DateAdd(ThisItem.Erstellt; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt; RGBA(166; 166; 166; 1); RGBA(255; 165; 0; 1))
 ```
 
 Vollständiger Block:
 
 ```
-If(ThisItem.CheckedIn; RGBA(0; 169; 107; 1); !ThisItem.CheckedIn && DateAdd(ThisItem.Startzeit; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt && DateAdd(ThisItem.Erstellt; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt; RGBA(166; 166; 166; 1); RGBA(255; 165; 0; 1))
+If(ThisItem.CheckedIn; RGBA(0; 169; 107; 1); !ThisItem.CheckedIn && DateAdd(ThisItem.Startzeit; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt && !IsBlank(ThisItem.Erstellt) && DateAdd(ThisItem.Erstellt; Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes) <= varJetzt; RGBA(166; 166; 166; 1); RGBA(255; 165; 0; 1))
 ```
 
 **Rückfall H6:** Fassung aus Anhang A wieder einsetzen.
@@ -977,6 +979,8 @@ If(
 - **Startlisten mit `Now()`** (`ddDatum`, `ddStart`): Sie veralten, wenn die App stundenlang offen bleibt. Speichern prüft aber „Vergangenheit“ frisch. `varJetzt` dort einzusetzen würde die Listen jede Minute neu bauen und kann die Auswahl zurücksetzen. Deshalb bewusst nicht.
 - **QR-Check-in am Tisch** (`Param("tisch")`) wäre der nächste sinnvolle Schritt gegen Einchecken von zu Hause. Eigenes Konzept nach dem Go-Live.
 - **Rechte „nur eigene Elemente“:** Die Handy-App schreibt als angemeldete Person. Das passt.
+- **„Meine“ zeigt keinen Status:** Eine heutige verfallene Buchung sieht dort normal aus, nur „Heute“ zeigt „Verfallen“. Später ein Status-Label in `conKarteM` (eigenes kleines Paket).
+- **Leeres `Erstellt`** (falls eine Spalte einmal nicht mitgeladen wird) zählt **nie** als verfallen. Die Freigabe kommt dann im schlimmsten Fall zu spät, aber nie zu früh (Doppelbuchung ausgeschlossen).
 
 ## 7. Testbogen
 | ✓ | Test | Ergebnis |
@@ -989,6 +993,7 @@ If(
 | ☐ | H5 Verlängern über verfallene Buchung ohne Rücknahme | |
 | ☐ | H6 Knopf aktiv/grau nach Zeit, Einchecken, „Verfallen“, Doppeltipp | |
 | ☐ | H7 Startzeiten 06:00, Vorgabe 08:00 | |
+| ☐ | Mit echten 30 Minuten (Testknopf aus): um hh:20–hh:29 den Slot hh:00 buchen, nicht einchecken. Nach hh:31 auf einem zweiten Gerät: Tisch weiter belegt, Einchecken geht noch (bis hh:50–hh:59) | |
 | ☐ | Gegenprobe Desktop: dieselbe Testzeile zeigt dort dasselbe (grün, buchbar) | |
 | ☐ | Testknopf gelöscht, `Set(varFreigabeMinuten; 30)` in `App.OnStart`; veröffentlichen, erst dann teilen | |
 
