@@ -1,0 +1,72 @@
+/goal überprüfe beide apps auf lags bugs und fehler. guck dir an was die änderungen alles an verbesserungen und verschlechterungen gebracht haben könnten. analysiere die apps gründlich und guck dann ob wir wirklich fertig sind.
+
+TEIL A. Von: Desktop-App-Chat (Josias' Begleit-Chat für die Desktop-App)
+
+Statusbericht und offene Punkte nach Paket F2.1 und GRUNDRISS_SPERRE. Bitte lies alles, bevor du antwortest. Nichts raten, keine Platzhalter, Kennzeichnung belegt/geschlussfolgert/UNSICHER wie gewohnt.
+
+1. WAS IM STUDIO IST (nach Josias' Rückmeldung "passt" bzw. "next" je Schritt)
+- Gesamtplan: G0.1 bis G0.3, G1, G2, G3, G6 (Fassung Nachtrag 4), G7, G9 bis G13, G15 bis G20, G23/G24 mit den Ausnahmen unter 3, G25.
+- Paket F2.1: F1 bis F7 eingefügt. F8 (tmrAktualisieren) wurde NICHT eingefügt. Der Timer existierte bis eben nicht.
+- GRUNDRISS_SPERRE: S1 (App.OnStart), S2 (alle 15 Ladestellen), S3 und S3b sind laut Josias eingefügt. Beim Timer habe ich ihn direkt mit den S3-Werten anlegen lassen (Duration 15000, Repeat true, AutoStart true, Visible false, OnTimerEnd aus S3), also ohne den F8-Zwischenstand. S4 (btnGrundrissSperre, btnGrundrissAktualisieren) wurde ausgegeben und mit "next" bestätigt. Der Test läuft gerade, mit einem Testknopf (Set(varGrundrissSperreSekunden; 5)), den Josias danach löscht.
+- Abweichung vom Dokument: Josias hatte vorher auf meinen Vorschlag hin ein eigenes Aktualisieren-Symbol in conGrundriss angelegt (vermutlich als Kopie von Icon1_1, Name mir nicht bekannt). Das ist eine 17. Ladestelle von colGrundriss, die in deiner Liste (16 Stellen) fehlt. Ich habe ihm geraten, dessen OnSelect durch die Stempel-Fassung (mit Set(varGrundrissStand; Now())) zu ersetzen. Bestätigt hat er das noch nicht. Bitte prüfe, ob das so passt oder ob du eine andere Lösung (Symbol entfernen) empfiehlst.
+
+2. WAS NOCH GEMACHT WERDEN SOLL
+a) Storno-Bestätigung per zweitem Tippen (noch NICHT an dich geschickt, hier der Auftrag): In der Desktop-App gibt es keine Rückfrage vor dem Stornieren mehr, weil G4 gestrichen ist. Dashboard-Knopf (btnStornieren), Tab-Knopf (btnStornieren_1) und Mehrfach-Knopf (btnStornierenKlein) stornieren direkt. Ich empfehle mindestens für den Mehrfach-Storno eine Bestätigung nach dem Muster des Auscheckens in F7: erster Tipp schreibt nichts, Knopftext "Wirklich stornieren?", Sperre 1 Sekunde, ein Doppelklick bestätigt nicht, die Frage wird beim Öffnen des Verwalten-Dialogs bzw. bei Änderung der Mehrfachauswahl zurückgesetzt, beim Mehrfach-Storno nennt der Text die Anzahl. Kein neues Steuerelement, keine zusätzliche SharePoint-Abfrage. Wenn du den Einzel-Storno für nicht nötig hältst, begründe kurz und baue nur den Mehrfach-Storno. Wichtig: Die drei Knöpfe sind jetzt in der Fassung aus GRUNDRISS_SPERRE S2 im Studio, bitte gegen diese Fassung diffen, nicht gegen F2.1.
+b) Abschlusstest laut Testbogen aus F2.1 (Testknopf mit Set(varFreigabeMinuten; 1); verfallene Testbuchung wird grün und ist buchbar; Verlängern über eine verfallene Buchung; "Zu spät" beim Einchecken; danach Testknopf löschen und prüfen, dass in App.OnStart Set(varFreigabeMinuten; 30) steht). Bitte passe den Testbogen an den neuen Stand an: der Timer lädt nicht mehr, Test 8 und 9 aus GRUNDRISS_SPERRE ersetzen den F8-Testpunkt.
+c) Danach: Sicherung (msapp-Datei), App-Prüfung ohne rote Fehler, Veröffentlichen.
+d) Texte: KURZANLEITUNG_und_GoLive_Mail_v3 und BETRIEBSHANDBUCH_Michael_v3 enthalten noch "meist innerhalb von 5 Minuten". Bitte die geänderten Stellen oder eine v4 liefern mit dem Satz aus deinem Dokument ("spätestens beim nächsten Bedienen, der Grundriss sperrt sich nach 2 Minuten bis zum Aktualisieren") und dem Hinweis, dass die Dashboard-Listen nicht mehr automatisch aktualisieren. Die Mail an Michael ist von Josias bewusst aufgespart.
+e) Handy-App: Der Handy-Chat baut B1 bis B11 und die Freigaberegel ein (AUFTRAG_Handy_Freigabe). Bitte sag, ob die Grundriss-Sperre auch dorthin gehört oder bewusst nur in die Desktop-App. Bis der Handy-Chat fertig ist, teilt Josias die Handy-App nicht.
+
+3. BEWUSST AUSGELASSEN (bitte nicht wieder anbieten)
+- G4 (Rückfrage-Dialog conStornoFrage): durch F2 ersetzt, weil sich zwischen Frage und "Ja" die Buchung ändern konnte.
+- G5 steckt in F7, G8 in F8 bzw. jetzt S3. Nicht separat einfügen.
+- G14 (freie Zeit an belegten Tischen buchen): aufgeschoben, optional.
+- G26 (Beschriftungen für Barrierefreiheit): aufgeschoben, optional.
+- G21: verworfen. Der Stornieren-Knopf bleibt blau, das gefällt Josias besser.
+- G22: gestrichen. Josias hat viele Optik-Änderungen im Stornieren-Block ausgelassen, die echten Minuszeichen übernommen und die Texte bei "keine Einträge" und "--- zu keine Buchungen" selbst geändert.
+- G23/G24: Rectangle5 und alle Rectangle6-Varianten bleiben grau oder schwarz, nicht blau. ddStockwerk behält vorerst die Farbe (Josias will sie später ändern, steht auf seiner Probleme-Liste). Alle anderen dd-Panels bleiben grau.
+- Rechte an der SharePoint-Liste "nur eigene Elemente": nicht gesetzt, nach Josias' Angabe nicht relevant, weil die Liste nie jemand sieht.
+- Vorab-Test "Erstellt", Vertretung für Josias, "Teilen mit Nutzern" als Entwicklungsschritt: gestrichen.
+- Variante "streng" (Anhang B, ohne Check-in-Erinnerung im Timer): nicht gewählt. Josias akzeptiert, dass der Timer nicht mehr automatisch lädt.
+
+4. WAS ICH VON DIR BRAUCHE
+- Klärung der 17. Ladestelle (1) und Antwort zu 2e.
+- Den Auftrag 2a samt Testschritt, ausgegeben im gewohnten Stil: nur betroffene Properties, ganze Property, Diff, exakte Namen und Orte.
+- Danach 2b und 2d.
+
+
+TEIL B. Von: Handy-Chat (nur zuständig für die Handy-App "Tischbuchung Handy")
+
+Abschlussstand zum Umbauplan v2 und alles, was offen ist oder bewusst weggelassen wurde.
+
+1. Erledigt
+- Umbauplan v2 H0 bis H7 unverändert eingebaut, alle Tests bestanden. Veröffentlicht 08.10. 15:52, nicht freigegeben.
+- Eine Abweichung: App.OnStart habe ich nicht 1:1 ersetzt. Josias hatte nach deinem Export varProfilFarbe (Zufallsfarbe für btnInitialen_1.Fill) ergänzt. Dein H1-Block hätte das gelöscht. Ich habe beides zusammengeführt: deine Zeilen plus seine.
+- K1 (Spalte Erstellt in Sammlungen) ist erledigt: Die Tests liefen nach dem Löschen der H0-Steuerelemente mit echten verfallenen Buchungen. Erstellt kommt in den Sammlungen an, ein ShowColumns war nicht nötig.
+- K2 (Einchecken nach Neuvergabe) getestet und bestanden: B kann einchecken, A bekommt "Zu spät ...".
+- M2 (Gesperrt in colTische) getestet: Ein gesperrter Tisch fehlt in der Liste.
+
+2. Bewusst weggelassen
+- N1 Status in "Meine": von Josias abgelehnt.
+- Abfragen nur auf dem sichtbaren Tab (If(varTab=...)): spart 1 bis 2 Abfragen beim Start, lässt aber beim Tab-Wechsel die Liste kurz leer aufblitzen. Josias ist Performance wichtig, aber der Gewinn ist zu klein.
+- galHeute aus galMeine ableiten: spart eine Abfrage, Risiko fehlender Spalten (Erstellt/CheckedIn). Nicht gegen die bestandenen Tests riskieren.
+- colTische erst beim Buchen-Tab laden: kleine Liste, wird sofort gebraucht, kein Gewinn.
+- Barrierefreiheit (ca. 55 Hinweise, fehlende AccessibleLabel): kein Einfluss auf Funktion und Tempo, später.
+- Tische als Knöpfe statt Dropdown: wenn überhaupt, dann nur als Galerie (eine Abfrage), nicht mit festen Knöpfen pro Tisch. Nicht vor dem Go-Live.
+- Eigene iPhone-App (Wrap/App Store): braucht Azure-Admin, App-Registrierung, Apple-Developer-Konto und Key Vault. Stattdessen: Power-Apps-App plus Verknüpfung auf dem Home-Bildschirm.
+
+3. Noch offen (Handy)
+1) Alle Buchungen löschen (neuer Tisch, ab Desk 13 alles um 1 verschoben). Macht Josias.
+2) Test auf echtem iPhone mit einem Tester am Montag. App nur an ihn freigeben, Rolle Benutzer. Dabei die Ladezeit mit dem Monitor messen.
+3) App-Einstellungen prüfen: "Vorladen" und "Verzögertes Laden" an. "Nicht blockierender OnStart" aus lassen.
+4) Freigabe an alle erst nach dem Gerätetest.
+5) Später: SharePoint-Indizes auf Buchungen.Startzeit und Buchungen.Tisch (ab ca. 5.000 Zeilen nötig) oder jährlich archivieren.
+
+4. Bitte an dich prüfen (betrifft beide Apps)
+- Listenrecht "nur eigene Elemente": Die Handy-App liest fremde Buchungen, um belegte Tische zu erkennen (colBuchBelegt, colCheckinAndere, galHeute/Tischliste). Wenn auch der Lesezugriff auf "nur eigene" gesetzt wird, sieht die Handy-App alle Tische als frei. Dann gibt es Doppelbuchungen. Laut Desktop-Chat ist das Recht derzeit nicht gesetzt. Bitte festhalten, dass der Lesezugriff nie eingeschränkt werden darf.
+- Gleiche Freigabe-Regel in beiden Apps: Die Handy-App hat varFreigabeMinuten = 30 und die Regel "nicht eingecheckt, Beginn und Erstellt kleiner gleich jetzt minus 30 Min". Wenn Paket F in der Desktop-App andere Werte oder eine andere Regel nutzt, zeigen die beiden Apps unterschiedliche freie Tische. Bitte abgleichen. Wenn sich etwas ändert, schick mir die Handy-Blöcke.
+- "Big Table" wird in der Handy-App über den Namen ausgeschlossen. Wenn der Tisch umbenannt wird, besser über Gesperrt steuern.
+- Aufräum-Flow (falls er Buchungen löscht oder ändert): Die Handy-App kommt damit klar, solange Erstellt, CheckedIn, Startzeit, Endzeit, Tisch und Person unverändert bleiben.
+- Zu 2e oben: Der Handy-Chat hat den Umbauplan v2 (H0 bis H7) eingebaut, nicht einen separaten Auftrag B1 bis B11. Bitte prüfen, ob B1 bis B11 dasselbe ist oder noch etwas fehlt.
+
+Dateien beim Handy-Chat: ANALYSE_UMBAUPLAN_v2, TESTPROTOKOLL (Abschnitt 08.10.), ANALYSE_APP_2026-10-08, ANALYSE_IPHONE_APPSTORE.
