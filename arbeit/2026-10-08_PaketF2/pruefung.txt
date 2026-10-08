@@ -1,0 +1,8 @@
+37 Properties in 8 Schritten, 1 neues Steuerelement (tmrAktualisieren, ersetzt G8).
+Ausgangslage = Studio-Stand nach Josias' Angaben (Export + eingefügte Gesamtplan-Schritte, G6 in Fassung Nachtrag 4). Keine Property liegt in G22 (nur teilweise eingefügt).
+Ladezeile neu an 16 Stellen, alte an 0. Keine Verweise auf den Rückfrage-Dialog (G4), auf G14-Steuerelemente oder varZeigeStornoFrage.
+Schreibstellen: 8 (btnEinchecken.OnSelect, btnSpeichern.OnSelect, btnSpeichernTischePanel.OnSelect, btnStornieren.OnSelect, btnStornierenKlein.OnSelect, btnStornieren_1.OnSelect, btnVerlängern.OnSelect, btnVerlängern_1.OnSelect), jedes Patch/Remove hinter der Zweifach-Sperre, alle mit neuer Ladezeile.
+Stornieren: frischer Datensatz, Eigentümerprüfung vor dem Remove (Dashboard, Tab), Mehrfach nur eigene. Speichern ohne Refresh (Nachtrag 4).
+Abfragen auf Tischbuchungen (ohne reine ID-Abfragen): 42, jede einzeln: Freigabe-Regel lokal oder begründet ausgenommen (3).
+Je Property: Klammern, Rückübersetzung, keine Kommentare, Steuerelement im Studio vorhanden, jede var/col wird gesetzt, varFreigabeGrenze vor Gebrauch gesetzt.
+Prüfung: 0 Fehler
