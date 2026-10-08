@@ -17,14 +17,15 @@ N4 = json.load(open(os.path.join(A.REPO, "arbeit/2026-10-08_Nachtrag4/nachtrag4_
 # Studio-Stand = Ist (wie in paket_f2.py) + Paket F2.1
 EINGEFUEGT = {"G1", "G2", "G3", "G6", "G7", "G9", "G10", "G11", "G12", "G13", "G15", "G16", "G17", "G18", "G19", "G20", "G25"}
 stand = dict(a.props)
+quelle = {k: "Export 07.10." for k in stand}
 for s in G["app"]:
     if s["schritt"] in EINGEFUEGT:
-        stand[f"{s['control']}.{s['prop']}"] = s["neu"]
+        stand[f"{s['control']}.{s['prop']}"] = s["neu"]; quelle[f"{s['control']}.{s['prop']}"] = f"Gesamtplan {s['schritt']}"
 for b in N4:
     if b["schritt"] == "G6":
-        stand[f"{b['control']}.OnSelect"] = b["neu"]
+        stand[f"{b['control']}.OnSelect"] = b["neu"]; quelle[f"{b['control']}.OnSelect"] = "Gesamtplan G6 mit Nachtrag 4"
 for s in F21["app"]:
-    stand[f"{s['control']}.{s['prop']}"] = s["neu"]
+    stand[f"{s['control']}.{s['prop']}"] = s["neu"]; quelle[f"{s['control']}.{s['prop']}"] = f"Paket F2.1 {s['schritt']}"
 basis = dict(stand)
 
 final, NEUE = {}, {}
@@ -45,7 +46,7 @@ for k in LADESTELLEN:
 k = "App.OnStart"
 alt = "Set(varAuscheckFrageID, 0);\n"
 assert final[k].count(alt) == 1
-final[k] = final[k].replace(alt, alt + "Set(varGrundrissSperreSekunden, 120);\nSet(varJetztTakt, Now());\n")
+final[k] = final[k].replace(alt, alt + "Set(varGrundrissSperreSekunden, 120);\n") + ";\nSet(varJetztTakt, Now())"
 
 # 3) Timer: nur noch lokal (kein Refresh, keine Ladezeile), Takt 15 s, Erinnerung höchstens alle 5 Min
 t = basis["tmrAktualisieren.OnTimerEnd"]
@@ -54,7 +55,7 @@ assert erinnerung.count("ClearCollect(colCheckinFrage") == 1
 erinnerung = erinnerung.replace(
     "    !IsBlank(LookUp(colGrundriss, Name = User().FullName && !Eingecheckt && Startzeit <= DateAdd(Now(), 30, TimeUnit.Minutes) && Endzeit > Now()).TischName),\n",
     "    Now() >= Coalesce(varErinnerungAb, Now()) &&\n"
-    "    !IsBlank(LookUp(colGrundriss, Name = User().FullName && !Eingecheckt && Startzeit <= DateAdd(Now(), 30, TimeUnit.Minutes) && Endzeit > Now()).TischName),\n"
+    "    !IsBlank(LookUp(colGrundriss, Name = User().FullName && !Eingecheckt && Startzeit <= DateAdd(Now(), 30, TimeUnit.Minutes) && Endzeit > Now() && Startzeit > DateAdd(Now(), -Coalesce(varFreigabeMinuten, 30), TimeUnit.Minutes)).TischName),\n"
     "    Set(varErinnerungAb, DateAdd(Now(), 5, TimeUnit.Minutes));\n"
     "    Set(varFreigabeGrenze, DateAdd(Now(), -Coalesce(varFreigabeMinuten, 30), TimeUnit.Minutes));\n")
 assert "varErinnerungAb" in erinnerung
@@ -66,8 +67,17 @@ final["tmrAktualisieren.OnTimerEnd"] = (
     + erinnerung + "\n)")
 final["tmrAktualisieren.Duration"] = "15000"
 
+# 3b) Dashboard-Status „Verfallen“ ohne Abfrage: rechnet mit varJetztTakt statt mit varFreigabeGrenze
+TGRENZE = "DateAdd(Coalesce(varJetztTakt, Now()), -Coalesce(varFreigabeMinuten, 30), TimeUnit.Minutes)"
+for p_, alt_ in [("Text", "ThisItem.Startzeit <= varFreigabeGrenze && ThisItem.Erstellt <= varFreigabeGrenze"),
+                 ("Color", "ThisItem.Startzeit <= varFreigabeGrenze && ThisItem.Erstellt <= varFreigabeGrenze")]:
+    k = f"lblStatusHeute.{p_}"
+    v = basis[k]
+    assert v.count(alt_) == 1, k
+    final[k] = v.replace(alt_, f"ThisItem.Startzeit <= {TGRENZE} && ThisItem.Erstellt <= {TGRENZE}")
+
 # 4) Neue Steuerelemente in conGrundriss: Sperrfläche (verblasst, fängt Klicks) und Knopf
-ALT_GR = "IsBlank(varGrundrissStand) || varJetztTakt >= DateAdd(varGrundrissStand, Coalesce(varGrundrissSperreSekunden, 120), TimeUnit.Seconds)"
+ALT_GR = "!IsBlank(varJetztTakt) && (IsBlank(varGrundrissStand) || varJetztTakt >= DateAdd(varGrundrissStand, Coalesce(varGrundrissSperreSekunden, 120), TimeUnit.Seconds))"
 NEUE["btnGrundrissSperre"] = ("Button (Einfügen → Schaltfläche, klassisch)", "conGrundriss",
                               "in `conGrundriss` einfügen (conGrundriss markieren, dann Einfügen)")
 NEUE["btnGrundrissAktualisieren"] = ("Button (Einfügen → Schaltfläche, klassisch)", "conGrundriss",
@@ -82,6 +92,7 @@ for k, v in {
     "btnGrundrissSperre.RadiusTopLeft": "0", "btnGrundrissSperre.RadiusTopRight": "0",
     "btnGrundrissSperre.RadiusBottomLeft": "0", "btnGrundrissSperre.RadiusBottomRight": "0",
     "btnGrundrissSperre.OnSelect": "false",
+    "btnGrundrissSperre.AccessibleLabel": '"Grundriss veraltet, bitte aktualisieren"',
     "btnGrundrissAktualisieren.Text": '"Grundriss aktualisieren"',
     "btnGrundrissAktualisieren.Width": "280", "btnGrundrissAktualisieren.Height": "56",
     "btnGrundrissAktualisieren.X": "(Parent.Width - Self.Width) / 2", "btnGrundrissAktualisieren.Y": "(Parent.Height - Self.Height) / 2",
@@ -113,6 +124,13 @@ if len(abfr) != 2 or "Now() >= Coalesce(varErinnerungAb, Now())" not in tm:
     fehler.append("Timer: Abfragen nur in der gedrosselten Erinnerung erlaubt")
 if not tm.startswith("Set(varJetztTakt, Now());"):
     fehler.append("Timer: Takt nicht unabhängig von offenen Dialogen")
+if not end["App.OnStart"].rstrip().endswith("Set(varJetztTakt, Now())"):
+    fehler.append("App.OnStart: Takt nicht am Ende (Sperre würde beim Start aufblitzen)")
+for c in ["btnGrundrissSperre", "btnGrundrissAktualisieren"]:
+    if not end[f"{c}.Visible"].startswith("!IsBlank(varJetztTakt) && "):
+        fehler.append(f"{c}.Visible: ohne Takt-Schutz")
+if "varFreigabeGrenze" in end["tmrAktualisieren.OnTimerEnd"].split("Set(varErinnerungAb")[0]:
+    fehler.append("Timer setzt varFreigabeGrenze außerhalb der Erinnerung (würde Panel-Formeln neu rechnen)")
 gesetzt = set()
 for v in end.values():
     for m in re.finditer(r"(?:Set|ClearCollect|Collect)\(\s*((?:var|col)\w+)", v):
@@ -133,7 +151,7 @@ for k, f in final.items():
         fehler.append(f"{k}: Schreibstelle ohne Sperre")
     if k in basis:
         rest = f.replace("; " + STEMPEL, "")
-        if k not in ("App.OnStart", "tmrAktualisieren.OnTimerEnd", "tmrAktualisieren.Duration") and rest != basis[k]:
+        if k not in ("App.OnStart", "tmrAktualisieren.OnTimerEnd", "tmrAktualisieren.Duration", "lblStatusHeute.Text", "lblStatusHeute.Color") and rest != basis[k]:
             fehler.append(f"{k}: mehr geändert als der Zeitstempel")
 
 
@@ -145,6 +163,7 @@ SCHRITTE = [
     ("S1", "App-Start: Einstellung 120 Sekunden und Takt", ["App.OnStart"]),
     ("S2", "Zeitstempel an allen übrigen Ladestellen", [k for k in LADESTELLEN if k not in ("App.OnStart", "tmrAktualisieren.OnTimerEnd")]),
     ("S3", "Timer nur noch lokal (ändert F8)", ["tmrAktualisieren.Duration", "tmrAktualisieren.OnTimerEnd"]),
+    ("S3b", "Dashboard-Status „Verfallen“ ohne Abfrage aktuell", ["lblStatusHeute.Text", "lblStatusHeute.Color"]),
     ("S4", "Sperrfläche und Knopf in conGrundriss (neu)", [k for k in final if k.startswith("btnGrundrissSperre.")] + [k for k in final if k.startswith("btnGrundrissAktualisieren.")]),
 ]
 zug = [k for _, _, ks in SCHRITTE for k in ks]
@@ -157,14 +176,25 @@ for sid, t, ks in SCHRITTE:
         v0 = basis.get(k)
         out.append(dict(schritt=sid, titel=t, control=c, prop=p, neu=final[k], de=A.to_de(final[k]),
                         vorher_de=A.to_de(v0) if v0 is not None else None, diff=diff(A.to_de(v0), A.to_de(final[k])) if v0 is not None else None,
-                        art="neu" if v0 is None else "ersetzen",
+                        art="neu" if v0 is None else "ersetzen", quelle_vorher=quelle.get(k),
                         pfad=a.pfad(c) if c in a.typ else (f"(neu) Screen1 > conGrundriss > {c}" if c in NEUE else "Screen1 > " + c)))
-json.dump(dict(app=out, neue=NEUE, ladestellen=LADESTELLEN), open(os.path.join(ZIEL, "bloecke.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+# Variante „streng“: Timer ganz ohne Abfrage (ohne Check-in-Erinnerung; die Frage kommt dann nur beim App-Start)
+streng = (
+    "Set(varJetztTakt, Now());\n"
+    "If(\n  !varIsLoading && !varZeigeDialog && !varZeigeTischBuchungForm && !varZeigeVerwalten && !varZeigeVerwaltenTab && !varZeigeVerwaltenKlein && !varZeigeCheckin &&\n"
+    "  varAnsichtsDatum < Today() && dpAnsichtsDatum.SelectedDate < Today(),\n"
+    "  Set(varAnsichtsDatum, Today());\n  Reset(dpAnsichtsDatum);\n  Set(varGrundrissStand, Blank())\n)")
+if not A.klammern_ok(streng) or A.from_de(A.to_de(streng)) != streng or "Tischbuchungen" in streng or "Refresh(" in streng:
+    fehler.append("Variante streng: Klammern/Rückübersetzung/Abfrage")
+VARIANTE = dict(control="tmrAktualisieren", prop="OnTimerEnd", neu=streng, de=A.to_de(streng),
+                diff=diff(A.to_de(final["tmrAktualisieren.OnTimerEnd"]), A.to_de(streng)))
+json.dump(dict(app=out, neue=NEUE, ladestellen=LADESTELLEN, variante_streng=VARIANTE), open(os.path.join(ZIEL, "bloecke.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 z = [f"{len(out)} Properties in {len(SCHRITTE)} Schritten, 2 neue Steuerelemente (btnGrundrissSperre, btnGrundrissAktualisieren).",
      f"Ladestellen von colGrundriss im F2.1-Stand: {len(LADESTELLEN)} ({', '.join(LADESTELLEN)}).",
      f"Nachher: {len(lade_nachher)} Ladestellen (Timer lädt nicht mehr, neu: btnGrundrissAktualisieren), jede setzt varGrundrissStand bei Erfolg.",
      "Timer: kein Refresh, keine Ladezeile; Abfragen nur in der Check-in-Erinnerung, höchstens alle 5 Minuten und nur mit eigener anstehender Buchung im Grundriss.",
      "Je Property: Klammern, Rückübersetzung, Variablen gesetzt, Steuerelemente vorhanden, Schreibstellen mit Sperre; an Ladestellen nur der Zeitstempel geändert."]
+z += ["Variante „streng“ (tmrAktualisieren.OnTimerEnd ohne Erinnerung): keine Abfrage, Klammern und Rückübersetzung geprüft."]
 z += ["FEHLER: " + x for x in fehler] if fehler else ["Prüfung: 0 Fehler"]
 open(os.path.join(ZIEL, "pruefung.txt"), "w", encoding="utf-8").write("\n".join(z) + "\n")
 print("\n".join(z))

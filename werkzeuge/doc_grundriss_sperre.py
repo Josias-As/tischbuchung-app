@@ -20,7 +20,15 @@ for s in D["app"]:
     if s["diff"]:
         out += ["Änderung gegenüber dem Stand nach Paket F2.1:", "", "```diff", s["diff"], "```", ""]
     out += ["```", s["de"], "```", ""]
-out += ["## Anhang: Maschinelle Prüfung", "", "```", open(os.path.join(Z, "pruefung.txt"), encoding="utf-8").read().strip(), "```", ""]
+out += ["## Anhang A: Fassungen vor dieser Änderung (Stand nach Paket F2.1, für den Rückfall)", ""]
+for s in D["app"]:
+    if s["vorher_de"] is not None:
+        out += [f"**`{s['control']}.{s['prop']}`** ({s['schritt']}, vorher aus {s['quelle_vorher']})", "", "```", s["vorher_de"], "```", ""]
+V = D["variante_streng"]
+out += ["## Anhang B: Variante „streng“ für `tmrAktualisieren.OnTimerEnd` (ohne Check-in-Erinnerung)", "",
+        "Nur einsetzen, wenn der Timer **gar keine** Abfrage machen soll. Ersetzt den S3-Block für `OnTimerEnd`. Die Check-in-Frage kommt dann nur beim App-Start.", "",
+        "Änderung gegenüber S3:", "", "```diff", V["diff"], "```", "", "```", V["de"], "```", ""]
+out += ["## Anhang C: Maschinelle Prüfung", "", "```", open(os.path.join(Z, "pruefung.txt"), encoding="utf-8").read().strip(), "```", ""]
 p = os.path.join(Z, "GRUNDRISS_SPERRE.md")
 open(p, "w", encoding="utf-8").write("\n".join(out))
 print(p)
