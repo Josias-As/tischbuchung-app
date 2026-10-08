@@ -1,15 +1,15 @@
-# Paket F, Fassung 2 (08.10.2026): Freigabe in der App + Storno direkt (ohne Rückfrage-Dialog) + Timer + Einfügeliste.
+# Paket F, Fassung 2.1 (08.10.2026, DropColumns mit Bezeichner statt Text; Fassung 2 bleibt in arbeit/2026-10-08_PaketF2): Freigabe in der App + Storno direkt (ohne Rückfrage-Dialog) + Timer + Einfügeliste.
 # Ausgangslage = tatsächlicher Studio-Stand nach Josias' Angaben ("Ist"): Export 07.10. + eingefügte Gesamtplan-Schritte
 # (G1 G2 G3 G6[Nachtrag 4] G7 G9 G10 G11 G12 G13 G15 G16 G17 G18 G19 G20 G25, G22 teilweise). Nicht eingefügt: G4 G5 G8 G14 G21 G23 G24 G26.
 # Zielformeln: Paket F (Fassung 1, paket_f_bloecke.json) + Nachtrag 4 (F4) + Änderungen dieser Fassung.
-# Aufruf: python3 -I werkzeuge/paket_f2.py -> arbeit/2026-10-08_PaketF2/paket_f2_bloecke.json + pruefung.txt
+# Aufruf: python3 -I werkzeuge/paket_f2.py -> arbeit/2026-10-08_PaketF2_1/paket_f2_bloecke.json + pruefung.txt
 import difflib, json, os, re, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import app as A
 
 a = A.lade_desktop()
-ZIEL = os.path.join(A.REPO, "arbeit/2026-10-08_PaketF2")
+ZIEL = os.path.join(A.REPO, "arbeit/2026-10-08_PaketF2_1")
 os.makedirs(ZIEL, exist_ok=True)
 lade = lambda p: json.load(open(os.path.join(A.REPO, p), encoding="utf-8"))
 G = lade("arbeit/2026-10-08_Gesamtplan/gesamtplan_bloecke.json")
@@ -51,6 +51,11 @@ for b in N4:
         final[f"{b['control']}.OnSelect"] = b["neu"]
         herkunft[f"{b['control']}.OnSelect"] = ["F4 Buchen", "Nachtrag 4"]
 NEUE_STEUER = {}
+for _k in list(final):
+    if 'DropColumns(Filter(neu, Eingecheckt || Startzeit > varFreigabeGrenze || Erstellt > varFreigabeGrenze), "Erstellt")' in final[_k]:
+        final[_k] = final[_k].replace('DropColumns(Filter(neu, Eingecheckt || Startzeit > varFreigabeGrenze || Erstellt > varFreigabeGrenze), "Erstellt")',
+                                      "DropColumns(Filter(neu, Eingecheckt || Startzeit > varFreigabeGrenze || Erstellt > varFreigabeGrenze), Erstellt)")
+        herkunft.setdefault(_k, []).append("F2.1 DropColumns-Bezeichner")
 
 
 def setze(k, wert, tag):
@@ -70,7 +75,8 @@ VERF = "!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeG
 L_ALT_KOPF = "With({neu: ForAll(Filter(Tischbuchungen, (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum, 1, TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(), 60, TimeUnit.Minutes))) As B, {TischName: B.Tisch.Value, Startzeit: B.Startzeit, Endzeit: B.Endzeit, Eingecheckt: B.CheckedIn, Name: B.Person.DisplayName})}"
 L_NEU_KOPF = L_ALT_KOPF.replace("Name: B.Person.DisplayName})}", "Name: B.Person.DisplayName, Erstellt: B.Erstellt})}")
 L_ALT_CC = "ClearCollect(colGrundriss, neu)"
-L_NEU_CC = 'ClearCollect(colGrundriss, DropColumns(Filter(neu, Eingecheckt || Startzeit > varFreigabeGrenze || Erstellt > varFreigabeGrenze), "Erstellt"))'
+L_NEU_CC_TEXT = 'ClearCollect(colGrundriss, DropColumns(Filter(neu, Eingecheckt || Startzeit > varFreigabeGrenze || Erstellt > varFreigabeGrenze), "Erstellt"))'
+L_NEU_CC = 'ClearCollect(colGrundriss, DropColumns(Filter(neu, Eingecheckt || Startzeit > varFreigabeGrenze || Erstellt > varFreigabeGrenze), Erstellt))'
 LOCK = "!varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis)"
 
 
@@ -304,6 +310,35 @@ for k, v in NOT.items():
             fehler.append(f"Notfassung {k}: Variable {x} ohne F1 nicht gesetzt")
 notfassung = [dict(control=k.split(".")[0], prop="OnSelect", de=A.to_de(v), neu=v, vorher_de=A.to_de(ist[k]),
                    diff="\n".join(list(difflib.unified_diff(A.to_de(ist[k]).split("\n"), A.to_de(v).split("\n"), lineterm="", n=2))[2:])) for k, v in NOT.items()]
+
+def argumente(f, auf):
+    """Top-Level-Argumente einer Funktion ab der öffnenden Klammer."""
+    tiefe, i, im_str, start, args = 0, auf, False, auf + 1, []
+    while i < len(f):
+        ch = f[i]
+        if ch == '"':
+            im_str = not im_str
+        elif not im_str:
+            if ch in "({[":
+                tiefe += 1
+            elif ch in ")}]":
+                tiefe -= 1
+                if tiefe == 0:
+                    args.append(f[start:i].strip()); return args
+            elif ch == "," and tiefe == 1:
+                args.append(f[start:i].strip()); start = i + 1
+        i += 1
+    return args
+
+
+SPALTEN_FKT = {"DropColumns": lambda a: a[1:], "ShowColumns": lambda a: a[1:], "RenameColumns": lambda a: a[1:], "AddColumns": lambda a: a[1::2]}
+for quelle, props in [("Endstand", stand), ("Notfassung", NOT)]:
+    for k, v in props.items():
+        for m in re.finditer(r"\b(DropColumns|ShowColumns|RenameColumns|AddColumns)\(", v):
+            namen = SPALTEN_FKT[m.group(1)](argumente(v, m.end() - 1))
+            for n in namen:
+                if n.startswith('"'):
+                    fehler.append(f"{quelle} {k}: {m.group(1)} mit Spaltenname als Text ({n}); Studio verlangt einen Bezeichner")
 
 # --- Ausgabe mit Diff gegen den Ist-Stand ----------------------------------------------------------------------------
 def diff(alt, neu):

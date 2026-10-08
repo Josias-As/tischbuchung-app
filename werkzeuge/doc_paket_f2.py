@@ -1,11 +1,11 @@
-# Erzeugt arbeit/2026-10-08_PaketF2/UEBERGABE_PaketF2.md aus paket_f2_bloecke.json + werkzeuge/paket_f2_text.md.
+# Erzeugt arbeit/2026-10-08_PaketF2_1/UEBERGABE_PaketF2_1.md aus paket_f2_bloecke.json + werkzeuge/paket_f2_text.md.
 # Aufruf: python3 -I werkzeuge/paket_f2.py && python3 -I werkzeuge/doc_paket_f2.py
 import json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import app as A
 
-ZIEL = os.path.join(A.REPO, "arbeit/2026-10-08_PaketF2")
+ZIEL = os.path.join(A.REPO, "arbeit/2026-10-08_PaketF2_1")
 D = json.load(open(os.path.join(ZIEL, "paket_f2_bloecke.json"), encoding="utf-8"))
 G = json.load(open(os.path.join(A.REPO, "arbeit/2026-10-08_Gesamtplan/gesamtplan_bloecke.json"), encoding="utf-8"))
 T, k = {}, None
@@ -84,7 +84,7 @@ for s in D["app"]:
     if s["vorher_de"] is not None:
         out += [f"**`{s['control']}.{s['prop']}`** ({s['schritt']}, {s['quelle_vorher']})", "", "```", s["vorher_de"], "```", ""]
 out += ["## Anhang B: Prüfung", "", "Maschinell (`werkzeuge/paket_f2.py`):", "", "```", open(os.path.join(ZIEL, "pruefung.txt"), encoding="utf-8").read().strip(), "```", "",
-        "Unabhängige Prüfung: siehe `pruefung_paket_f2.md`.", "",
+        "Unabhängige Prüfung: siehe `../2026-10-08_PaketF2/pruefung_paket_f2.md` (Fassung 2; Fassung 2.1 ändert nur die DropColumns-Schreibweise).", "",
         "Bewusst ohne Freigabe-Regel:", ""] + [f"- `{k}`: {v}" for k, v in D["ausgenommen"].items()] + [""]
 g8 = next(s for s in G["app"] if s["control"] == "tmrAktualisieren" and s["prop"] == "OnTimerEnd")["neu"]
 alt = " && !varZeigeCheckin && !varZeigeStornoFrage,"
@@ -95,6 +95,6 @@ out += [T["anhangc"], "", "**`tmrAktualisieren.OnTimerEnd`** (nur ohne Paket F)"
 out += [T["anhangd"], ""]
 for n in D["notfassung"]:
     out += [f"#### `{n['control']}.OnSelect` (Notweg)", "", "Änderungen gegenüber dem Studio:", "", "```diff", n["diff"], "```", "", "Vollständiger Block:", "", "```", n["de"], "```", ""]
-p = os.path.join(ZIEL, "UEBERGABE_PaketF2.md")
+p = os.path.join(ZIEL, "UEBERGABE_PaketF2_1.md")
 open(p, "w", encoding="utf-8").write("\n".join(out))
 print(p, sum(1 for _ in open(p, encoding="utf-8")), "Zeilen")

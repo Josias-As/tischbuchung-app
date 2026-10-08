@@ -1,5 +1,7 @@
 @@ kopf
-# Paket F, Fassung 2: Freigabe in der App, Stornieren direkt, Timer
+# Paket F, Fassung 2.1: Freigabe in der App, Stornieren direkt, Timer
+
+> **Fassung 2.1 (08.10.):** einzige Änderung gegenüber Fassung 2 ist `DropColumns(…; Erstellt)` statt `DropColumns(…; "Erstellt")` in der Ladezeile (16 Properties). Studio hat bei F1 gemeldet: „Die Funktion ‚DropColumns‘ weist ungültige Argumente auf. Erwarteter Name des Bezeichners“ (**belegt**, U2 war damit falsch). Andere Funktionen mit Spaltennamen als Text gibt es im Paket nicht; `SortByColumns(…; "Startzeit")` läuft schon im veröffentlichten Export (**belegt**). Fassung 2 nicht mehr verwenden.
 
 Stand 08.10.2026 · erzeugt mit `werkzeuge/paket_f2.py` und `doc_paket_f2.py` · **ersetzt Paket F (Fassung 1), Nachtrag 3 und 4 sowie G4, G5 und G8** · Ausgangslage ist der **tatsächliche Stand im Studio** (siehe 1) · Kennzeichnung: **belegt**, **gemessen**, **geschlussfolgert**, **UNSICHER**
 
