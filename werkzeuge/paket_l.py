@@ -87,6 +87,24 @@ TEXTE = [("lblMyPersonalDesk", '"Meine Tischbuchungen"'), ("btnTischHinzufügen"
 for c, t in TEXTE:
     schritt("L9", c, "Text", t, "Text vereinheitlicht")
 
+# L10 Auswahl- und Akzentfarben: Markenblau statt Standard-Graublau
+schritt("L10", "Rectangle3_2", "Fill", BLAU, "Auswahlbalken im Buchungen-Tab blau wie im Dashboard")
+for c in ["Rectangle5", "Rectangle6", "Rectangle6_1", "Rectangle6_2"]:
+    assert a.get(c, "Fill") == "RGBA(100, 118, 132, 1)"
+    schritt("L10", c, "Fill", BLAU, "Akzentbalken im Dialog blau")
+for c in ["ddStockwerk", "ddTischePanel", "ddStartTischePanel", "ddEndTischePanel", "ddStart", "ddEnde"]:
+    schritt("L10", c, "SelectionFill", BLAU, "Markierte Zeile in der Auswahlliste blau")
+for c in ["ddTischePanel", "ddStartTischePanel", "ddEndTischePanel", "ddStart", "ddEnde"]:
+    schritt("L10", c, "ChevronHoverBackground", "ColorFade(Self.ChevronBackground, -20%)", "Pfeil beim Hover dunkler statt graublau")
+
+# L11 Unsichtbare Klickflächen: eine Hover-Stärke
+for c in ["btnHitArea", "btnEincheckenHeute", "btnVerwalten", "btnVerwalten_2", "btnHitArea_1"]:
+    schritt("L11", c, "HoverFill", "RGBA(0, 0, 0, 0.1)", "Einheitliche Hover-Abdunklung für Klickflächen")
+
+# L12 Dialoge einheitlich weiß
+for c in ["conVerwaltenDialog_1", "conVerwaltenKlein"]:
+    schritt("L12", c, "Fill", "Color.White", "Dialog weiß wie alle anderen Dialoge")
+
 # Prüfungen
 fehler = []
 for s in S:

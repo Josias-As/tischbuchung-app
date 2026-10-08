@@ -1,13 +1,13 @@
 # Weitere Fehler, Umbaupläne und Stil-Audit (Paket L)
-**08.10.2026, nachts · Basis: veröffentlichter Export vom 07.10. · Paket L: 57 Properties, maschinell erzeugt und geprüft (`werkzeuge/paket_l.py`), ändert keine Property, die Paket K v2 ändert · Reihenfolge: erst Paket K v2, dann L · unabhängig geprüft, Befunde eingearbeitet**
+**08.10.2026, nachts · Basis: veröffentlichter Export vom 07.10. · Paket L: 80 Properties, maschinell erzeugt und geprüft (`werkzeuge/paket_l.py`), ändert keine Property, die Paket K v2 ändert · Reihenfolge: erst Paket K v2, dann L · unabhängig geprüft, Befunde eingearbeitet**
 
 Kennzeichnung: **belegt** (Export), **geschlussfolgert**, **UNSICHER**, **Einschätzung**.
 
 ## 0. Kurzfassung
-- **Unabhängig geprüft** (`pruefung_paket_l.md`): Das Ergebnis waren 2 Fehler, 4 Risiken und 23 Hinweise. Eingearbeitet sind: Tab-Kontrast (L4), Titelbreite (L9: `lblTitel3` ohne Präfix), Outlook-Plan P5 neu, P3 mit Listen-Aktualisierung, P1-Datumsbedingung, P9 „nur eigene Elemente“, UTC-Hinweis bei P2 und die Zahlen im Stil-Audit. Danach wurde alles neu erzeugt und maschinell geprüft.
+- **Unabhängig geprüft** (`pruefung_paket_l.md`): Das Ergebnis waren 2 Fehler, 4 Risiken und 23 Hinweise. Eingearbeitet sind: Tab-Kontrast (L4), Titelbreite (L9: `lblTitel3` ohne Präfix), Outlook-Plan P5 neu, P3 mit Listen-Aktualisierung, P1-Datumsbedingung, P9 „nur eigene Elemente“, UTC-Hinweis bei P2 und die Zahlen im Stil-Audit. Danach wurde alles neu erzeugt und maschinell geprüft. **L10–L12 (23 Properties: Auswahl, Hover, Dialoghintergründe) kamen nach der Prüfung dazu, sind maschinell geprüft, aber nicht unabhängig.**
 - **Zehn neue Befunde** (F-L1 bis F-L10), die Paket K v2 nicht abdeckt. Sechs davon behebt Paket L direkt, vier brauchen einen Umbau (P1, P3). Der wichtigste: Die Startliste bietet **22:00** an. Wählt man das, ist die Endliste leer, und die Buchung wird mit Ende **00:00 desselben Tages** gespeichert, also mit Ende vor Beginn (L1).
 - **Die Oberfläche wirkt aus zwei Apps zusammengesetzt** (belegt). Der Buchungsdialog aus dem Grundriss nutzt das graublaue Standarddesign von Power Apps, das Tische-Panel das Markenblau `#171496`. „Speichern“ ist einmal grün, sonst blau. „Stornieren“ sieht aus wie „Speichern“. Bei sieben Knöpfen verschwindet beim Drücken die Schrift. Man sieht nicht, welcher Tab aktiv ist. Deutsch und Englisch sind gemischt.
-- **Paket L** behebt das mit 57 kleinen Properties: nur Farben, Texte, Sortierung, eine Liste. Kein Schreibvorgang wird geändert. Risiko: niedrig.
+- **Paket L** behebt das mit 80 kleinen Properties: nur Farben, Hover/Auswahl, Texte, Sortierung, eine Liste. Kein Schreibvorgang wird geändert. Risiko: niedrig.
 - **Zehn größere Umbaupläne** (Abschnitt 3) sind durchdacht, aber nicht als Formel ausgearbeitet, weil sie neue Steuerelemente, Spalten oder Flows brauchen oder deine Entscheidung. Der wichtigste: **Im Grundriss kann man einen Tisch, der zu irgendeiner Zeit des Tages belegt ist, nicht für die freien Stunden buchen.**
 
 ## 1. Neue Fehler (nicht in Paket K v2)
@@ -465,13 +465,192 @@ ThisItem.Tisch.Value
 
 **Test:** Texte durchsehen. Breite der Plus-/Minus-Knöpfe prüfen: „+1 Std“ ist ein Zeichen länger als „+1Std“ (UNSICHER, ob es abgeschnitten wird; falls ja, `Size` um 1 verkleinern).
 
+### L10 Auswahlbalken im Buchungen-Tab blau wie im Dashboard
+
+**`Rectangle3_2.Fill`** (Ort: `Screen1 > conBuchungen > galAlleTischbuchungen > Rectangle3_2`) ersetzen durch:
+
+```
+ColorValue("#171496")
+```
+
+**`Rectangle5.Fill`** (Ort: `Screen1 > conBuchungDialog > Rectangle5`) ersetzen durch:
+
+```
+ColorValue("#171496")
+```
+
+**`Rectangle6.Fill`** (Ort: `Screen1 > conBuchungDialog > Rectangle6`) ersetzen durch:
+
+```
+ColorValue("#171496")
+```
+
+**`Rectangle6_1.Fill`** (Ort: `Screen1 > conCheckinDialog > Rectangle6_1`) ersetzen durch:
+
+```
+ColorValue("#171496")
+```
+
+**`Rectangle6_2.Fill`** (Ort: `Screen1 > conDetailsPopup > Rectangle6_2`) ersetzen durch:
+
+```
+ColorValue("#171496")
+```
+
+**`ddStockwerk.SelectionFill`** (Ort: `Screen1 > conGrundriss > ddStockwerk`) ersetzen durch:
+
+```
+ColorValue("#171496")
+```
+
+**`ddTischePanel.SelectionFill`** (Ort: `Screen1 > conTischBuchungenPanel > ddTischePanel`) ersetzen durch:
+
+```
+ColorValue("#171496")
+```
+
+**`ddStartTischePanel.SelectionFill`** (Ort: `Screen1 > conTischBuchungenPanel > ddStartTischePanel`) ersetzen durch:
+
+```
+ColorValue("#171496")
+```
+
+**`ddEndTischePanel.SelectionFill`** (Ort: `Screen1 > conTischBuchungenPanel > ddEndTischePanel`) ersetzen durch:
+
+```
+ColorValue("#171496")
+```
+
+**`ddStart.SelectionFill`** (Ort: `Screen1 > conBuchungDialog > ddStart`) ersetzen durch:
+
+```
+ColorValue("#171496")
+```
+
+**`ddEnde.SelectionFill`** (Ort: `Screen1 > conBuchungDialog > ddEnde`) ersetzen durch:
+
+```
+ColorValue("#171496")
+```
+
+**`ddTischePanel.ChevronHoverBackground`** (Ort: `Screen1 > conTischBuchungenPanel > ddTischePanel`) ersetzen durch:
+
+```
+ColorFade(Self.ChevronBackground; -20%)
+```
+
+**`ddStartTischePanel.ChevronHoverBackground`** (Ort: `Screen1 > conTischBuchungenPanel > ddStartTischePanel`) ersetzen durch:
+
+```
+ColorFade(Self.ChevronBackground; -20%)
+```
+
+**`ddEndTischePanel.ChevronHoverBackground`** (Ort: `Screen1 > conTischBuchungenPanel > ddEndTischePanel`) ersetzen durch:
+
+```
+ColorFade(Self.ChevronBackground; -20%)
+```
+
+**`ddStart.ChevronHoverBackground`** (Ort: `Screen1 > conBuchungDialog > ddStart`) ersetzen durch:
+
+```
+ColorFade(Self.ChevronBackground; -20%)
+```
+
+**`ddEnde.ChevronHoverBackground`** (Ort: `Screen1 > conBuchungDialog > ddEnde`) ersetzen durch:
+
+```
+ColorFade(Self.ChevronBackground; -20%)
+```
+
+**Test:** Buchungen-Tab: Eine Zeile anklicken, der Auswahlbalken ist blau wie im Dashboard. Buchungsdialog, Check-in-Dialog und Details-Popup haben einen blauen Akzentbalken. Eine Auswahlliste öffnen: Die markierte Zeile ist blau. Über den Pfeil fahren: Er wird dunkler blau, nicht graublau.
+
+### L11 Einheitliche Hover-Abdunklung für Klickflächen
+
+**`btnHitArea.HoverFill`** (Ort: `Screen1 > conGrundriss > Gallery1 > btnHitArea`) ersetzen durch:
+
+```
+RGBA(0; 0; 0; 0,1)
+```
+
+**`btnEincheckenHeute.HoverFill`** (Ort: `Screen1 > conDashboard > galTischbuchungenHeute > btnEincheckenHeute`) ersetzen durch:
+
+```
+RGBA(0; 0; 0; 0,1)
+```
+
+**`btnVerwalten.HoverFill`** (Ort: `Screen1 > conDashboard > galTischbuchungenHeute > btnVerwalten`) ersetzen durch:
+
+```
+RGBA(0; 0; 0; 0,1)
+```
+
+**`btnVerwalten_2.HoverFill`** (Ort: `Screen1 > conBuchungen > galAlleTischbuchungen > btnVerwalten_2`) ersetzen durch:
+
+```
+RGBA(0; 0; 0; 0,1)
+```
+
+**`btnHitArea_1.HoverFill`** (Ort: `Screen1 > conHeader > btnHitArea_1`) ersetzen durch:
+
+```
+RGBA(0; 0; 0; 0,1)
+```
+
+**Test:** Mit der Maus über Grundriss-Kachel, Einchecken-Fläche, Verwalten-Pfeil (Dashboard und Tab) und Logo fahren: Alle dunkeln gleich leicht ab.
+
+### L12 Dialog weiß wie alle anderen Dialoge
+
+**`conVerwaltenDialog_1.Fill`** (Ort: `Screen1 > conBuchungen > conVerwaltenDialog_1`) ersetzen durch:
+
+```
+Color.White
+```
+
+**`conVerwaltenKlein.Fill`** (Ort: `Screen1 > conBuchungen > conVerwaltenKlein`) ersetzen durch:
+
+```
+Color.White
+```
+
+**Test:** Buchungen-Tab → Verwalten: Der Dialog ist weiß wie der Verwalten-Dialog im Dashboard. Der kleine Mehrfach-Dialog ebenso.
+
 ## 3. Umbaupläne für größere Punkte (durchdacht, nicht als Formel)
 Jeder Plan: Problem → Lösung → was du anlegen musst → Risiko → Aufwand (Einschätzung).
 
 **P1 Grundriss: freie Zeiten belegter Tische buchen (F-L8, F-L9)**
 - *Lösung:* Ins Details-Popup kommt ein Knopf **„Andere Zeit buchen“**. Er setzt `varSelectedTisch` auf den Tisch und öffnet den normalen Buchungsdialog (`varZeigeDialog`). Im Buchungsdialog steht eine Zeile **„Heute belegt: 08:00–10:00, 14:00–17:00“** aus `colGrundriss` (keine neue Abfrage). Die Zeile gilt nur, solange das Dialog-Datum dem Grundriss-Datum entspricht; bei einem anderen Datum blendet sie sich aus (`Visible: dpDatum.SelectedDate = varAnsichtsDatum`). Die Speichern-Prüfung aus Paket K v2 bleibt die letzte Instanz.
 - *Anlegen:* einen Knopf `btnAndereZeit` im `conDetailsPopup` und ein Label `lblBelegtHeute` im `conBuchungDialog`.
-- *Risiko:* niedrig. *Aufwand:* ~1 Std. Ich erzeuge die Formeln, sobald es die beiden Steuerelemente gibt (Namen nennen).
+- *Risiko:* niedrig. *Aufwand:* ~1 Std. Die Steuerelemente legst du an (Knopf im Popup, Label im Dialog unter dem Tischnamen).
+- *Formeln (aus dem Export erzeugt, Klammern und Rückübersetzung geprüft; die beiden Steuerelemente sind neu):*
+  - `btnAndereZeit.Text`: `"Andere Zeit buchen"`
+  - `btnAndereZeit.OnSelect` (übernimmt wörtlich den „frei“-Zweig aus `btnHitArea.OnSelect`, nur mit `varDetailsTisch` statt `ThisItem`; beide sind Datensätze aus `Tische`, also kein Typkonflikt):
+```
+Set(varSelectedTisch; varDetailsTisch);;
+Set(varZeigeDialog; true);;
+Set(varZeigeDetails; false);;
+Set(varZeigeCheckin; false);;
+Set(varZeigeVerwalten; false);;
+Set(varWiederholen; false);;
+Set(varWiederholenModus; "Wochentage");;
+Set(varTagMo; false);;
+Set(varTagDi; false);;
+Set(varTagMi; false);;
+Set(varTagDo; false);;
+Set(varTagFr; false);;
+Set(varTagSa; false);;
+Set(varTagSo; false)
+```
+  - `lblBelegtHeute.Text`:
+```
+With(
+  { belegt: SortByColumns(Filter(colGrundriss; TischName = varSelectedTisch.Titel && Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days)); "Startzeit"; SortOrder.Ascending) };
+  If(IsEmpty(belegt); "An diesem Tag noch frei."; "Belegt: " & Concat(belegt; Text(Startzeit; "hh:mm") & "–" & Text(Endzeit; "hh:mm"); ", "))
+)
+```
+  - `lblBelegtHeute.Visible`: `varZeigeDialog && dpDatum.SelectedDate = varAnsichtsDatum`
+  - *Test:* Tisch heute 08:00–10:00 belegen. Grundriss-Kachel → Popup → „Andere Zeit buchen“ → Dialog zeigt „Belegt: 08:00–10:00“. 13:00–17:00 buchen → „Gebucht: …“. Datum im Dialog ändern → die Zeile verschwindet.
+
 
 **P2 Check-in mit Folge oder ohne Check-in (größter fachlicher Punkt)**
 - *Problem:* Einchecken bewirkt nichts. GoBright gibt nicht eingecheckte Tische frei.
@@ -568,6 +747,29 @@ If(
 - Leere Listen: „---“ und „-Keine Einträge-“.
 - „Tisch Buchen“ und „Raum Buchen“ mit großem B.
 - Adresse „Matthäus-Merian-Strasse“ (ss) steht dreimal hart im Code.
+
+**Vollständige Prüfung aller Zustände (Hover, Gedrückt, Auswahl, Gesperrt) über alle Steuerelement-Typen** (Tabelle im Anhang B, maschinell aus dem Export):
+
+| Bereich | Befund (belegt) | Paket L |
+|---|---|---|
+| Auswahllisten: Pfeil-Hover | `ChevronHoverBackground` ist bei **allen 7** sichtbaren Listen graublau, auch wo der Pfeil blau ist. Beim Hover springt ein blauer Pfeil auf Graublau | L10 |
+| Auswahllisten: markierte Zeile | `SelectionFill` ist bei allen 8 graublau | L10 (6 Listen, Raumcode ausgenommen) |
+| Auswahllisten: Hover | Panel `ColorFade(Self.Fill; −20 %)`, Dialog hellgrau `RGBA(205,209,213)`, Stockwerk blau 8 % | durch L7 (Dialog wie Panel) teilweise |
+| Listen-Auswahlbalken | Dashboard blau `#171496`, Buchungen-Tab graublau | L10 |
+| Akzentbalken in Dialogen | `Rectangle5`, `Rectangle6`, `Rectangle6_1`, `Rectangle6_2` graublau | L10 |
+| Unsichtbare Klickflächen (Kachel, Einchecken, Verwalten, Logo) | **fünf** verschiedene Hover-Stärken: 4 %, 8 %, 15 %, 20 %, 20 % | L11 (einheitlich 10 %) |
+| Dialog-Hintergründe | Popups weiß, aber Tab-Verwalten und Mehrfach-Dialog grau `RGBA(234,234,236)` | L12 |
+| Knöpfe gedrückt | siehe oben, 7 unlesbar | L3 |
+| Knöpfe Hover | dunkel → heller (+30 %), blau → dunkler (−20 %), Dauer-Knöpfe −15 % | **nicht** in L. Gewollt kann „dunkle Knöpfe werden heller“ sein, es wirkt aber uneinheitlich. Vorschlag für später: überall `ColorFade(Self.Fill; −15 %)`, schwarze Knöpfe durch Dunkelgrau ersetzen |
+| Gesperrte Knöpfe | Dauer-Knöpfe rot verblasst (`DisabledFill`), Speichern/Stornieren grau (Standard). Nach Paket K sind gesperrte Speichern-Knöpfe grau | bewusst so: rot = „geht nicht wegen Belegung“, grau = „gerade nicht bedienbar“ |
+| Schalter (Toggle) | `TrueFill` 6× graublau, 5× grün, `FalseFill` überall Standard | L7 (Wochentage grün, Auswahlmodus blau) |
+| Kontrollkästchen | alle 4 gleich (belegt) | ok |
+| Kalender | Symbolhintergrund blau, graublau, transparent, hellgrau (Raum) | L7 |
+| Symbole (Aktualisieren) | dunkel, ohne eigene Hover-Farbe | ok, siehe „Drei Stellen zum Aktualisieren“ |
+| Schriftfarben | vier Dunkeltöne: `RGBA(32,54,71)` (Standard, 132×), `RGBA(50,49,48)` (4×), Schwarz, Grau `RGBA(120,120,120)` | später mit der Farbtabelle |
+| Bilder | Bearbeiten-Symbol in beiden Listen mit Hover, Tisch-Symbole ohne (richtig, sie sind nicht klickbar) | ok |
+| **Logo als Knopf** | Das **Technoform-Logo** in der Kopfzeile (`Image6`) ist der Aktualisieren-Knopf (belegt). Das errät niemand | Vorschlag: eigenes Aktualisieren-Symbol in die Kopfzeile, das Logo nur als Logo |
+| Kalender-Trick im Dashboard | `dpAnsichtsDatum` hat transparenten Text und Rahmen und liegt über „Heute“/Datum (gewollt) | ok, aber ohne `AccessibleLabel` für Screenreader unsichtbar (P10) |
 
 **Sonstiges:**
 - **Drei Stellen zum Aktualisieren** (Symbol im Dashboard, Symbol im Buchungen-Tab, Symbol in der Kopfzeile mit eigener Klickfläche `btnHitArea_1`), alle mit derselben Formel (belegt). Eine in der Kopfzeile reicht. Mit dem Timer aus P3 braucht man sie fast nie.
@@ -980,3 +1182,232 @@ If(IsBlank(varSelectedBuchung); ""; "Tisch " & varSelectedBuchung.Tisch.Value)
 ```
 "Tisch " & ThisItem.Tisch.Value
 ```
+
+**`Rectangle3_2.Fill`**
+
+```
+RGBA(100; 118; 132; 1)
+```
+
+**`Rectangle5.Fill`**
+
+```
+RGBA(100; 118; 132; 1)
+```
+
+**`Rectangle6.Fill`**
+
+```
+RGBA(100; 118; 132; 1)
+```
+
+**`Rectangle6_1.Fill`**
+
+```
+RGBA(100; 118; 132; 1)
+```
+
+**`Rectangle6_2.Fill`**
+
+```
+RGBA(100; 118; 132; 1)
+```
+
+**`ddStockwerk.SelectionFill`**
+
+```
+RGBA(100; 118; 132; 1)
+```
+
+**`ddTischePanel.SelectionFill`**
+
+```
+RGBA(100; 118; 132; 1)
+```
+
+**`ddStartTischePanel.SelectionFill`**
+
+```
+RGBA(100; 118; 132; 1)
+```
+
+**`ddEndTischePanel.SelectionFill`**
+
+```
+RGBA(100; 118; 132; 1)
+```
+
+**`ddStart.SelectionFill`**
+
+```
+RGBA(100; 118; 132; 1)
+```
+
+**`ddEnde.SelectionFill`**
+
+```
+RGBA(100; 118; 132; 1)
+```
+
+**`ddTischePanel.ChevronHoverBackground`**
+
+```
+ColorFade(RGBA(100; 118; 132; 1); -20%)
+```
+
+**`ddStartTischePanel.ChevronHoverBackground`**
+
+```
+ColorFade(RGBA(100; 118; 132; 1); -20%)
+```
+
+**`ddEndTischePanel.ChevronHoverBackground`**
+
+```
+ColorFade(RGBA(100; 118; 132; 1); -20%)
+```
+
+**`ddStart.ChevronHoverBackground`**
+
+```
+ColorFade(RGBA(100; 118; 132; 1); -20%)
+```
+
+**`ddEnde.ChevronHoverBackground`**
+
+```
+ColorFade(RGBA(100; 118; 132; 1); -20%)
+```
+
+**`btnHitArea.HoverFill`**
+
+```
+RGBA(0; 0; 0; 0,15)
+```
+
+**`btnEincheckenHeute.HoverFill`**
+
+```
+RGBA(0; 0; 0; 0,04)
+```
+
+**`btnVerwalten.HoverFill`**
+
+```
+RGBA(0; 0; 0; 0,2)
+```
+
+**`btnVerwalten_2.HoverFill`**
+
+```
+RGBA(0; 0; 0; 0,2)
+```
+
+**`btnHitArea_1.HoverFill`**
+
+```
+RGBA(0; 0; 0; 0,08)
+```
+
+**`conVerwaltenDialog_1.Fill`**
+
+```
+RGBA(234; 234; 236; 1)
+```
+
+**`conVerwaltenKlein.Fill`**
+
+```
+RGBA(234; 234; 236; 1)
+```
+
+## Anhang B: Zustände aller bedienbaren Steuerelemente (Export 07.10., vor Paket K/L)
+
+`·` = Standardwert. Erzeugt aus dem Export, nicht von Hand.
+
+| Steuerelement | Typ | Ort | Fill | HoverFill | PressedFill | Color | HoverColor | PressedColor | DisabledFill | SelectionFill | ChevronBackground | ChevronHoverBackground | TrueFill | IconBackground | BorderColor |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `btnHitArea` | Button | Gallery1 | `Color.Transparent` | `RGBA(0; 0; 0; 0,15)` | `ColorFade(Rectangle1.Fill; -30%)` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `ddStockwerk` | DropDown | conGrundriss | `RGBA(0; 0; 0; 0)` | `RGBA(23; 20; 150; 0,08)` | `RGBA(32; 54; 71; 1)` | `Color.Black` | `Color.Black` | `RGBA(255; 255; 255; 1)` | · | `RGBA(100; 118; 132; 1)` | `RGBA(0; 0; 0; 0)` | `RGBA(0; 0; 0; 0)` | · | · | `RGBA(0; 0; 0; 0)` |
+| `Image1_1` | Image | galTischbuchungenHeute | · | · | · | · | · | · | · | · | · | · | · | · | `RGBA(32; 54; 71; 1)` |
+| `Image3` | Image | galTischbuchungenHeute | · | `ColorFade(Self.Fill; -20%)` | · | · | · | · | · | · | · | · | · | · | `RGBA(32; 54; 71; 1)` |
+| `btnEincheckenHeute` | Button | galTischbuchungenHeute | `Color.Transparent` | `RGBA(0; 0; 0; 0,04)` | `RGBA(0; 0; 0; 0,1)` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnVerwalten` | Button | galTischbuchungenHeute | `Color.Transparent` | `RGBA(0; 0; 0; 0,2)` | `ColorFade(Self.Fill; -20%)` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `Image1_2` | Image | galRaumbuchungenHeute | · | · | · | · | · | · | · | · | · | · | · | · | `RGBA(32; 54; 71; 1)` |
+| `Image3_1` | Image | galRaumbuchungenHeute | · | · | · | · | · | · | · | · | · | · | · | · | `RGBA(32; 54; 71; 1)` |
+| `btnInfoRaum` | Button | galRaumbuchungenHeute | `Color.Transparent` | `RGBA(0; 0; 0; 0,04)` | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnVerwalten_1` | Button | galRaumbuchungenHeute | `Color.Transparent` | `RGBA(0; 0; 0; 0,2)` | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnRaumHinzufügen` | Button | conDashboard | `ColorValue("#D0D0D0")` | `RGBA(0; 0; 0; 0,2)` | `` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnTischHinzufügen` | Button | conDashboard | `ColorValue("#D0D0D0")` | `RGBA(0; 0; 0; 0,2)` | `` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `dpAnsichtsDatum` | DatePicker | conDashboard | `Color.Transparent` | · | · | `Color.Transparent` | · | · | · | · | · | · | · | `Color.Transparent` | `Color.Transparent` |
+| `Icon1_1` | Icon | conDashboard | · | · | · | `RGBA(32; 54; 71; 1)` | · | · | · | · | · | · | · | · | `RGBA(32; 54; 71; 1)` |
+| `ddTischePanel` | DropDown | conTischBuchungenPanel | · | `ColorFade(Self.Fill; -20%)` | `RGBA(32; 54; 71; 1)` | · | · | `RGBA(255; 255; 255; 1)` | · | `RGBA(100; 118; 132; 1)` | `ColorValue("#171496")` | `ColorFade(RGBA(100; 118; 132; 1); -20%)` | · | · | `RGBA(32; 54; 71; 1)` |
+| `ddStartTischePanel` | DropDown | conTischBuchungenPanel | · | `ColorFade(Self.Fill; -20%)` | `RGBA(32; 54; 71; 1)` | · | · | `RGBA(255; 255; 255; 1)` | · | `RGBA(100; 118; 132; 1)` | `ColorValue("#171496")` | `ColorFade(RGBA(100; 118; 132; 1); -20%)` | · | · | `RGBA(32; 54; 71; 1)` |
+| `dpDatumTischePanel` | DatePicker | conTischBuchungenPanel | · | · | · | · | · | · | · | · | · | · | · | `ColorValue("#171496")` | `RGBA(32; 54; 71; 1)` |
+| `ddEndTischePanel` | DropDown | conTischBuchungenPanel | · | `ColorFade(Self.Fill; -20%)` | `RGBA(32; 54; 71; 1)` | · | · | `RGBA(255; 255; 255; 1)` | · | `RGBA(100; 118; 132; 1)` | `ColorValue("#171496")` | `ColorFade(RGBA(100; 118; 132; 1); -20%)` | · | · | `RGBA(32; 54; 71; 1)` |
+| `btnSpeichernTischePanel` | Button | conTischBuchungenPanel | `ColorValue("#171496")` | `ColorFade(Self.Fill; -20%)` | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnAbbrechenTischePanel` | Button | conTischBuchungenPanel | `ColorValue("#171496")` | `ColorFade(Self.Fill; -20%)` | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `tglTagMo_1` | Toggle | conTischBuchungenPanel | · | · | · | · | · | · | · | · | · | · | `ColorValue("#00a96b")` | · | `RGBA(32; 54; 71; 1)` |
+| `tglTagDi_1` | Toggle | conTischBuchungenPanel | · | · | · | · | · | · | · | · | · | · | `ColorValue("#00a96b")` | · | `RGBA(32; 54; 71; 1)` |
+| `tglTagMi_1` | Toggle | conTischBuchungenPanel | · | · | · | · | · | · | · | · | · | · | `ColorValue("#00a96b")` | · | `RGBA(32; 54; 71; 1)` |
+| `tglTagDo_1` | Toggle | conTischBuchungenPanel | · | · | · | · | · | · | · | · | · | · | `ColorValue("#00a96b")` | · | `RGBA(32; 54; 71; 1)` |
+| `tglTagFr_1` | Toggle | conTischBuchungenPanel | · | · | · | · | · | · | · | · | · | · | `ColorValue("#00a96b")` | · | `RGBA(32; 54; 71; 1)` |
+| `chkWiederholenPanel` | CheckBox | conTischBuchungenPanel | · | · | · | · | `RGBA(32; 54; 71; 1)` | · | · | · | · | · | · | · | `RGBA(32; 54; 71; 1)` |
+| `dpWiederholenBis_1` | DatePicker | conTischBuchungenPanel | · | · | · | · | · | · | · | · | · | · | · | `ColorValue("#171496")` | `RGBA(32; 54; 71; 1)` |
+| `btn5Std` | Button | conTischBuchungenPanel | (Formel) | `ColorFade(Self.Fill; -15%)` | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | `ColorFade(ColorValue("#EB3951"); 70%)` | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btn9Std` | Button | conTischBuchungenPanel | (Formel) | `ColorFade(Self.Fill; -15%)` | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | `ColorFade(ColorValue("#EB3951"); 70%)` | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `dpDatumRaum` | DatePicker | conRaumBuchungenPanel | `RGBA(241; 241; 241; 1)` | · | · | · | · | · | · | · | · | · | · | `RGBA(220; 220; 220; 1)` | `RGBA(32; 54; 71; 1)` |
+| `ddDauerRaumPanel` | DropDown | conRaumBuchungenPanel | `RGBA(241; 241; 241; 1)` | `RGBA(205; 209; 213; 1)` | `RGBA(32; 54; 71; 1)` | · | · | `RGBA(255; 255; 255; 1)` | · | `RGBA(100; 118; 132; 1)` | `RGBA(100; 118; 132; 1)` | `ColorFade(RGBA(100; 118; 132; 1); -20%)` | · | · | `RGBA(32; 54; 71; 1)` |
+| `ddBeginnRaumPanel` | DropDown | conRaumBuchungenPanel | `RGBA(241; 241; 241; 1)` | `RGBA(205; 209; 213; 1)` | `RGBA(32; 54; 71; 1)` | · | · | `RGBA(255; 255; 255; 1)` | · | `RGBA(100; 118; 132; 1)` | `RGBA(100; 118; 132; 1)` | `ColorFade(RGBA(100; 118; 132; 1); -20%)` | · | · | `RGBA(32; 54; 71; 1)` |
+| `btnAbbrechenRaumPanel` | Button | conRaumBuchungenPanel | `RGBA(241; 241; 241; 1)` | `ColorFade(Self.Fill; -15%)` | `Self.Color` | `Color.Black` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `Image1` | Image | galRäume | · | · | · | · | · | · | · | · | · | · | · | · | `RGBA(32; 54; 71; 1)` |
+| `NextArrow1` | Icon | galRäume | · | · | · | `RGBA(166; 166; 166; 1)` | · | · | · | · | · | · | · | · | `RGBA(32; 54; 71; 1)` |
+| `btnSlot1` | Button | galRäume | (Formel) | (Formel) | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | `ColorFade(ColorValue("#EB3951"); 85%)` | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnSlot2` | Button | galRäume | (Formel) | (Formel) | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | `ColorFade(ColorValue("#EB3951"); 85%)` | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnSlot3` | Button | galRäume | (Formel) | (Formel) | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | `ColorFade(ColorValue("#EB3951"); 85%)` | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnSlot4` | Button | galRäume | (Formel) | (Formel) | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | `ColorFade(ColorValue("#EB3951"); 85%)` | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnSpeichernRaumPanel` | Button | conRaumBestätigen | `ColorValue("#171496")` | `ColorFade(RGBA(100; 118; 132; 1); -20%)` | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `Button7` | Button | conRaumBestätigen | `Color.Black` | `ColorFade(RGBA(100; 118; 132; 1); -20%)` | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `ddStart` | DropDown | conBuchungDialog | · | `RGBA(205; 209; 213; 1)` | `RGBA(32; 54; 71; 1)` | · | · | `RGBA(255; 255; 255; 1)` | · | `RGBA(100; 118; 132; 1)` | `RGBA(100; 118; 132; 1)` | `ColorFade(RGBA(100; 118; 132; 1); -20%)` | · | · | `RGBA(32; 54; 71; 1)` |
+| `ddEnde` | DropDown | conBuchungDialog | · | `RGBA(205; 209; 213; 1)` | `RGBA(32; 54; 71; 1)` | · | · | `RGBA(255; 255; 255; 1)` | · | `RGBA(100; 118; 132; 1)` | `RGBA(100; 118; 132; 1)` | `ColorFade(RGBA(100; 118; 132; 1); -20%)` | · | · | `RGBA(32; 54; 71; 1)` |
+| `btnSpeichern` | Button | conBuchungDialog | `ColorValue("#00A96B")` | `ColorFade(Self.Fill; -20%)` | `ColorValue("#00a96b")` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnAbbrechen` | Button | conBuchungDialog | `Color.Black` | `ColorFade(Self.Fill; 30%)` | `Color.Black` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `dpDatum` | DatePicker | conBuchungDialog | · | · | · | · | · | · | · | · | · | · | · | `RGBA(100; 118; 132; 1)` | `RGBA(32; 54; 71; 1)` |
+| `chkWiederholen` | CheckBox | conBuchungDialog | · | · | · | · | `RGBA(32; 54; 71; 1)` | · | · | · | · | · | · | · | `RGBA(32; 54; 71; 1)` |
+| `tglTagMo` | Toggle | conBuchungDialog | · | · | · | · | · | · | · | · | · | · | `RGBA(100; 118; 132; 1)` | · | `RGBA(32; 54; 71; 1)` |
+| `tglTagDi` | Toggle | conBuchungDialog | · | · | · | · | · | · | · | · | · | · | `RGBA(100; 118; 132; 1)` | · | `RGBA(32; 54; 71; 1)` |
+| `tglTagMi` | Toggle | conBuchungDialog | · | · | · | · | · | · | · | · | · | · | `RGBA(100; 118; 132; 1)` | · | `RGBA(32; 54; 71; 1)` |
+| `tglTagDo` | Toggle | conBuchungDialog | · | · | · | · | · | · | · | · | · | · | `RGBA(100; 118; 132; 1)` | · | `RGBA(32; 54; 71; 1)` |
+| `tglTagFr` | Toggle | conBuchungDialog | · | · | · | · | · | · | · | · | · | · | `RGBA(100; 118; 132; 1)` | · | `RGBA(32; 54; 71; 1)` |
+| `dpWiederholenBis` | DatePicker | conBuchungDialog | · | · | · | · | · | · | · | · | · | · | · | `RGBA(100; 118; 132; 1)` | `RGBA(32; 54; 71; 1)` |
+| `btnEinchecken` | Button | conCheckinDialog | (Formel) | `ColorFade(Self.Fill; -30%)` | `Self.Color` | `Color.White` | `RGBA(255; 255; 255; 1)` | (Formel) | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnSchließen2` | Button | conCheckinDialog | `Color.Black` | `ColorFade(Self.Fill; 30%)` | `Color.Black` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnSchließen3` | Button | conDetailsPopup | `Color.Black` | `ColorFade(Self.Fill; 30%)` | `Color.Black` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnStornieren` | Button | conVerwaltenDialog | `ColorValue("#171496")` | `ColorFade(Self.Fill; -20%)` | `` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnVerlängern` | Button | conVerwaltenDialog | `ColorValue("#171496")` | `ColorFade(Self.Fill; -20%)` | `` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnSchließen4` | Button | conVerwaltenDialog | `Color.Black` | `ColorFade(Self.Fill; 30%)` | `Color.Black` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Color.Black` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnPlus1Std` | Button | conVerwaltenDialog | (Formel) | `ColorFade(Self.Fill; -15%)` | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | `ColorFade(ColorValue("#EB3951"); 70%)` | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnPlus2Std` | Button | conVerwaltenDialog | (Formel) | `ColorFade(Self.Fill; -15%)` | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | `ColorFade(ColorValue("#EB3951"); 70%)` | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnPlus3Std` | Button | conVerwaltenDialog | (Formel) | `ColorFade(Self.Fill; -15%)` | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | `ColorFade(ColorValue("#EB3951"); 70%)` | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `Image1_3` | Image | galAlleTischbuchungen | · | · | · | · | · | · | · | · | · | · | · | · | `RGBA(32; 54; 71; 1)` |
+| `Image3_2` | Image | galAlleTischbuchungen | · | `ColorFade(Self.Fill; -20%)` | · | · | · | · | · | · | · | · | · | · | `RGBA(32; 54; 71; 1)` |
+| `btnVerwalten_2` | Button | galAlleTischbuchungen | `Color.Transparent` | `RGBA(0; 0; 0; 0,2)` | `ColorFade(Self.Fill; -20%)` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `chkAuswahl` | CheckBox | galAlleTischbuchungen | · | · | · | · | `RGBA(32; 54; 71; 1)` | · | · | · | · | · | · | · | `RGBA(32; 54; 71; 1)` |
+| `btnStornieren_1` | Button | conVerwaltenDialog_1 | `ColorValue("#171496")` | `ColorFade(Self.Fill; -20%)` | `` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnVerlängern_1` | Button | conVerwaltenDialog_1 | `ColorValue("#171496")` | `ColorFade(Self.Fill; -20%)` | `` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnSchließen4_1` | Button | conVerwaltenDialog_1 | `Color.Black` | `ColorFade(Self.Fill; 30%)` | `Color.Black` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Color.Black` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnPlus1Std_1` | Button | conVerwaltenDialog_1 | (Formel) | `ColorFade(Self.Fill; -15%)` | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | `ColorFade(ColorValue("#EB3951"); 70%)` | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnPlus2Std_1` | Button | conVerwaltenDialog_1 | (Formel) | `ColorFade(Self.Fill; -15%)` | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | `ColorFade(ColorValue("#EB3951"); 70%)` | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnPlus3Std_1` | Button | conVerwaltenDialog_1 | (Formel) | `ColorFade(Self.Fill; -15%)` | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | `ColorFade(ColorValue("#EB3951"); 70%)` | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnMinus1Std` | Button | conVerwaltenDialog_1 | (Formel) | `ColorFade(Self.Fill; -15%)` | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | `ColorFade(ColorValue("#EB3951"); 70%)` | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnMinus2Std` | Button | conVerwaltenDialog_1 | (Formel) | `ColorFade(Self.Fill; -15%)` | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | `ColorFade(ColorValue("#EB3951"); 70%)` | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnMinus3std` | Button | conVerwaltenDialog_1 | (Formel) | `ColorFade(Self.Fill; -15%)` | `Self.Color` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | `ColorFade(ColorValue("#EB3951"); 70%)` | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnStornierenKlein` | Button | conVerwaltenKlein | `ColorValue("#171496")` | `ColorFade(Self.Fill; -20%)` | `` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnSchließenKlein` | Button | conVerwaltenKlein | `Color.Black` | `ColorFade(Self.Fill; 30%)` | `Color.Black` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Color.Black` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `tglAuswahlModus` | Toggle | conBuchungen | · | · | · | · | · | · | · | · | · | · | `RGBA(100; 118; 132; 1)` | · | `RGBA(32; 54; 71; 1)` |
+| `chkAlleAuswählen` | CheckBox | conBuchungen | · | · | · | · | `RGBA(32; 54; 71; 1)` | · | · | · | · | · | · | · | `RGBA(32; 54; 71; 1)` |
+| `Icon1` | Icon | conBuchungen | · | · | · | `RGBA(32; 54; 71; 1)` | · | · | · | · | · | · | · | · | `RGBA(32; 54; 71; 1)` |
+| `Image6` | Image | conHeader | · | · | · | · | · | · | · | · | · | · | · | · | `RGBA(32; 54; 71; 1)` |
+| `btnTabDashboard` | Button | conHeader | `ColorValue("#171496")` | `ColorFade(Self.Fill; -20%)` | `` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnTabBuchungen` | Button | conHeader | `ColorValue("#171496")` | `ColorFade(Self.Fill; -20%)` | `` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |
+| `btnHitArea_1` | Button | conHeader | `Color.Transparent` | `RGBA(0; 0; 0; 0,08)` | `ColorFade(Image6.Fill; -30%)` | `RGBA(255; 255; 255; 1)` | `RGBA(255; 255; 255; 1)` | `Self.Fill` | · | · | · | · | · | · | `ColorFade(Self.Fill; -15%)` |

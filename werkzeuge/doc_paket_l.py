@@ -27,6 +27,22 @@ if f"test {nr}" in ab:
 out += [ab["plaene"], "", ab["stil"], "", ab["verbesserungen"], "", "## Anhang: Originale (Rückfall)", ""]
 for s in S:
     out += [f"**`{s['control']}.{s['prop']}`**", "", "```", s["orig_de"] or "(leer)", "```", ""]
+a = A.lade_desktop()
+ZP = ["Fill", "HoverFill", "PressedFill", "Color", "HoverColor", "PressedColor", "DisabledFill", "SelectionFill",
+      "ChevronBackground", "ChevronHoverBackground", "TrueFill", "IconBackground", "BorderColor"]
+out += ["## Anhang B: Zustände aller bedienbaren Steuerelemente (Export 07.10., vor Paket K/L)", "",
+        "`·` = Standardwert. Erzeugt aus dem Export, nicht von Hand.", "",
+        "| Steuerelement | Typ | Ort | " + " | ".join(ZP) + " |", "|" + "---|" * (len(ZP) + 3)]
+for c in a.reihenfolge:
+    t = a.typ[c].split("@")[0].replace("Classic/", "")
+    if t in ("Button", "DropDown", "DatePicker", "Toggle", "CheckBox", "Icon") or a.props.get(c + ".OnSelect", "").strip():
+        if t in ("Label", "Rectangle") and a.props.get(c + ".OnSelect", "").strip() == "Select(Parent)":
+            continue
+        zellen = []
+        for p in ZP:
+            v = a.props.get(f"{c}.{p}")
+            zellen.append("·" if v is None else ("(Formel)" if "\n" in v or len(v) > 45 else "`" + A.to_de(v).replace("|", "\\|") + "`"))
+        out.append(f"| `{c}` | {t} | {a.eltern.get(c, '')} | " + " | ".join(zellen) + " |")
 p = os.path.join(ZIEL, "FEHLER_UMBAUPLAN_STIL_PaketL.md")
 open(p, "w", encoding="utf-8").write("\n".join(out))
 print(p)
