@@ -359,6 +359,8 @@ for k, f in final.items():
             fehler.append(f"{k}: unbekanntes Steuerelement {n}")
     if "varFreigabeGrenze" in ohne and k.endswith(("OnSelect", "OnStart", "OnTimerEnd", "OnChange")) and GRENZE not in f:
         fehler.append(f"{k}: liest varFreigabeGrenze, ohne sie vorher zu setzen")
+if GRENZE not in stand["btnTischHinzufügen.OnSelect"]:
+    fehler.append("btnTischHinzufügen.OnSelect: setzt varFreigabeGrenze beim Öffnen des Panels nicht (Liste/Knöpfe rechnen sonst mit alter Grenze)")
 # Alte Ladezeile darf nirgends mehr stehen, neue genau an den 14 Stellen
 for k, v in stand.items():
     if L_ALT_KOPF in v or L_ALT_CC in v:
@@ -376,6 +378,10 @@ for k in schreib:
         fehler.append(f"{k}: Schreibstelle ohne neue Ladezeile")
 if stand["btnStornoJa.OnSelect"].count("If(\n    !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis),") != 3:
     fehler.append("btnStornoJa.OnSelect: nicht alle drei Arme gesperrt")
+if stand["btnStornoJa.OnSelect"].count("Lower(varStornoBuchung.Person.Email) <> Lower(User().Email)") != 2:
+    fehler.append("btnStornoJa.OnSelect: Eigentümerprüfung fehlt in Arm dash oder tab")
+if "Person.Email = User().Email" not in stand["btnStornoJa.OnSelect"]:
+    fehler.append("btnStornoJa.OnSelect: Mehrfach-Stornieren filtert nicht mehr auf eigene Buchungen")
 if "varSelectedBuchung" in stand["btnStornoJa.OnSelect"] or "varSelectedBuchungTab" in stand["btnStornoJa.OnSelect"]:
     fehler.append("btnStornoJa.OnSelect: liest noch die ausgewählte Buchung statt varStornoID")
 # Jede Abfrage auf Tischbuchungen nach dem Paket (auch mehrzeilig), einzeln eingeordnet:

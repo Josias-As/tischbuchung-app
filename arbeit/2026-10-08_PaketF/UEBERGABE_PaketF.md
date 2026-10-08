@@ -1411,6 +1411,7 @@ Deshalb muss die Handy-App vor dem Teilen dasselbe tun. Die Einzelheiten stehen 
 | ☐ | F6 Verlängern über verfallene fremde Buchung geht, eigene verfallene → Meldung | | |
 | ☐ | F7 Einchecken zu früh → Meldung; laufend → eingecheckt; Auschecken → Ende jetzt, Kachel grün; verfallen → „Zu spät“, Status grau | | |
 | ☐ | F8 Erinnerung nach ≤ 5 Min, nur einmal | | |
+| ☐ | U7 spät gebucht (mit 30 Min): um hh:20 für hh:00 buchen → Kachel bleibt bis hh:50 orange, erst danach grün | | |
 | ☐ | **`varFreigabeMinuten` wieder 30** | | |
 | ☐ | Doppelklick auf Einchecken → eine Änderung | | |
 | ☐ | Veröffentlichen | | |
@@ -1429,6 +1430,7 @@ Die neuen Fassungen liegen als eigene Dateien daneben, die alten bleiben erhalte
 | U3 | Uhrzeiten der Geräte: Die Regel rechnet mit der Uhr des jeweiligen Geräts. Weicht sie ab, verschiebt sich die Freigabe um diese Abweichung. Abgesichert: Einchecken prüft frisch, ob der Tisch schon an jemand anderen vergeben ist | Firmengeräte gehen per Zeitserver richtig. Kein Test nötig |
 | U4 | Position des Check-in-Dialogs beim App-Start: `conCheckinDialog.Y` richtet sich nach der Zeile in der Dashboard-Liste. Beim Start könnte die Liste noch laden | Test F1. Sitzt der Dialog falsch, wird er nach dem Laden richtig gesetzt (Formel reagiert). Sonst melden |
 | U5 | Die Anzeige wechselt erst beim nächsten Laden von orange auf grün (Timer 5 Min, Aktualisieren-Symbol, jede Buchung). Der Klick auf die Kachel prüft immer frisch | gewollt, wie beim Flow (5 Min) |
+| U7 | „Explizite Spaltenauswahl“: Power Apps lädt nur Spalten, die irgendwo benutzt werden. `Erstellt` wird überall direkt benutzt (`RemoveIf(col; … Erstellt …)`, `B.Erstellt`, `ThisItem.Erstellt`), sollte also geladen werden. Fehlt die Spalte doch, ist sie leer, und nur der Sonderfall „spät gebucht“ verliert seine Schonfrist (leer zählt wie „lange her“). Alles andere funktioniert | Testbogen: um hh:20 für hh:00 buchen, nicht einchecken → nach hh:30 muss die Kachel **orange** bleiben bis hh:50 |
 | U6 | Testbuchungen „in der Vergangenheit“ kann die App nicht anlegen (Sperre). Für die Tests F3–F7 eine Zeile **direkt in der SharePoint-Liste** anlegen (Beginn vor 1 Std). `Erstellt` ist dann jetzt, die Frist läuft also erst 30 Min nach dem Anlegen ab | Testbogen: Testzeile anlegen, 30 Min warten oder `varFreigabeMinuten` in Studio vorübergehend auf 1 setzen (danach zurück auf 30!) |
 
 ## 9. Später (nicht in diesem Paket)
