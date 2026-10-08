@@ -46,21 +46,28 @@ Monitor-Dateien (`PowerAppsTraceEvents_*.json`, 23 MB) sind nicht im Repo, nur b
 - **Dialoge richtig zugeordnet:** `conVerwaltenDialog` (`varSelectedBuchung`, `varZeigeVerwalten`) wird vom **Dashboard** geöffnet (`galTischbuchungenHeute > btnVerwalten`). Eine Grundriss-Kachel öffnet nur das Details-Popup (`btnHitArea` → `varZeigeDetails`). Tab-Dialog: `conBuchungen > conVerwaltenDialog_1` (`varSelectedBuchungTab`, `varZeigeVerwaltenTab`). Buchungsdialog aus dem Grundriss: `conBuchungDialog > btnSpeichern` (`varSelectedTisch`). Panel: `conTischBuchungenPanel` (`ddTischePanel`, `dpDatumTischePanel`, `ddStartTischePanel`, `ddEndTischePanel`, `dpWiederholenBis_1`, `btn5Std`, `btn9Std`).
 - `varWiederholenModus` wird nur auf „Wochentage“ gesetzt, der Zweig „Taeglich“ ist tot (BD-24, belegt). `varTagSa`/`varTagSo` haben keine Schalter.
 - `chkAuswahl.X` liest schon `btnVerwalten_2` → BD-18 ist erledigt (belegt).
+- Zwei Designs in einer App: Buchungsdialog (Grundriss) im Power-Apps-Standard-Graublau `RGBA(100,118,132)`, Panel/Tabs im Markenblau `#171496`. Grün `#00A96B` hat fünf Bedeutungen. Zehn Grautöne. Paket L vereinheitlicht den Buchungsdialog.
+- Werkzeuge für Paket L: `werkzeuge/paket_l.py`, `doc_paket_l.py`, `paket_l_text.md`.
 - Handy-App-Regeln (von Josias bestätigt, `05_HANDY_APP/FRAGEN_AN_JOSIAS.md` V1–V9): nie über 22:00, Einchecken ab 30 Min vor Beginn bis Ende, keine zwei Tische zur selben Zeit, Big Table nicht buchbar, Stornieren mit Bestätigung, keine Buchung in der Vergangenheit.
 
 ## 6. Stand der Arbeit
 - **Erledigt (Josias, veröffentlicht):** L2 Grundriss-Performance (Serie 11 Termine ~4,7 s statt ~101 s, gemessen), Sammel-Patch in `btnSpeichern`, Mehrfach-Stornieren neu.
 - **Paket K v2 (07.10., dieses Repo), nicht eingefügt:** `arbeit/2026-10-07_PaketK_v2/UEBERGABE_PaketK_v2.md`, 22 Schritte und 55 Properties, unabhängig geprüft (Befunde eingearbeitet). Ersetzt v1. Inhalt: Zweifach-Sperre an allen 8 Schreibstellen. Verwalten-Dialoge mit einmal berechneter Grenze (B0 an der Wurzel, 24 Abfrage-Properties weg). Verlängern/Stornieren/Einchecken frisch + `IfError` + Nachlese. Beide Speichern-Knöpfe gleich (Sammel-Patch, `SerienID`, Nachlese, Person-Prüfung, Vergangenheit, eine Meldung). Tischauswahl nur freie Tische. Kleinigkeiten BD-10/12/25/26. Entscheidungen E1–E7 mit Vorschlag nach den Handy-Regeln.
 - **v1 (Claude Code, 07.10.) hatte einen echten Fehler:** Die K5-Sperre nur per `DisplayMode` hält nicht (siehe 4).
+- **Kritische Analyse (08.10.):** `arbeit/2026-10-08_Kritische_Analyse/ANALYSE_Stand_App.md`. Urteil: veröffentlichter Stand nicht go-live-fähig, mit Paket K v2 als Pilot realistisch. Größte Risiken: Betrieb (eine Person, keine Test-Umgebung), Mitbestimmung/Datenschutz (Namen sichtbar), fehlende Funktionen gegenüber GoBright (automatische Freigabe, Outlook, Räume, Auswertung).
+- **Paket L (08.10.), nicht eingefügt, nicht unabhängig geprüft:** `arbeit/2026-10-08_Kritische_Analyse/FEHLER_UMBAUPLAN_STIL_PaketL.md`, 57 Properties, nach Paket K v2 einzufügen (keine Überschneidung, maschinell geprüft). Behebt: Startzeit 22:00 erzeugt Buchung mit Ende 00:00 (F-L1), Dashboard-Liste unsortiert, unlesbare gedrückte Knöpfe, aktiver Tab unsichtbar, zufällige Profilfarbe, „Besetzt“ immer rot. Dazu Farben, Bedienelemente und Texte vereinheitlicht. Enthält Umbaupläne P1–P10 und ein Stil-Audit.
 
 ## 7. Backlog (nach Paket K v2)
 1. Josias: Paket K v2 einfügen und testen (Testbogen im Dokument). Entscheidungen E1–E7 bestätigen.
-2. L4 Raumcode stilllegen + `App.OnStart`/tote Variablen aufräumen (erst nach Josias’ Bestätigung, Frage 11).
-3. Bestätigungsdialog vor dem Stornieren (Handy V8), braucht ein neues Steuerelement.
-4. Vorprüfung mit Alternativtischen (E-2). C1 zeigt schon „an x von y Tagen belegt“.
-5. Mehrfach-Verlängern (E-3), eigenes Konzept.
-6. Buchungen-Tab „manchmal leer“ (Frage 15): Trace im Moment des Fehlers nötig.
-7. Rechercheauftrag App Store / Zusammenarbeit PC–Handy (`06_RECHERCHE/`), nicht ausgeführt.
+2. Paket L einfügen (nach K v2). Entscheidung P2: Check-in mit automatischer Freigabe oder abschaffen.
+3. P1 Grundriss: freie Restzeit belegter Tische buchbar machen (braucht `btnAndereZeit`, `lblBelegtHeute`). P3 Mitternachts-Timer. P4 Spalte „Gesperrt“ in `Tische`.
+4. P8 Betrieb: eigene Umgebung/Lösung, Mitbesitzer, Test-Listen (mit Michael).
+5. L4 Raumcode stilllegen + `App.OnStart`/tote Variablen aufräumen (erst nach Josias’ Bestätigung, Frage 11).
+6. Bestätigungsdialog vor dem Stornieren (Handy V8), braucht ein neues Steuerelement.
+7. Vorprüfung mit Alternativtischen (E-2). C1 zeigt schon „an x von y Tagen belegt“.
+8. Mehrfach-Verlängern (E-3), eigenes Konzept.
+9. Buchungen-Tab „manchmal leer“ (Frage 15): Trace im Moment des Fehlers nötig.
+10. Rechercheauftrag App Store / Zusammenarbeit PC–Handy (`06_RECHERCHE/`), nicht ausgeführt.
 
 ## 8. Fehler, die passiert sind (nicht wiederholen)
 - Namen aus Briefings übernommen statt im Export geprüft (`ddEndeTischePanel`, `T.Aktiv`/`T.Standort` in `AUFGABE_UMBAU.md`).
