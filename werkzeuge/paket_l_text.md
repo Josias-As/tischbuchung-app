@@ -1,10 +1,11 @@
 @@ kopf
 # Weitere Fehler, Umbaupläne und Stil-Audit (Paket L)
-**08.10.2026, nachts · Basis: veröffentlichter Export vom 07.10. · Paket L: 57 Properties, maschinell erzeugt und geprüft (`werkzeuge/paket_l.py`), ändert keine Property, die Paket K v2 ändert · Reihenfolge: erst Paket K v2, dann L · nicht unabhängig geprüft (Zeitlimit 06:00)**
+**08.10.2026, nachts · Basis: veröffentlichter Export vom 07.10. · Paket L: 57 Properties, maschinell erzeugt und geprüft (`werkzeuge/paket_l.py`), ändert keine Property, die Paket K v2 ändert · Reihenfolge: erst Paket K v2, dann L · unabhängig geprüft, Befunde eingearbeitet**
 
 Kennzeichnung: **belegt** (Export), **geschlussfolgert**, **UNSICHER**, **Einschätzung**.
 
 ## 0. Kurzfassung
+- **Unabhängig geprüft** (`pruefung_paket_l.md`): Das Ergebnis waren 2 Fehler, 4 Risiken und 23 Hinweise. Eingearbeitet sind: Tab-Kontrast (L4), Titelbreite (L9: `lblTitel3` ohne Präfix), Outlook-Plan P5 neu, P3 mit Listen-Aktualisierung, P1-Datumsbedingung, P9 „nur eigene Elemente“, UTC-Hinweis bei P2 und die Zahlen im Stil-Audit. Danach wurde alles neu erzeugt und maschinell geprüft.
 - **Zehn neue Befunde** (F-L1 bis F-L10), die Paket K v2 nicht abdeckt. Sechs davon behebt Paket L direkt, vier brauchen einen Umbau (P1, P3). Der wichtigste: Die Startliste bietet **22:00** an. Wählt man das, ist die Endliste leer, und die Buchung wird mit Ende **00:00 desselben Tages** gespeichert, also mit Ende vor Beginn (L1).
 - **Die Oberfläche wirkt aus zwei Apps zusammengesetzt** (belegt). Der Buchungsdialog aus dem Grundriss nutzt das graublaue Standarddesign von Power Apps, das Tische-Panel das Markenblau `#171496`. „Speichern“ ist einmal grün, sonst blau. „Stornieren“ sieht aus wie „Speichern“. Bei sieben Knöpfen verschwindet beim Drücken die Schrift. Man sieht nicht, welcher Tab aktiv ist. Deutsch und Englisch sind gemischt.
 - **Paket L** behebt das mit 57 kleinen Properties: nur Farben, Texte, Sortierung, eine Liste. Kein Schreibvorgang wird geändert. Risiko: niedrig.
@@ -13,7 +14,7 @@ Kennzeichnung: **belegt** (Export), **geschlussfolgert**, **UNSICHER**, **Einsch
 ## 1. Neue Fehler (nicht in Paket K v2)
 | # | Fehler | Beleg | Folge | Lösung |
 |---|---|---|---|---|
-| F-L1 | Startliste endet bei **22:00**, die Endliste beginnt bei Start + 30 Min und endet 22:00 → Endliste leer → `Time(Value(""); …)` = 00:00 | `ddStart.Items`, `ddStartTischePanel.Items`: `Sequence(… + 1)`; `ddEnde.Items`: `Sequence(RoundDown((22*60 − start)/30))` | **Buchung 22:00–00:00 (Ende vor Beginn)** im veröffentlichten Stand. Mit Paket K v2 kommt stattdessen die Meldung „Ende muss nach Beginn liegen“. Ab 21:31 ist 22:00 heute die **einzige** Startzeit | **L1** |
+| F-L1 | Startliste endet bei **22:00**, die Endliste beginnt bei Start + 30 Min und endet 22:00 → Endliste leer → `Time(Value(""); …)` = 00:00 | `ddStart.Items`, `ddStartTischePanel.Items`: `Sequence(… + 1)`; `ddEnde.Items`: `Sequence(RoundDown((22*60 − start)/30))` | **Buchung 22:00–00:00 (Ende vor Beginn)** im veröffentlichten Stand (geschlussfolgert, nicht gemessen). Mit Paket K v2 kommt die Meldung „Ende muss nach Beginn liegen“. Fällt die leere Endliste allerdings auf ihren Standardwert „22:30“ zurück (UNSICHER), nähme K v2 sogar 22:00–22:30 an. Ab 21:31 ist 22:00 heute die **einzige** Startzeit | **L1** |
 | F-L2 | Dashboard-Liste „My personal desk“ ist **nicht nach Uhrzeit sortiert** (Reihenfolge = ID = Buchungszeitpunkt) | `galTischbuchungenHeute.Items` ohne Sortierung | Wer erst nachmittags und dann vormittags bucht, sieht 14:00 vor 08:00 | **L2** (der Check-in-Dialog rechnet seine Position über dieselbe Reihenfolge und wird mit angepasst) |
 | F-L3 | Gedrückter Knopf: **Schrift unsichtbar** (schwarz auf schwarz, grün auf grün) | `PressedColor = Self.Fill` bzw. `Color.Black` bei `PressedFill` gleicher Farbe: `btnSpeichern`, `btnAbbrechen`, `btnSchließen2/3/4/4_1`, `btnSchließenKlein` | Bei jedem Klick flackert der Knopf leer. Wirkt kaputt | **L3** |
 | F-L4 | **Kein aktiver Tab erkennbar**: „Dashboard“ und „Buchungen“ haben immer dieselbe Farbe | `btnTabDashboard.Fill` = `btnTabBuchungen.Fill` = `#171496`, fest | Nutzer wissen nicht, wo sie sind | **L4** |
@@ -37,7 +38,7 @@ Ablauf wie bei Paket K: ganze Property ersetzen, App-Prüfung, kurzer Test. Alle
 **Test:** Jeden dieser Knöpfe gedrückt halten: Schrift bleibt lesbar.
 
 @@ test L4
-**Test:** Tab wechseln: Der aktive Tab ist dunkelblau, der andere hellblau.
+**Test:** Tab wechseln: Der aktive Tab ist dunkelblau, der andere heller, aber gut lesbar. Die Aufhellung ist nach der Prüfung von 55 % auf 35 % gesenkt, damit die weiße Schrift auf dem inaktiven Tab genug Kontrast hat (etwa 5:1 statt 2,8:1).
 
 @@ test L5
 **Test:** App zweimal starten: Profilkreis hat dieselbe Farbe.
@@ -59,13 +60,13 @@ Ablauf wie bei Paket K: ganze Property ersetzen, App-Prüfung, kurzer Test. Alle
 Jeder Plan: Problem → Lösung → was du anlegen musst → Risiko → Aufwand (Einschätzung).
 
 **P1 Grundriss: freie Zeiten belegter Tische buchen (F-L8, F-L9)**
-- *Lösung:* Ins Details-Popup kommt ein Knopf **„Andere Zeit buchen“**. Er setzt `varSelectedTisch` auf den Tisch und öffnet den normalen Buchungsdialog (`varZeigeDialog`). Im Buchungsdialog steht eine Zeile **„Heute belegt: 08:00–10:00, 14:00–17:00“** aus `colGrundriss` (keine neue Abfrage). Die Speichern-Prüfung aus Paket K v2 bleibt die letzte Instanz.
+- *Lösung:* Ins Details-Popup kommt ein Knopf **„Andere Zeit buchen“**. Er setzt `varSelectedTisch` auf den Tisch und öffnet den normalen Buchungsdialog (`varZeigeDialog`). Im Buchungsdialog steht eine Zeile **„Heute belegt: 08:00–10:00, 14:00–17:00“** aus `colGrundriss` (keine neue Abfrage). Die Zeile gilt nur, solange das Dialog-Datum dem Grundriss-Datum entspricht; bei einem anderen Datum blendet sie sich aus (`Visible: dpDatum.SelectedDate = varAnsichtsDatum`). Die Speichern-Prüfung aus Paket K v2 bleibt die letzte Instanz.
 - *Anlegen:* einen Knopf `btnAndereZeit` im `conDetailsPopup` und ein Label `lblBelegtHeute` im `conBuchungDialog`.
 - *Risiko:* niedrig. *Aufwand:* ~1 Std. Ich erzeuge die Formeln, sobald es die beiden Steuerelemente gibt (Namen nennen).
 
 **P2 Check-in mit Folge oder ohne Check-in (größter fachlicher Punkt)**
 - *Problem:* Einchecken bewirkt nichts. GoBright gibt nicht eingecheckte Tische frei.
-- *Entscheidung nötig:* (a) **Automatische Freigabe:** Ein Power-Automate-Flow alle 15 Minuten löscht oder kürzt Buchungen von heute, die 30 Minuten nach Beginn nicht eingecheckt sind (Spalte intern `Checkedin`!). Dazu eine Mail an den Nutzer. Der Standard-Konnektor reicht (geschlussfolgert). (b) **Check-in abschaffen** und die Knöpfe ausblenden: ehrlicher als eine Funktion ohne Wirkung.
+- *Entscheidung nötig:* (a) **Automatische Freigabe:** Ein Power-Automate-Flow alle 15 Minuten löscht oder kürzt Buchungen von heute, die 30 Minuten nach Beginn nicht eingecheckt sind (Spalte intern `Checkedin`!). Dazu eine Mail an den Nutzer. Der Standard-Konnektor reicht (geschlussfolgert). **Achtung:** Der Flow sieht Datum/Uhrzeit in **UTC**. Vergleiche mit `utcNow()`, nicht mit Ortszeit. (b) **Check-in abschaffen** und die Knöpfe ausblenden: ehrlicher als eine Funktion ohne Wirkung.
 - *Risiko (a):* Leute verlieren ihren Tisch, wenn sie den Check-in vergessen. Das braucht Kommunikation und wahrscheinlich die Zustimmung des Betriebsrats.
 - *Aufwand:* (a) ~½ Tag, (b) 10 Min.
 
@@ -83,6 +84,7 @@ If(
   With({neu: ForAll(Filter(Tischbuchungen; (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(); 60; TimeUnit.Minutes))) As B; {TischName: B.Tisch.Value; Startzeit: B.Startzeit; Endzeit: B.Endzeit; Eingecheckt: B.CheckedIn; Name: B.Person.DisplayName})}; If(IsError(neu) || IsError(First(neu)); false; ClearCollect(colGrundriss; neu)))
 )
 ```
+  **Ergänzung nach Prüfung:** Damit auch die Listen im Dashboard und im Tab aktuell werden (sie lesen direkt aus SharePoint), als erste Anweisung im inneren Teil zusätzlich `Refresh(Tischbuchungen);;` einfügen. Das kostet pro Nutzer etwa 25 Abfragen alle 5 Minuten. Das ist vertretbar, aber spürbar mehr. Ohne diese Zeile wird nur der Grundriss aktuell.
   Das ist die L2-Ladezeile, nur ohne Warnmeldung (alle 5 Minuten eine gelbe Meldung bei kurzem Netzausfall wäre lästig), plus der Tageswechsel. Kosten: **eine** delegierte Abfrage pro Nutzer alle 5 Minuten, bei 30 Nutzern 6 Abfragen pro Minute, weit unter dem Limit (geschlussfolgert).
 - *Nebenwirkung:* Wer bewusst einen **vergangenen** Tag ansieht, wird nach spätestens 5 Minuten auf heute zurückgesetzt (selten, akzeptabel).
 - *Aufwand:* 10 Min. *Risiko:* niedrig. (Formel aus dem Export erzeugt, Klammern und Rückübersetzung geprüft. Der Timer-Name ist neu.)
@@ -92,10 +94,11 @@ If(
 - *Aufwand:* ~1 Std.
 - *Hinweis:* Das ist auch die saubere Lösung für den Big Table („gesperrt für Einzelbuchung“) statt der Namensprüfung.
 
-**P5 Buchung im Outlook-Kalender**
-- *Lösung:* Ein Flow „Wenn Element in Tischbuchungen erstellt“ legt mit dem Office-365-Outlook-Konnektor (Standard) einen Kalendereintrag im Kalender der Person an. Ein zweiter Flow löscht ihn beim Löschen der Buchung, über die `SerienID` oder eine neue Spalte `KalenderID`.
-- *Risiko:* mittel. Die Flows laufen mit deinem Konto, deshalb ist zu klären, wer der Besitzer ist (Michael).
-- *Aufwand:* 1 Tag.
+**P5 Buchung im Outlook-Kalender** (nach Prüfung überarbeitet)
+- *Problem mit der ersten Fassung (Prüfbefund):* Der SharePoint-Trigger „Element gelöscht“ liefert keine Spaltenwerte. `SerienID` gilt für eine ganze Serie, nicht für einen Termin. Außerdem würde der Aufräum-Flow sonst Kalendereinträge vergangener Buchungen mitlöschen.
+- *Lösung:* Ein Flow „Wenn Element erstellt“ schickt mit dem Office-365-Outlook-Konnektor (Standard) eine **Einladung** aus einem Funktionspostfach an die Person (kein Schreibrecht auf fremde Kalender nötig). Die Ereignis-ID kommt in eine neue Spalte **`KalenderID`** der Buchung. Beim Stornieren ruft die App einen zweiten Flow mit dem Trigger „Power Apps (V2)“ auf und übergibt die `KalenderID`. Der Flow sagt die Einladung ab. Der Aufräum-Flow fasst Kalender **nicht** an.
+- *Risiko:* mittel. Funktionspostfach und Besitzer der Flows mit Michael klären.
+- *Aufwand:* 1–2 Tage.
 
 **P6 Bestätigung vor dem Stornieren (Handy V8)**
 - *Lösung:* Ein Container `conStornoFrage` mit „Wirklich stornieren?“, „Ja“ und „Nein“. Die drei Storno-Knöpfe setzen nur `varZeigeStornoFrage`, und „Ja“ führt die Storno-Formel aus Paket K v2 aus (mit einer Variablen, die sagt, welcher Dialog gefragt hat).
@@ -114,6 +117,7 @@ If(
 
 **P9 Berechtigungen der Liste**
 - *Lösung:* Prüfen, wer auf `Tischbuchungen` Schreibrechte hat. Für Power Apps sind „Bearbeiten“-Rechte nötig. Strenger geht es nur mit Flows unter einem Dienstkonto (Premium für den HTTP-Trigger aus der App? UNSICHER) oder Dataverse (Premium).
+- *Einfachste Verschärfung (ohne Premium, Prüfbefund):* In den Listeneinstellungen → Erweiterte Einstellungen → **Elementbasierte Berechtigungen: „Bearbeiten: nur eigene Elemente“**. Die App bearbeitet ohnehin nur eigene Buchungen. Dann kann niemand fremde Buchungen ändern oder löschen, auch nicht am Browser vorbei. Achtung: „eigene“ heißt **„Erstellt von“**, nicht die Spalte `Person`. Das passt, weil die App unter dem Konto des Nutzers schreibt. Vorher testen, dass der Aufräum-Flow (läuft mit Besitzerrechten) weiter löscht. Ein Flow mit dem Trigger „Power Apps (V2)“ ist laut Prüfung kein Premium (geschlussfolgert).
 - *Empfehlung:* Für den Start akzeptieren, aber **bewusst entscheiden und dokumentieren**. Versionsverlauf der Liste einschalten, damit Manipulationen nachvollziehbar sind.
 
 **P10 Barrierefreiheit**
@@ -137,7 +141,7 @@ If(
 | Grautöne: `#F7F7F7`, `#F0F0F0`, `#D0D0D0`, `RGBA(241…)`, `RGBA(234…)`, `RGBA(233…)`, `RGBA(220…)`, `RGBA(205…)`, `RGBA(166…)`, `RGBA(120…)` | Hintergründe, Trennlinien, „Tisch Buchen“-Knopf | | **zehn Grautöne**, drei würden reichen |
 
 **Knöpfe** (44):
-- **Hauptaktion:** Blau mit Hover −20 % (11×). Im Buchungsdialog aber grün (`btnSpeichern`), im Raum-Panel mit graublauem Hover (toter Code).
+- **Hauptaktion:** Blau mit Hover −20 % (9×; `btnAbbrechenTischePanel` „<“ ist ebenfalls blau, nicht schwarz). Im Buchungsdialog aber grün (`btnSpeichern`), im Raum-Panel mit graublauem Hover (toter Code).
 - **Schließen/Abbrechen:** schwarz mit Hover **heller** (+30 %), während blaue Knöpfe beim Hover **dunkler** werden. Vier Beschriftungen: „Schließen“, „Abbrechen“, „x“, „<“.
 - **Gedrückt:** drei verschiedene Muster. Blau wird invertiert (weißer Grund, blaue Schrift). Schwarz und grün werden unlesbar (F-L3). Ohne Angabe gilt der Standard. → L3 vereinheitlicht die kaputten.
 - **Gesperrt:** rot verblasst 70 % (11×) bzw. 85 % (4×, nur toter Raumcode). Sonst grau (Standard).

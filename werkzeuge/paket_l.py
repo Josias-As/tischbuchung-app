@@ -46,7 +46,7 @@ schritt("L3", "btnSpeichern", "PressedColor", "Color.White", "Schrift beim Drüc
 
 # L4 Aktiver Tab sichtbar
 for c, tab in [("btnTabDashboard", "dashboard"), ("btnTabBuchungen", "buchungen")]:
-    schritt("L4", c, "Fill", f'If(varAktiverTab = "{tab}", {BLAU}, ColorFade({BLAU}, 55%))', "Aktiver Tab dunkel, inaktiver hell")
+    schritt("L4", c, "Fill", f'If(varAktiverTab = "{tab}", {BLAU}, ColorFade({BLAU}, 35%))', "Aktiver Tab dunkel, inaktiver hell")
 
 # L5 Profilfarbe pro Person fest statt bei jedem Start zufällig
 farben = re.findall(r'ColorValue\("#[0-9A-Fa-f]{6}"\)', a.get("App", "OnStart").split("varProfilFarbe")[1].split("Set(varZoom")[0])
@@ -80,8 +80,8 @@ TEXTE = [("lblMyPersonalDesk", '"Meine Tischbuchungen"'), ("btnTischHinzufügen"
          ("lblTischeBuchenPanel", '"Tisch buchen"'), ("btnPlus1Std", '"+1 Std"'), ("btnPlus2Std", '"+2 Std"'),
          ("btnPlus3Std", '"+3 Std"'), ("btnPlus1Std_1", '"+1 Std"'), ("btnPlus2Std_1", '"+2 Std"'), ("btnPlus3Std_1", '"+3 Std"'),
          ("btnMinus1Std", '"−1 Std"'), ("btnMinus2Std", '"−2 Std"'), ("btnMinus3std", '"−3 Std"'),
-         ("lblTischLeer", '"Keine Buchung"'), ("lblTischLeer_1", '"Keine Buchungen"'),
-         ("lblTitel3", 'If(IsBlank(varSelectedBuchung), "", "Verwalten: " & varSelectedBuchung.Tisch.Value)'),
+         ("lblTischLeer", '"Keine Buchungen"'), ("lblTischLeer_1", '"Keine Buchungen"'),
+         ("lblTitel3", 'If(IsBlank(varSelectedBuchung), "", varSelectedBuchung.Tisch.Value)'),
          ("lblTitel3_1", '"Verwalten: " & varSelectedBuchungTab.Tisch.Value'),
          ("lblTitel2", 'varSelectedBuchung.Tisch.Value'), ("lblTischHeute", 'ThisItem.Tisch.Value')]
 for c, t in TEXTE:
