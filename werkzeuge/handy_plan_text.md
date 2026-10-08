@@ -1,11 +1,13 @@
 @@ kopf
-# Umbauplan Handy-App „Tischbuchung Handy“ (08.10.2026)
+# Umbauplan Handy-App „Tischbuchung Handy“, Fassung 2 (08.10.2026)
+
+> **Fassung 2:** H3 und H4 nach Rückmeldung des Handy-Chats neu. (a) **Zeitumstellung:** Datum + Uhrzeit per `DateTime(…)` statt `DateAdd(Tag; Minuten)`, sonst verschiebt sich die Uhrzeit am 25.10. um eine Stunde (Handy-Befund B7, geschlussfolgert). (b) **ID aus dem Patch:** `varNeuID` statt Suche über E-Mail und Zeit, `varBuchungID` (gehört dem Verwalten-Dialog) wird nicht mehr überschrieben (Handy-Befunde B5/B6). Alle anderen Schritte sind gleich wie in Fassung 1. Fassung 1 bleibt in `arbeit/2026-10-08_Handy`.
 
 Für den Chat, der die Handy-App weiterbaut. Erzeugt von Claude Code (Desktop-Repo `tischbuchung-app`) mit `werkzeuge/handy_plan.py` aus dem **Handy-Export vom 08.10., 11:51** und maschinell geprüft. Kennzeichnung: **belegt**, **gemessen**, **geschlussfolgert**, **UNSICHER**. Ersetzt `AUFTRAG_Handy_Freigabe.md` (jetzt mit fertigen Formeln).
 
 @@ start
 ## 0. Startprompt für den Handy-Chat (so übergeben)
-> Du baust mit Josias die Handy-App „Tischbuchung Handy“ (App-ID `e218702e-…`) weiter. Sie nutzt dieselben SharePoint-Listen wie die Desktop-App „Tischbuchung“. Die Desktop-App bekommt gerade dieselben Regeln (Paket F Fassung 2). Damit beide Apps zusammenpassen, setze bitte diesen Umbauplan **Schritt für Schritt** um (H0 → H7). Pro Schritt: ganze Property ersetzen (Block unverändert, deutsche Schreibweise), App-Prüfung, Test, Strg+S. Arbeitest du lieber mit YAML, stehen die englischen Formeln in `handy_bloecke.json` (Feld `yaml`). **Formeln nicht umschreiben.** Passt ein Block nicht zum Stand im Studio (der Diff zeigt, was vorher dort stehen muss), stoppen und Claude Code einen neuen Export geben. Die Handy-App wird erst geteilt, wenn H1–H7 drin und getestet sind. Lege diesen Plan und `handy_bloecke.json` im Vault unter `Tischbuchung/2026-10-08_Handy` ab.
+> Du baust mit Josias die Handy-App „Tischbuchung Handy“ (App-ID `e218702e-…`) weiter. Sie nutzt dieselben SharePoint-Listen wie die Desktop-App „Tischbuchung“. Die Desktop-App bekommt gerade dieselben Regeln (Paket F Fassung 2). Damit beide Apps zusammenpassen, setze bitte diesen Umbauplan **Schritt für Schritt** um (H0 → H7). Pro Schritt: ganze Property ersetzen (Block unverändert, deutsche Schreibweise), App-Prüfung, Test, Strg+S. Arbeitest du lieber mit YAML, stehen die englischen Formeln in `handy_bloecke.json` (Feld `yaml`). **Formeln nicht umschreiben.** Passt ein Block nicht zum Stand im Studio (der Diff zeigt, was vorher dort stehen muss), stoppen und Claude Code einen neuen Export geben. Die Handy-App wird erst geteilt, wenn H1–H7 drin und getestet sind. Lege diesen Plan und `handy_bloecke.json` im Vault unter `Tischbuchung/2026-10-08_Handy_v2` ab.
 
 @@ kurzfassung
 ## 1. Kurzfassung
@@ -92,6 +94,7 @@ ClearCollect(colTestErstellt; Filter(Tischbuchungen; Endzeit > DateAdd(Now(); -1
 - `ddTisch.Items` zählt nur **aktive** Buchungen als belegt. Gesperrte Tische fehlen.
 - Die Grenze wird beim Öffnen des Buchen-Tabs (Tab-Knopf, „Zum Buchen“) und beim Aktualisieren gesetzt.
 - Aktualisieren lädt `colTische` neu (gesperrte Tische ohne Neustart).
+- **Zeitumstellung:** Die Zeitgrenzen der Belegt-Abfrage entstehen per `DateTime(Jahr; Monat; Tag; Stunde; Minute; 0)` aus Datum und Liste, nicht per `DateAdd(Tag; Minuten)`.
 - Die Liste hat eine **eigene Grenze** (`varListeGrenze`). Sie wird nur beim Öffnen des Buchen-Tabs und beim Aktualisieren gesetzt. Buchen, Verlängern und Einchecken lösen damit keine zusätzliche Abfrage der (unsichtbaren) Liste aus.
 - **Absichtlich nicht im Minutentakt:** Die Grenze ändert sich nur bei diesen Klicks. Sonst würde die Tischliste jede Minute neu abfragen, auch unsichtbar (gemessen: versteckte Steuerelemente fragen trotzdem ab). Eine alte Grenze ist vorsichtig: Es werden höchstens zu wenige Tische als frei gezeigt.
 
@@ -106,8 +109,12 @@ ClearCollect(colTestErstellt; Filter(Tischbuchungen; Endzeit > DateAdd(Now(); -1
 - **Neu: gesperrter Tisch** → Meldung (falls jemand vor dem Aktualisieren bucht).
 - **Nachprüfung pro Klick eindeutig:** untere Grenze um die Sekunden seit Mitternacht verschoben, wie in Desktop-Nachtrag 4. Sonst ist sie wortgleich zur Vorprüfung und könnte aus dem Zwischenspeicher kommen.
 - Die Nachprüfung entfernt verfallene Buchungen und die zusätzlich geholten, früher endenden Zeilen. Danach entspricht sie genau der alten. **Kein Fehlalarm mehr bei verfallenen Buchungen.**
+- **Zeitumstellung:** Beginn, Ende, Tagesende und die Prüfung „Vergangenheit“ per `DateTime(…)`.
+- **ID aus dem Patch (B5/B6):** `Set(varNeuID; IfError(Patch(…).ID; -1))`. Die Nachprüfung sucht die eigene Buchung über diese ID (`varNeuBuchung`) und prüft Beginn, Ende und Person. „Achtung“ kommt, wenn eine Buchung mit **kleinerer ID** überlappt. `varBuchungID` (Verwalten-Dialog) bleibt unberührt. Das gilt auch, wenn dieselbe Person auf zwei Geräten gleichzeitig bucht.
 - Die Erfolgsmeldung erinnert ans Einchecken.
 
+**Test Zeitumstellung (geschlussfolgert, nur am Tag selbst prüfbar):** Datum 25.10., 09:00–10:00 buchen → in SharePoint 09:00–10:00 (nicht 08:00 oder 10:00).
+**Test ID:** Verwalten-Dialog einer anderen Buchung offen lassen, Tab „Buchen“, buchen → danach im Dialog „+1 Std“ → es wird die Buchung des Dialogs verlängert, nicht die neue.
 **Test:** Auf den Tisch der verfallenen Testzeile buchen → „Gebucht: … Bitte bis 30 Minuten nach Beginn einchecken.“, **keine** „Achtung“-Meldung. Gesperrten Tisch (Studio-Vorschau ohne Aktualisieren) → Meldung.
 
 @@ H5

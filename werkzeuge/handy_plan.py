@@ -1,3 +1,4 @@
+# Umbauplan Handy-App, Fassung 2 (08.10.2026; Fassung 1 bleibt in arbeit/2026-10-08_Handy). Neu: Zeitumstellung (DateTime statt DateAdd auf Minuten), ID aus Patch (varNeuID).
 # Umbauplan Handy-App (08.10.2026): gleiche Regeln wie die Desktop-App (Paket F Fassung 2).
 # Ausgangslage: Handy-Export vom 08.10. (quellen/2026-10-08_HandyExport). Freigabe-Regel, Gesperrt, 06:00,
 # Einchecken bis Frist (+ B5/B8), Nachprüfungen ohne Fehlalarm, nur eigene Buchungen stornieren/beenden.
@@ -8,7 +9,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import app as A
 
 h = A.lade_handy_0810()
-ZIEL = os.path.join(A.REPO, "arbeit/2026-10-08_Handy")
+ZIEL = os.path.join(A.REPO, "arbeit/2026-10-08_Handy_v2")
 os.makedirs(ZIEL, exist_ok=True)
 final, herkunft = {}, {}
 
@@ -59,6 +60,9 @@ m = re.search(r"\{ belegt: ForAll\(Filter\(Tischbuchungen, (.*?)\), Tisch\.Value
 assert m, "ddTisch belegt"
 setze("ddTisch.Items", f[:m.start()] + "{ belegt: Filter(ForAll(Filter(Tischbuchungen, " + m.group(1) + ") As X, "
       "{ TischName: X.Tisch.Value, Aktiv: X.CheckedIn || X.Startzeit > varListeGrenze || IsBlank(X.Erstellt) || X.Erstellt > varListeGrenze }), Aktiv) }" + f[m.end():], "H3")
+DT = lambda dd: f"DateTime(Year(ddDatum.Selected.Tag), Month(ddDatum.Selected.Tag), Day(ddDatum.Selected.Tag), RoundDown({dd}.Selected.Min / 60, 0), Mod({dd}.Selected.Min, 60), 0)"
+for dd in ["ddStart", "ddEnde"]:
+    aendere("ddTisch.Items", f"DateAdd(ddDatum.Selected.Tag, {dd}.Selected.Min, TimeUnit.Minutes)", DT(dd), "H3 Zeitumstellung")
 aendere("ddTisch.Items", 'Filter(colTische, !("big table" in Lower(Titel)) && !(Titel in belegt))',
         'Filter(colTische, !Gesperrt && !("big table" in Lower(Titel)) && !(Titel in belegt.TischName))', "H3")
 aendere("btnTabBuchen.OnSelect", 'Set(varTab, "buchen");\n', 'Set(varTab, "buchen");\n' + GRENZE_LISTE + ";\n", "H3")
@@ -67,6 +71,12 @@ aendere("icoAktualisieren_1.OnSelect", "Refresh(Tische);\n", "Refresh(Tische);\n
 
 # H4 Buchen ------------------------------------------------------------------------------------------------------------
 k = "btnBuchen.OnSelect"
+aendere(k, "  Set(varBuchStart, DateAdd(ddDatum.Selected.Tag, ddStart.Selected.Min, TimeUnit.Minutes));\n", f"  Set(varBuchStart, {DT('ddStart')});\n", "H4 Zeitumstellung")
+aendere(k, "  Set(varBuchEnde, DateAdd(ddDatum.Selected.Tag, ddEnde.Selected.Min, TimeUnit.Minutes));\n", f"  Set(varBuchEnde, {DT('ddEnde')});\n", "H4 Zeitumstellung")
+aendere(k, "  Set(varTagesEnde, DateAdd(ddDatum.Selected.Tag, 22 * 60, TimeUnit.Minutes));\n",
+        "  Set(varTagesEnde, DateTime(Year(ddDatum.Selected.Tag), Month(ddDatum.Selected.Tag), Day(ddDatum.Selected.Tag), 22, 0, 0));\n", "H4 Zeitumstellung")
+aendere(k, "    varBuchStart < DateAdd(Today(), 30 * RoundDown((Hour(Now()) * 60 + Minute(Now())) / 30, 0), TimeUnit.Minutes),\n",
+        "    varBuchStart < DateTime(Year(Now()), Month(Now()), Day(Now()), Hour(Now()), If(Minute(Now()) >= 30, 30, 0), 0),\n", "H4 Zeitumstellung")
 aendere(k, "  Set(varTischID, ddTisch.Selected.ID);\n",
         "  Set(varTischID, ddTisch.Selected.ID);\n  " + GRENZE + ";\n"
         "  ClearCollect(colBuchBelegt, Filter(Tischbuchungen, Tisch.Value = varTischName && Startzeit < varBuchEnde && Endzeit > varBuchStart));\n"
@@ -85,6 +95,32 @@ aendere(k, "      ClearCollect(colKollision, Filter(Tischbuchungen, Tisch.Value 
         f"      RemoveIf(colKollision, ({VERF}) || Endzeit <= varBuchStart);\n", "H4")
 aendere(k, '" bis " & Text(varBuchEnde, "hh:mm") & " Uhr", NotificationType.Success);',
         '" bis " & Text(varBuchEnde, "hh:mm") & " Uhr. Bitte bis " & ' + MIN + ' & " Minuten nach Beginn einchecken.", NotificationType.Success);', "H4")
+
+f = akt("btnBuchen.OnSelect")
+i = f.index("    IfError(\n      Patch(\n        Tischbuchungen,\n        Defaults(Tischbuchungen),")
+j = f.index("      Notify(\"Das Buchen ist fehlgeschlagen. Bitte erneut versuchen.\", NotificationType.Error),\n", i)
+patch = f[i + len("    IfError(\n"):j].rstrip().rstrip(",")
+assert patch.startswith("      Patch(") and patch.endswith(")")
+rest_start = j + len("      Notify(\"Das Buchen ist fehlgeschlagen. Bitte erneut versuchen.\", NotificationType.Error),\n")
+k_end = f.index("  );\n  Set(varNeuLaden, varNeuLaden + 1);")
+alt_rest = f[rest_start:k_end]
+nach = alt_rest[:alt_rest.index("      Set(varBuchung, LookUp(colKollision,")]
+assert nach.startswith("      Set(varBuchNachVon,") and "RemoveIf(colKollision," in nach
+erfolg = 'Notify("Gebucht: " & varTischName & ", " & Text(varBuchStart, "dd.mm.") & ", " & Text(varBuchStart, "hh:mm") & " bis " & Text(varBuchEnde, "hh:mm") & " Uhr. Bitte bis " & Coalesce(varFreigabeMinuten, 30) & " Minuten nach Beginn einchecken.", NotificationType.Success);'
+assert erfolg in alt_rest
+patch_ein = "\n".join(("  " + z[6:]) if z.startswith("      ") else z for z in patch.split("\n"))
+neu_teil = ("    Set(varNeuID, IfError(\n" + "\n".join("  " + z for z in patch_ein.split("\n")) + ".ID,\n      -1\n    ));\n"
+            "    If(\n      varNeuID = -1,\n      Notify(\"Das Buchen ist fehlgeschlagen. Bitte erneut versuchen.\", NotificationType.Error),\n"
+            + nach
+            + "      Set(varNeuBuchung, LookUp(colKollision, ID = varNeuID));\n"
+            "      If(\n        IsBlank(varNeuBuchung.ID) || varNeuBuchung.Startzeit <> varBuchStart || varNeuBuchung.Endzeit <> varBuchEnde || Lower(varNeuBuchung.Person.Email) <> Lower(User().Email),\n"
+            "        Notify(\"Die Buchung ist nicht vollständig angekommen. Bitte unter „Meine“ prüfen.\", NotificationType.Warning),\n"
+            "        !IsBlank(LookUp(colKollision, ID < varNeuID).ID),\n"
+            "        Notify(\"Achtung: Jemand hat diesen Tisch fast gleichzeitig vor dir gebucht. Bitte storniere deine Buchung unter „Meine“ und wähle einen anderen Tisch.\", NotificationType.Error),\n"
+            "        " + erfolg + "\n"
+            "        Set(varTab, If(varBuchStart < DateAdd(Today(), 1, TimeUnit.Days), \"heute\", \"meine\"))\n"
+            "      )\n    )\n")
+setze("btnBuchen.OnSelect", f[:i] + neu_teil + f[k_end:], "H4 ID aus Patch (B5/B6)")
 
 # H5 Verlängern (+1 / +2) ------------------------------------------------------------------------------------------------
 for c in ["btnVerl1", "btnVerl2"]:
@@ -226,6 +262,14 @@ for k in ["btnStornoJa.OnSelect", "btnJetztBeenden.OnSelect"]:
     v = stand[k]
     if "Lower(varBuchung.Person.Email) <> Lower(User().Email)" not in v or v.index("Lower(varBuchung.Person.Email)") > v.index("Remove(" if "Remove(" in v else "Patch("):
         fehler.append(f"{k}: Eigentümerprüfung fehlt oder kommt zu spät")
+for k, v in stand.items():
+    if k in final and "DateAdd(ddDatum.Selected.Tag" in v:
+        fehler.append(f"{k}: Datum + Minuten per DateAdd (Zeitumstellung)")
+vb = stand["btnBuchen.OnSelect"]
+if "Set(varBuchungID" in vb or "Set(varNeuID, IfError(" not in vb or "LookUp(colKollision, ID < varNeuID)" not in vb:
+    fehler.append("btnBuchen: ID nicht aus Patch oder varBuchungID überschrieben")
+if vb.index("Set(varNeuID, IfError(") < vb.index(LOCK):
+    fehler.append("btnBuchen: Patch vor der Sperre")
 # Nachprüfungen eindeutig und ohne verfallene (sonst Fehlalarm bzw. falsche Rücknahme)
 for k, var in [("btnBuchen.OnSelect", "varBuchNachVon"), ("btnVerl1.OnSelect", "varVerlNachVon"), ("btnVerl2.OnSelect", "varVerlNachVon"), ("btnEincheckenH.OnSelect", "varCheckinNachVon")]:
     v = stand[k]

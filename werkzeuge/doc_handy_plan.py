@@ -5,7 +5,7 @@ import json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import app as A
 
-ZIEL = os.path.join(A.REPO, "arbeit/2026-10-08_Handy")
+ZIEL = os.path.join(A.REPO, "arbeit/2026-10-08_Handy_v2")
 D = json.load(open(os.path.join(ZIEL, "handy_bloecke.json"), encoding="utf-8"))
 T, k = {}, None
 for z in open(os.path.join(A.REPO, "werkzeuge/handy_plan_text.md"), encoding="utf-8").read().split("\n"):
@@ -37,6 +37,6 @@ for s in D["app"]:
         out += [f"**`{s['control']}.{s['prop']}`** ({s['schritt']})", "", "```", s["vorher_de"], "```", ""]
 out += ["## Anhang B: Maschinelle Prüfung", "", "```", open(os.path.join(ZIEL, "pruefung.txt"), encoding="utf-8").read().strip(), "```", "",
         "Bewusst ohne Freigabe-Regel:", ""] + [f"- `{a}`: {b}" for a, b in D["ausgenommen"].items()] + [""]
-p = os.path.join(ZIEL, "UMBAUPLAN_Handy.md")
+p = os.path.join(ZIEL, "UMBAUPLAN_Handy_v2.md")
 open(p, "w", encoding="utf-8").write("\n".join(out))
 print(p, sum(1 for _ in open(p, encoding="utf-8")), "Zeilen")

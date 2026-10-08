@@ -1,0 +1,5 @@
+17 Properties in 7 Schritten, kein neues Steuerelement. Ausgangslage: Handy-Export 08.10. (11:51).
+Je Property: Klammern, Rückübersetzung, keine Kommentare, Steuerelemente vorhanden, jede var/col wird gesetzt, varFreigabeGrenze vor Gebrauch gesetzt.
+Jedes Patch/Remove hinter der Sperre. Stornieren/Beenden mit Eigentümerprüfung davor. Nachprüfungen (Buchen, Verlängern, Einchecken) pro Klick eindeutig und ohne verfallene Buchungen.
+Abfragen auf Tischbuchungen (ohne reine ID-Abfragen): 14, jede eingeordnet (Freigabe-Regel lokal oder begründet ausgenommen: galHeute.Items, galMeine.Items).
+Prüfung: 0 Fehler
