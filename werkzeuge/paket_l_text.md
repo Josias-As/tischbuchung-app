@@ -5,7 +5,7 @@
 Kennzeichnung: **belegt** (Export), **geschlussfolgert**, **UNSICHER**, **Einschätzung**.
 
 ## 0. Kurzfassung
-- **Unabhängig geprüft** (`pruefung_paket_l.md`): Das Ergebnis waren 2 Fehler, 4 Risiken und 23 Hinweise. Eingearbeitet sind: Tab-Kontrast (L4), Titelbreite (L9: `lblTitel3` ohne Präfix), Outlook-Plan P5 neu, P3 mit Listen-Aktualisierung, P1-Datumsbedingung, P9 „nur eigene Elemente“, UTC-Hinweis bei P2 und die Zahlen im Stil-Audit. Danach wurde alles neu erzeugt und maschinell geprüft. **L10–L13 (25 Properties: Auswahl, Hover, Dialoghintergründe, Zurücksetzen) und die P1-Formeln kamen nach der Prüfung dazu. Sie sind maschinell geprüft, die zweite unabhängige Prüfung steht in `pruefung_paket_l_2.md`.**
+- **Unabhängig geprüft** (`pruefung_paket_l.md`): Das Ergebnis waren 2 Fehler, 4 Risiken und 23 Hinweise. Eingearbeitet sind: Tab-Kontrast (L4), Titelbreite (L9: `lblTitel3` ohne Präfix), Outlook-Plan P5 neu, P3 mit Listen-Aktualisierung, P1-Datumsbedingung, P9 „nur eigene Elemente“, UTC-Hinweis bei P2 und die Zahlen im Stil-Audit. Danach wurde alles neu erzeugt und maschinell geprüft. **L10–L13 (25 Properties: Auswahl, Hover, Dialoghintergründe, Zurücksetzen) und die P1-Formeln kamen nach der Prüfung dazu. Die zweite unabhängige Prüfung (`pruefung_paket_l_2.md`) fand 1 Fehler, 2 Risiken und 12 Hinweise. Eingearbeitet sind: Startzeit mit dem Zeitpunkt des Öffnens statt `Now()` (L1 + L13), L12 zurückgezogen (Kontrast), Tests und Wortlaut korrigiert, P1 angepasst. Danach wurde alles neu erzeugt, die maschinelle Prüfung meldet 0 Fehler.**
 - **Elf neue Befunde** (F-L1 bis F-L11), die Paket K v2 nicht abdeckt. Sieben davon behebt Paket L direkt, vier brauchen einen Umbau (P1, P3). **F-L11 (Datum bleibt stehen → Buchung am falschen Tag) wurde erst bei der Selbstprüfung gefunden und ist neben F-L1 der wichtigste.** Der wichtigste: Die Startliste bietet **22:00** an. Wählt man das, ist die Endliste leer, und die Buchung wird mit Ende **00:00 desselben Tages** gespeichert, also mit Ende vor Beginn (L1).
 - **Die Oberfläche wirkt aus zwei Apps zusammengesetzt** (belegt). Der Buchungsdialog aus dem Grundriss nutzt das graublaue Standarddesign von Power Apps, das Tische-Panel das Markenblau `#171496`. „Speichern“ ist einmal grün, sonst blau. „Stornieren“ sieht aus wie „Speichern“. Bei sieben Knöpfen verschwindet beim Drücken die Schrift. Man sieht nicht, welcher Tab aktiv ist. Deutsch und Englisch sind gemischt.
 - **Paket L** behebt das mit 82 kleinen Properties: nur Farben, Hover/Auswahl, Texte, Sortierung, eine Liste. Kein Schreibvorgang wird geändert. Risiko: niedrig.
@@ -22,7 +22,7 @@ Kennzeichnung: **belegt** (Export), **geschlussfolgert**, **UNSICHER**, **Einsch
 | F-L6 | Details-Popup zeigt immer **„Besetzt“ in Rot**, auch wenn nicht eingecheckt (Kachel ist dann orange) | `lblStatus.Text = "Besetzt"`, `Color = #EB3951` | Widerspricht der Kachelfarbe | **L6** |
 | F-L7 | **App über Mitternacht offen**: `varAnsichtsDatum` bleibt auf gestern | wird nur in `App.OnStart` und `dpAnsichtsDatum.OnChange` gesetzt (belegt) | Wer die App morgens im alten Browser-Tab weiter benutzt, sieht gestern. Paket K verhindert immerhin Buchungen in der Vergangenheit | Plan P3 |
 | F-L8 | **Grundriss: freie Restzeit eines belegten Tisches nicht buchbar** | `btnHitArea.OnSelect`: Ist irgendeine Buchung „relevant“, öffnet sich nur das Details-Popup. Heute: aktive Buchung oder Beginn in 30 Min. Anderer Tag: **irgendeine** Buchung an dem Tag | Tisch 08:00–10:00 gebucht → für 13:00–17:00 muss man ins Panel. Wer das nicht weiß, hält den Tisch für den ganzen Tag belegt | Plan P1 |
-| F-L11 | **Eingaben bleiben vom letzten Öffnen stehen**: Datum, Start, Ende und Wiederholen-bis im Buchungsdialog (und Zeiten im Panel) werden beim Öffnen nicht zurückgesetzt | `Reset` gibt es im Export nur für Panel-Listen und -Schalter. `dpDatum`, `dpWiederholenBis(_1)` werden nirgends zurückgesetzt; `ddStart`/`ddEnde` nur bei Datumswechsel (belegt). `DefaultDate = varAnsichtsDatum` greift nur, wenn sich `varAnsichtsDatum` ändert (geschlussfolgert, Standardverhalten klassischer Steuerelemente) | **Stille Buchung am falschen Tag**: Wer im Dialog „morgen“ wählt, abbricht und eine andere Kachel anklickt, sieht wieder „morgen“, obwohl der Grundriss heute zeigt. Mit Paket K v2 kommt bei alten Uhrzeiten von heute die Meldung „Vergangenheit“, was ohne L13 verwirrt | **L13** (bei Paket K v2 Pflicht) |
+| F-L11 | **Eingaben bleiben vom letzten Öffnen stehen**: Datum, Start, Ende und Wiederholen-bis im Buchungsdialog (und Zeiten im Panel) werden beim Öffnen nicht zurückgesetzt | `Reset` gibt es im Export nur für Panel-Listen und -Schalter. `dpDatum`, `dpWiederholenBis(_1)` werden nirgends zurückgesetzt; `ddStart`/`ddEnde` nur bei Datumswechsel (belegt). `DefaultDate = varAnsichtsDatum` greift nur, wenn sich `varAnsichtsDatum` ändert (geschlussfolgert, Standardverhalten klassischer Steuerelemente) | **Leicht übersehene Buchung am falschen Tag** (das Datum ist im Dialog sichtbar): Wer im Dialog „morgen“ wählt, abbricht und eine andere Kachel anklickt, sieht wieder „morgen“, obwohl der Grundriss heute zeigt. Mit Paket K v2 kommt bei alten Uhrzeiten von heute die Meldung „Vergangenheit“, was ohne L13 verwirrt | **L13** (bei Paket K v2 Pflicht) |
 | F-L10 | **Keine automatische Aktualisierung** (kein Timer in der App) | Steuerelement-Typen im Export: kein Timer (belegt) | Grundriss und Listen veralten, solange die App offen ist | Plan P3 |
 | F-L9 | Heute ist eine Kachel **grün**, obwohl der Tisch ab 14:00 belegt ist. Der Buchungsdialog zeigt keine Belegung an | Kachelformel prüft nur „jetzt bis +30 Min“ (belegt) | Nutzer wählt 09:00–17:00 und bekommt „Tisch belegt“ ohne Hinweis, wann frei | Plan P1 |
 
@@ -30,7 +30,7 @@ Kennzeichnung: **belegt** (Export), **geschlussfolgert**, **UNSICHER**, **Einsch
 Ablauf wie bei Paket K: ganze Property ersetzen, App-Prüfung, kurzer Test. Alle Schritte sind unabhängig voneinander. **Rückfall:** Original aus Anhang. Die Texte (L9) sind Vorschläge. Wenn du andere Wörter willst, ändere nur den Text in Anführungszeichen.
 
 @@ test L1
-**Test:** Panel und Buchungsdialog, Datum heute nach 21:30 → keine Startzeit wählbar. Datum morgen → letzte Startzeit 21:30, Ende 22:00 wählbar.
+**Test:** Panel und Buchungsdialog, Datum heute nach 21:30 → keine Startzeit wählbar. Datum morgen → letzte Startzeit 21:30, Ende 22:00 wählbar. **L1 ändert auch `Default` und rechnet mit `varDialogJetzt`/`varPanelJetzt`. Diese Variablen setzt erst L13, deshalb L1 und L13 zusammen einfügen.**
 
 @@ test L2
 **Test:** Heute zwei Buchungen in umgekehrter Reihenfolge anlegen (erst 14:00, dann 08:00) → Dashboard zeigt 08:00 oben. „Einchecken“ bei der unteren → Dialog erscheint auf Höhe der richtigen Zeile.
@@ -57,16 +57,13 @@ Ablauf wie bei Paket K: ganze Property ersetzen, App-Prüfung, kurzer Test. Alle
 **Test:** Texte durchsehen. Breite der Plus-/Minus-Knöpfe prüfen: „+1 Std“ ist ein Zeichen länger als „+1Std“ (UNSICHER, ob es abgeschnitten wird; falls ja, `Size` um 1 verkleinern).
 
 @@ test L10
-**Test:** Buchungen-Tab: Eine Zeile anklicken, der Auswahlbalken ist blau wie im Dashboard. Buchungsdialog, Check-in-Dialog und Details-Popup haben einen blauen Akzentbalken. Eine Auswahlliste öffnen: Die markierte Zeile ist blau. Über den Pfeil fahren: Er wird dunkler blau, nicht graublau.
+**Test:** Buchungen-Tab: Eine Zeile anklicken, der Auswahlbalken ist blau wie im Dashboard. Buchungsdialog, Check-in-Dialog und Details-Popup haben blaue Trennlinien. Eine Auswahlliste öffnen: Die markierte Zeile ist blau. Über den Pfeil fahren: Er wird dunkler blau, nicht graublau.
 
 @@ test L11
 **Test:** Mit der Maus über Grundriss-Kachel, Einchecken-Fläche, Verwalten-Pfeil (Dashboard und Tab) und Logo fahren: Alle dunkeln gleich leicht ab.
 
-@@ test L12
-**Test:** Buchungen-Tab → Verwalten: Der Dialog ist weiß wie der Verwalten-Dialog im Dashboard. Der kleine Mehrfach-Dialog ebenso.
-
 @@ test L13
-**Test:** (1) Grundriss → freie Kachel → im Dialog Datum auf morgen und 14:00 stellen → Abbrechen. Andere freie Kachel → Dialog zeigt wieder das Grundriss-Datum und die nächste halbe Stunde. (2) Panel öffnen, 09:00–10:00 wählen, mit „<“ schließen, wieder öffnen → Zeiten stehen auf dem Standard. (3) Wiederholen-bis auf in 10 Tagen stellen, abbrechen, neu öffnen → Bis-Datum zurückgesetzt.
+**Test:** (1) Grundriss → freie Kachel → im Dialog Datum auf morgen und 14:00 stellen → Abbrechen. Andere freie Kachel → Dialog zeigt wieder das Grundriss-Datum und die nächste halbe Stunde. (2) Panel öffnen, Datum morgen, 09:00–10:00 wählen, mit „<“ schließen, wieder öffnen → Datum heute, Zeiten auf dem Standard. (4) **Wichtigster Test:** Dialog um z. B. 10:05 öffnen (Start 10:30), schließen, **ohne das Datum zu ändern** nach 11:00 wieder öffnen → Start ist jetzt die nächste halbe Stunde, nicht mehr 10:30. Gleiches im Panel. (Ohne `varDialogJetzt`/`varPanelJetzt` bliebe die alte Startzeit stehen, weil `Now()` in Datenformeln nicht von selbst neu berechnet wird; Befund der zweiten Prüfung.) Hinweis: „Wiederholen bis“ geht beim Zurücksetzen auf heute, nicht auf das Buchungsdatum (wie bisher beim ersten Öffnen). (3) Wiederholen-bis auf in 10 Tagen stellen, abbrechen, neu öffnen → Bis-Datum zurückgesetzt.
 
 @@ plaene
 ## 3. Umbaupläne für größere Punkte (durchdacht, nicht als Formel)
@@ -75,12 +72,13 @@ Jeder Plan: Problem → Lösung → was du anlegen musst → Risiko → Aufwand 
 **P1 Grundriss: freie Zeiten belegter Tische buchen (F-L8, F-L9)**
 - *Lösung:* Ins Details-Popup kommt ein Knopf **„Andere Zeit buchen“**. Er setzt `varSelectedTisch` auf den Tisch und öffnet den normalen Buchungsdialog (`varZeigeDialog`). Im Buchungsdialog steht eine Zeile **„Heute belegt: 08:00–10:00, 14:00–17:00“** aus `colGrundriss` (keine neue Abfrage). Die Zeile gilt nur, solange das Dialog-Datum dem Grundriss-Datum entspricht; bei einem anderen Datum blendet sie sich aus (`Visible: dpDatum.SelectedDate = varAnsichtsDatum`). Die Speichern-Prüfung aus Paket K v2 bleibt die letzte Instanz.
 - *Anlegen:* einen Knopf `btnAndereZeit` im `conDetailsPopup` und ein Label `lblBelegtHeute` im `conBuchungDialog`.
-- *Risiko:* niedrig. *Aufwand:* ~1 Std. Die Steuerelemente legst du an (Knopf im Popup, Label im Dialog unter dem Tischnamen).
+- *Risiko:* niedrig. *Aufwand:* ~1 Std. `conDetailsPopup` braucht für den zusätzlichen Knopf etwa 40 px mehr Höhe (heute 154). Die Steuerelemente legst du an (Knopf im Popup, Label im Dialog unter dem Tischnamen).
 - *Formeln (aus dem Export erzeugt, Klammern und Rückübersetzung geprüft; die beiden Steuerelemente sind neu):*
   - `btnAndereZeit.Text`: `"Andere Zeit buchen"`
   - `btnAndereZeit.OnSelect` (übernimmt den „frei“-Zweig aus `btnHitArea.OnSelect` in der Fassung nach L13, nur mit `varDetailsTisch` statt `ThisItem`; beide sind Datensätze aus `Tische`, also kein Typkonflikt):
 ```
 Set(varSelectedTisch; varDetailsTisch);;
+Set(varDialogJetzt; Now());;
 Reset(dpDatum);;
 Reset(ddStart);;
 Reset(ddEnde);;
@@ -215,9 +213,9 @@ If(
 | Auswahllisten: markierte Zeile | `SelectionFill` ist bei allen 8 graublau | L10 (6 Listen, Raumcode ausgenommen) |
 | Auswahllisten: Hover | Panel `ColorFade(Self.Fill; −20 %)`, Dialog hellgrau `RGBA(205,209,213)`, Stockwerk blau 8 % | durch L7 (Dialog wie Panel) teilweise |
 | Listen-Auswahlbalken | Dashboard blau `#171496`, Buchungen-Tab graublau | L10 |
-| Akzentbalken in Dialogen | `Rectangle5`, `Rectangle6`, `Rectangle6_1`, `Rectangle6_2` graublau | L10 |
+| Trennlinien in Dialogen | `Rectangle5`, `Rectangle6`, `Rectangle6_1`, `Rectangle6_2` graublau | L10 |
 | Unsichtbare Klickflächen (Kachel, Einchecken, Verwalten, Logo) | **fünf** verschiedene Hover-Stärken: 4 %, 8 %, 15 %, 20 %, 20 % | L11 (einheitlich 10 %) |
-| Dialog-Hintergründe | Popups weiß, aber Tab-Verwalten und Mehrfach-Dialog grau `RGBA(234,234,236)` | L12 |
+| Dialog-Hintergründe | Popups weiß, aber Tab-Verwalten und Mehrfach-Dialog grau `RGBA(234,234,236)` | **nicht in L** (L12 nach zweiter Prüfung zurückgezogen: weiß auf dem Hintergrund `#f7f7f7` ohne Rahmen würde verschwimmen). Später nur zusammen mit Rahmen oder Schatten |
 | Knöpfe gedrückt | siehe oben, 7 unlesbar | L3 |
 | Knöpfe Hover | dunkel → heller (+30 %), blau → dunkler (−20 %), Dauer-Knöpfe −15 % | **nicht** in L. Gewollt kann „dunkle Knöpfe werden heller“ sein, es wirkt aber uneinheitlich. Vorschlag für später: überall `ColorFade(Self.Fill; −15 %)`, schwarze Knöpfe durch Dunkelgrau ersetzen |
 | Gesperrte Knöpfe | Dauer-Knöpfe rot verblasst (`DisabledFill`), Speichern/Stornieren grau (Standard). Nach Paket K sind gesperrte Speichern-Knöpfe grau | bewusst so: rot = „geht nicht wegen Belegung“, grau = „gerade nicht bedienbar“ |

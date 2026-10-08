@@ -23,11 +23,18 @@ def ersetze(c, p, alt, neu, n=1):
 
 BLAU, GRUEN, ROT = 'ColorValue("#171496")', 'ColorValue("#00A96B")', 'ColorValue("#EB3951")'
 
-# L1 Startliste ohne 22:00 (sonst leere Endliste -> Buchung 22:00-00:00)
-for c in ["ddStart", "ddStartTischePanel"]:
-    schritt("L1", c, "Items", ersetze(c, "Items", "Sequence(RoundDown((minutenEnde - minutenStart) / 30, 0) + 1, 0)",
-                                       "Sequence(Max(0, RoundDown((minutenEnde - minutenStart) / 30, 0)), 0)"),
-            "Letzte Startzeit 21:30 statt 22:00")
+# L1 Startliste ohne 22:00 (sonst leere Endliste -> Buchung 22:00-00:00) und mit dem Zeitpunkt des Öffnens statt Now()
+# (Now()/Today() werden in Datenformeln nicht von selbst neu berechnet; die Variable wird beim Öffnen gesetzt, L13)
+def jetzt_var(f, dp, var):
+    f = f.replace("Hour(Now())*60 + Minute(Now())", f"Hour({var})*60 + Minute({var})")
+    f = f.replace(f"{dp}.SelectedDate = Today()", f"{dp}.SelectedDate = Date(Year({var}), Month({var}), Day({var}))")
+    assert "Now()" not in f and "Today()" not in f
+    return f
+for c, dp, var in [("ddStart", "dpDatum", "varDialogJetzt"), ("ddStartTischePanel", "dpDatumTischePanel", "varPanelJetzt")]:
+    schritt("L1", c, "Items", jetzt_var(ersetze(c, "Items", "Sequence(RoundDown((minutenEnde - minutenStart) / 30, 0) + 1, 0)",
+                                       "Sequence(Max(0, RoundDown((minutenEnde - minutenStart) / 30, 0)), 0)"), dp, var),
+            "Letzte Startzeit 21:30 statt 22:00, Startzeit ab dem Öffnen des Dialogs")
+    schritt("L1", c, "Default", jetzt_var(a.get(c, "Default"), dp, var), "Vorgeschlagene Startzeit ab dem Öffnen des Dialogs")
 
 # L2 Dashboard-Liste nach Uhrzeit, Check-in-Dialog an derselben Zeile
 schritt("L2", "galTischbuchungenHeute", "Items",
@@ -91,7 +98,7 @@ for c, t in TEXTE:
 schritt("L10", "Rectangle3_2", "Fill", BLAU, "Auswahlbalken im Buchungen-Tab blau wie im Dashboard")
 for c in ["Rectangle5", "Rectangle6", "Rectangle6_1", "Rectangle6_2"]:
     assert a.get(c, "Fill") == "RGBA(100, 118, 132, 1)"
-    schritt("L10", c, "Fill", BLAU, "Akzentbalken im Dialog blau")
+    schritt("L10", c, "Fill", BLAU, "Trennlinie im Dialog blau")
 for c in ["ddStockwerk", "ddTischePanel", "ddStartTischePanel", "ddEndTischePanel", "ddStart", "ddEnde"]:
     schritt("L10", c, "SelectionFill", BLAU, "Markierte Zeile in der Auswahlliste blau")
 for c in ["ddTischePanel", "ddStartTischePanel", "ddEndTischePanel", "ddStart", "ddEnde"]:
@@ -101,20 +108,18 @@ for c in ["ddTischePanel", "ddStartTischePanel", "ddEndTischePanel", "ddStart", 
 for c in ["btnHitArea", "btnEincheckenHeute", "btnVerwalten", "btnVerwalten_2", "btnHitArea_1"]:
     schritt("L11", c, "HoverFill", "RGBA(0, 0, 0, 0.1)", "Einheitliche Hover-Abdunklung für Klickflächen")
 
-# L12 Dialoge einheitlich weiß
-for c in ["conVerwaltenDialog_1", "conVerwaltenKlein"]:
-    schritt("L12", c, "Fill", "Color.White", "Dialog weiß wie alle anderen Dialoge")
+# L12 (Dialoge weiß) nach zweiter Prüfung zurückgezogen: weiß auf #f7f7f7 ohne Rahmen verschwimmt (Kontrast ~1,07:1).
 
 # L13 Eingaben beim Öffnen zurücksetzen (Datum/Zeit blieben vom letzten Mal stehen)
 schritt("L13", "btnHitArea", "OnSelect", ersetze("btnHitArea", "OnSelect",
         "      Set(varSelectedTisch, ThisItem);\n",
-        "      Set(varSelectedTisch, ThisItem);\n      Reset(dpDatum);\n      Reset(ddStart);\n      Reset(ddEnde);\n      Reset(dpWiederholenBis);\n"),
+        "      Set(varSelectedTisch, ThisItem);\n      Set(varDialogJetzt, Now());\n      Reset(dpDatum);\n      Reset(ddStart);\n      Reset(ddEnde);\n      Reset(dpWiederholenBis);\n"),
         "Buchungsdialog öffnet immer mit dem Grundriss-Datum und frischen Zeiten")
 KV2 = {f"{s['control']}.{s['prop']}": s for s in json.load(open(os.path.join(A.REPO, "arbeit/2026-10-07_PaketK_v2/bloecke.json"), encoding="utf-8"))}
 f = KV2["btnTischHinzufügen.OnSelect"]["neu"]
 assert f.rstrip().endswith('Set(varEndeOverridePanel, "")')
 schritt("L13", "btnTischHinzufügen", "OnSelect",
-        f.rstrip() + ";\nReset(ddStartTischePanel);\nReset(ddEndTischePanel);\nReset(dpWiederholenBis_1)",
+        f.rstrip() + ";\nSet(varPanelJetzt, Now());\nReset(ddStartTischePanel);\nReset(ddEndTischePanel);\nReset(dpWiederholenBis_1)",
         "Panel öffnet mit frischen Zeiten (baut auf Paket K v2 C2 auf)")
 AUF_K = {"btnTischHinzufügen.OnSelect"}
 
