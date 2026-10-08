@@ -50,6 +50,15 @@ Monitor-Dateien (`PowerAppsTraceEvents_*.json`, 23 MB) sind nicht im Repo, nur b
 - Werkzeuge für Paket L: `werkzeuge/paket_l.py`, `doc_paket_l.py`, `paket_l_text.md`.
 - Handy-App-Regeln (von Josias bestätigt, `05_HANDY_APP/FRAGEN_AN_JOSIAS.md` V1–V9): nie über 22:00, Einchecken ab 30 Min vor Beginn bis Ende, keine zwei Tische zur selben Zeit, Big Table nicht buchbar, Stornieren mit Bestätigung, keine Buchung in der Vergangenheit.
 
+## 5a. Entscheidungen von Josias (Interview 08.10., `arbeit/2026-10-08_Interview/ANTWORTEN.md`)
+- **Harter Umstieg am 14.10.**, der GoBright-Vertrag endet. Es gibt keinen Parallelbetrieb.
+- Automatische Freigabe nicht eingecheckter Buchungen nach **30 Min**, nur löschen, Flow unter Josias’ Konto.
+- Regeln E1–E7: Claude entscheidet → Vorschläge aus K v2. Frühester Start **06:00**, Ende 22:00, Serien Mo–Fr.
+- Namen bleiben sichtbar. Raumcode bleibt (nicht löschen). Liste: nur eigene Elemente bearbeiten.
+- Josias darf Spalten und Steuerelemente anlegen. Nur Josias sperrt Tische. Big Table bleibt für alle über den Grundriss buchbar.
+- Test mit 3–5 Kollegen möglich. Nach Paket K kommen ein Export und ein Trace. Vertretung: Michael/IT. Arbeitsweise: alles nach Wichtigkeit, möglichst vor dem Go-Live, nicht sparen.
+- Tisch-Anzeigen (GoBright-Hardware über ein Gateway) fallen mit dem Vertragsende weg. Modell unbekannt, eine Anbindung ist zu recherchieren.
+
 ## 6. Stand der Arbeit
 - **Erledigt (Josias, veröffentlicht):** L2 Grundriss-Performance (Serie 11 Termine ~4,7 s statt ~101 s, gemessen), Sammel-Patch in `btnSpeichern`, Mehrfach-Stornieren neu.
 - **Paket K v2 (07.10., dieses Repo), nicht eingefügt:** `arbeit/2026-10-07_PaketK_v2/UEBERGABE_PaketK_v2.md`, 22 Schritte und 55 Properties, unabhängig geprüft (Befunde eingearbeitet). Ersetzt v1. Inhalt: Zweifach-Sperre an allen 8 Schreibstellen. Verwalten-Dialoge mit einmal berechneter Grenze (B0 an der Wurzel, 24 Abfrage-Properties weg). Verlängern/Stornieren/Einchecken frisch + `IfError` + Nachlese. Beide Speichern-Knöpfe gleich (Sammel-Patch, `SerienID`, Nachlese, Person-Prüfung, Vergangenheit, eine Meldung). Tischauswahl nur freie Tische. Kleinigkeiten BD-10/12/25/26. Entscheidungen E1–E7 mit Vorschlag nach den Handy-Regeln.
