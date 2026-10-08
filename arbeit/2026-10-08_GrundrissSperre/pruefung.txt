@@ -1,0 +1,6 @@
+50 Properties in 4 Schritten, 2 neue Steuerelemente (btnGrundrissSperre, btnGrundrissAktualisieren).
+Ladestellen von colGrundriss im F2.1-Stand: 16 (App.OnStart, Icon1.OnSelect, Icon1_1.OnSelect, Image6.OnSelect, btnEinchecken.OnSelect, btnHitArea_1.OnSelect, btnSpeichern.OnSelect, btnSpeichernTischePanel.OnSelect, btnStornieren.OnSelect, btnStornierenKlein.OnSelect, btnStornieren_1.OnSelect, btnVerlängern.OnSelect, btnVerlängern_1.OnSelect, ddStockwerk.OnChange, dpAnsichtsDatum.OnChange, tmrAktualisieren.OnTimerEnd).
+Nachher: 16 Ladestellen (Timer lädt nicht mehr, neu: btnGrundrissAktualisieren), jede setzt varGrundrissStand bei Erfolg.
+Timer: kein Refresh, keine Ladezeile; Abfragen nur in der Check-in-Erinnerung, höchstens alle 5 Minuten und nur mit eigener anstehender Buchung im Grundriss.
+Je Property: Klammern, Rückübersetzung, Variablen gesetzt, Steuerelemente vorhanden, Schreibstellen mit Sperre; an Ladestellen nur der Zeitstempel geändert.
+Prüfung: 0 Fehler
