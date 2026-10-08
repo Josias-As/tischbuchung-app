@@ -1,0 +1,5 @@
+253 Properties Desktop-App in 26 Schritten, 2 Properties Handy-App, 7 neue Steuerelemente.
+Schreibstellen auf Tischbuchungen nach dem Plan: 6 (btnEinchecken.OnSelect, btnSpeichern.OnSelect, btnSpeichernTischePanel.OnSelect, btnStornoJa.OnSelect, btnVerlängern.OnSelect, btnVerlängern_1.OnSelect), alle mit Zweifach-Sperre und Ladezeile.
+Je Property geprüft: Klammern, Rückübersetzung deutsch->englisch, keine Kommentare, Steuerelemente bekannt oder neu angelegt, jede gelesene var/col wird irgendwo gesetzt.
+Jede Property kommt genau einmal vor.
+Prüfung: 0 Fehler
