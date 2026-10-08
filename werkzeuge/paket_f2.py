@@ -119,12 +119,20 @@ f = f.replace('"Zu spät: Ohne Check-in bis " & varFreigabeMinuten & " Minuten n
               '"Zu spät: Ohne Check-in bis " & Coalesce(varFreigabeMinuten, 30) & " Minuten nach Beginn verfällt die Buchung. Bitte neu buchen."')
 assert "wieder frei" not in f
 assert f.count("Set(varZeigeCheckin, false),\n        Notify(\"Die Änderung ist nicht angekommen. Bitte aktualisieren.\", NotificationType.Warning)") >= 1
+f = f.replace("  Set(varIsLoading, true);\n", "  Set(varIsLoading, true);\n  Set(varAuscheckFrageID, 0);\n", 1)
+alt_arm = ('    IsBlank(varCheckinBuchung.ID),\n    Notify("Diese Buchung gibt es nicht mehr. Bitte aktualisieren.", NotificationType.Warning);\n'
+           '    Set(varZeigeCheckin, false),\n')
+assert f.count(alt_arm) == 1
+f = f.replace(alt_arm, alt_arm + "    Coalesce(varCheckinBuchung.CheckedIn, false) <> Coalesce(varSelectedBuchung.CheckedIn, false),\n"
+              "    Set(varSelectedBuchung, varCheckinBuchung);\n"
+              '    Notify("Der Status hat sich inzwischen geändert. Bitte noch einmal prüfen und tippen.", NotificationType.Information),\n')
 innen = "\n".join(("  " + z) if z.strip() else z for z in f.split("\n"))
 setze("btnEinchecken.OnSelect",
       "If(\n  varSelectedBuchung.CheckedIn && Now() >= varSelectedBuchung.Startzeit && varAuscheckFrageID <> varSelectedBuchung.ID,\n"
       "  Set(varAuscheckFrageID, varSelectedBuchung.ID);\n"
+      "  Set(varSperreBis, DateAdd(Now(), 1, TimeUnit.Seconds));\n"
       '  Notify("Zum Auschecken bitte noch einmal tippen. Deine Buchung endet dann jetzt.", NotificationType.Information),\n'
-      "  Set(varAuscheckFrageID, 0);\n" + innen + "\n)", "F7 Auschecken bestätigen")
+      + innen + "\n)", "F7 Auschecken bestätigen")
 setze("btnEinchecken.Text", 'If(varSelectedBuchung.CheckedIn, If(varAuscheckFrageID = varSelectedBuchung.ID, "Wirklich auschecken?", "Auschecken"), "Einchecken")', "F7 Auschecken bestätigen")
 setze("btnEinchecken.DisplayMode", gplan["btnEinchecken.DisplayMode"]["neu"], "F7 (aus G5)")
 eh = a.props["btnEincheckenHeute.OnSelect"]
@@ -219,6 +227,12 @@ if "Person.Email = User().Email" not in stand["btnStornierenKlein.OnSelect"]:
 v = stand["btnEinchecken.OnSelect"]
 if v.index("Set(varAuscheckFrageID, varSelectedBuchung.ID)") > v.index(LOCK) or "Patch(" in v[:v.index(LOCK)]:
     fehler.append("btnEinchecken: Rückfrage-Zweig schreibt oder liegt hinter der Sperre")
+if "Set(varSperreBis, DateAdd(Now(), 1, TimeUnit.Seconds))" not in v[:v.index(LOCK)]:
+    fehler.append("btnEinchecken: Frage-Zweig setzt keine Sperre (Doppelklick bestätigt sofort)")
+if v.index("Set(varAuscheckFrageID, 0)") < v.index(LOCK):
+    fehler.append("btnEinchecken: Frage wird vor der Sperre zurückgesetzt")
+if "Coalesce(varCheckinBuchung.CheckedIn, false) <> Coalesce(varSelectedBuchung.CheckedIn, false)" not in v or v.index("Coalesce(varCheckinBuchung.CheckedIn") > v.index("Patch("):
+    fehler.append("btnEinchecken: Abgleich Anzeige gegen frischen Status fehlt oder kommt nach dem Patch")
 
 
 def klammer_ende(f, start):
@@ -265,6 +279,32 @@ for k, v in stand.items():
 fehler += ["Abfrage ohne Freigabe-Regel: " + u for u in ungeklaert]
 
 
+# --- Notfassung F2 ohne Freigabe (nur falls F1/F3-F8 nicht vor dem Go-Live kommen) ------------------------------------
+NOT = {}
+for c in ["btnStornieren", "btnStornieren_1", "btnStornierenKlein"]:
+    v = final[f"{c}.OnSelect"]
+    v = re.sub(r"(?m)^[ \t]*" + re.escape(GRENZE) + r";\n", "", v).replace(L_NEU_KOPF, L_ALT_KOPF).replace(L_NEU_CC, L_ALT_CC)
+    NOT[f"{c}.OnSelect"] = v
+    if "varFreigabe" in v or "Erstellt" in v or L_ALT_KOPF not in v or not A.klammern_ok(v) or A.from_de(A.to_de(v)) != v:
+        fehler.append(f"Notfassung {c}: nicht frei von der Freigabe oder Klammern/Rückübersetzung")
+    if LOCK not in v or (c != "btnStornierenKlein" and "Lower(varStornoBuchung.Person.Email) <> Lower(User().Email)" not in v):
+        fehler.append(f"Notfassung {c}: Sperre oder Eigentümerprüfung fehlt")
+    for m in re.finditer(r"(Patch|Remove)\(\s*Tischbuchungen", v):
+        if m.start() < v.index(LOCK):
+            fehler.append(f"Notfassung {c}: Schreibvorgang vor der Sperre")
+for k, v in NOT.items():
+    stand_not = dict(ist); stand_not.update(NOT)
+gesetzt_not = set()
+for v in stand_not.values():
+    for m in re.finditer(r"(?:Set|ClearCollect|Collect)\(\s*((?:var|col)\w+)", v):
+        gesetzt_not.add(m.group(1))
+for k, v in NOT.items():
+    for x in set(re.findall(r"\b((?:var|col)[A-ZÄÖÜa-zäöü0-9_]+)\b", A.ausserhalb_strings(v))):
+        if x not in gesetzt_not:
+            fehler.append(f"Notfassung {k}: Variable {x} ohne F1 nicht gesetzt")
+notfassung = [dict(control=k.split(".")[0], prop="OnSelect", de=A.to_de(v), neu=v, vorher_de=A.to_de(ist[k]),
+                   diff="\n".join(list(difflib.unified_diff(A.to_de(ist[k]).split("\n"), A.to_de(v).split("\n"), lineterm="", n=2))[2:])) for k, v in NOT.items()]
+
 # --- Ausgabe mit Diff gegen den Ist-Stand ----------------------------------------------------------------------------
 def diff(alt, neu):
     zeilen = list(difflib.unified_diff(alt.split("\n"), neu.split("\n"), lineterm="", n=2))
@@ -284,7 +324,7 @@ for sid, titel, keys in SCHRITTE:
                         diff=diff(A.to_de(vorher), neu_de) if vorher is not None else None,
                         pfad=a.pfad(c) if c in a.typ else f"(neu) {NEUE_STEUER[c][1]} > {c}",
                         neues_steuerelement=NEUE_STEUER.get(c)))
-json.dump(dict(app=out, neue_steuerelemente=NEUE_STEUER, ausgenommen=AUSGENOMMEN), open(os.path.join(ZIEL, "paket_f2_bloecke.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+json.dump(dict(app=out, notfassung=notfassung, neue_steuerelemente=NEUE_STEUER, ausgenommen=AUSGENOMMEN), open(os.path.join(ZIEL, "paket_f2_bloecke.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 lade_neu = sorted(k for k, v in stand.items() if L_NEU_KOPF in v)
 zeilen = [f"{len(out)} Properties in {len(SCHRITTE)} Schritten, {len(NEUE_STEUER)} neues Steuerelement (tmrAktualisieren, ersetzt G8).",
           "Ausgangslage = Studio-Stand nach Josias' Angaben (Export + eingefügte Gesamtplan-Schritte, G6 in Fassung Nachtrag 4). Keine Property liegt in G22 (nur teilweise eingefügt).",

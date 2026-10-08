@@ -16,7 +16,7 @@
 
 **Wichtig: Einchecken!** Einchecken geht von 30 Minuten vor bis 30 Minuten nach Beginn (Dashboard → „Einchecken“). Die App fragt dich einmal danach, wenn du sie zur Buchungszeit öffnest oder offen hast. **Wer bis 30 Minuten nach Beginn nicht eingecheckt hat, verliert den Tisch.** Die Buchung steht dann als „Verfallen“ im Dashboard, und der Tisch ist für andere frei.
 
-**Früher gehen?** Dashboard → „Auschecken“ → noch einmal tippen („Wirklich auschecken?“). Deine Buchung endet dann, und andere können den Tisch wieder buchen.
+**Früher gehen?** Im Dashboard deine Buchung („Eingecheckt“) antippen → „Auschecken“ → noch einmal tippen („Wirklich auschecken?“). Deine Buchung endet dann, und andere können den Tisch wieder buchen.
 
 **Ändern:**
 - Dashboard bzw. Tab „Buchungen“ → Pfeil bei deiner Buchung.

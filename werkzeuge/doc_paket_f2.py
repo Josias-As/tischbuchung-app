@@ -78,7 +78,7 @@ for sid, titel, ss in schritte:
             out += ["Änderungen gegenüber dem Studio (`-` alt, `+` neu):", "", "```diff", s["diff"], "```", ""]
         out += ["Vollständiger Block zum Einfügen:", "", "```", s["de"], "```", ""]
     out += [f"**Rückfall {sid}:** die Fassungen aus Anhang A wieder einsetzen" + (", neues Steuerelement löschen." if neu else ".") + " Neu gesetzte `DisplayMode` auf `DisplayMode.Edit` zurück.", ""]
-out += [T["fragen"], "", T["testbogen"], "", T["unsicher"], ""]
+out += [T["rueckfall"], "", T["fragen"], "", T["testbogen"], "", T["unsicher"], ""]
 out += ["## Anhang A: Fassungen im Studio vor diesem Paket (Rückfall)", ""]
 for s in D["app"]:
     if s["vorher_de"] is not None:
@@ -92,6 +92,9 @@ assert g8.count(alt) == 1
 g8 = g8.replace(alt, " && !varZeigeCheckin,")
 assert A.klammern_ok(g8) and A.from_de(A.to_de(g8)) == g8
 out += [T["anhangc"], "", "**`tmrAktualisieren.OnTimerEnd`** (nur ohne Paket F)", "", "```", A.to_de(g8), "```", ""]
+out += [T["anhangd"], ""]
+for n in D["notfassung"]:
+    out += [f"#### `{n['control']}.OnSelect` (Notweg)", "", "Änderungen gegenüber dem Studio:", "", "```diff", n["diff"], "```", "", "Vollständiger Block:", "", "```", n["de"], "```", ""]
 p = os.path.join(ZIEL, "UEBERGABE_PaketF2.md")
 open(p, "w", encoding="utf-8").write("\n".join(out))
 print(p, sum(1 for _ in open(p, encoding="utf-8")), "Zeilen")

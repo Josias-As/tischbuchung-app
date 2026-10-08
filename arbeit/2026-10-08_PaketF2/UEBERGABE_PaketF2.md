@@ -5,7 +5,8 @@ Stand 08.10.2026 · erzeugt mit `werkzeuge/paket_f2.py` und `doc_paket_f2.py` ·
 ## 0. Kurzfassung (wo A bis E stehen)
 - **A Stornieren ohne Rückfrage-Dialog (Schritt F2):**
   - Die drei Stornieren-Knöpfe stornieren direkt, ohne neues Steuerelement.
-  - Jeder Knopf hat: Sperre, frisch gelesene Buchung, **nur eigene** (Vergleich `Lower(E-Mail)`), `IfError`, Nachlese, ehrliche Meldung, Ladezeile.
+  - Jeder Knopf hat: Sperre, frische Daten, **nur eigene** Buchungen, `IfError`, ehrliche Meldung, Ladezeile.
+  - Dashboard und Tab lesen zusätzlich nach (Vergleich `Lower(E-Mail)`).
   - Mehrfach-Stornieren: gleich viele Abfragen wie heute (1 Abfrage, 1 Sammel-Remove, Refresh, Ladezeile), also **nicht langsamer** als die gemessenen 9 s für 33 Buchungen.
   - G4 entfällt ganz.
 - **B Timer (Schritt F8):** Legt `tmrAktualisieren` an und **ersetzt G8**, ohne `varZeigeStornoFrage`. Mit Check-in-Erinnerung, die nur dann eine Abfrage macht, wenn du laut Grundriss gerade eine nicht eingecheckte Buchung hast. Eine reine G8-Fassung ohne Paket F steht in Anhang C.
@@ -15,8 +16,8 @@ Stand 08.10.2026 · erzeugt mit `werkzeuge/paket_f2.py` und `doc_paket_f2.py` ·
 - **D Einfügeliste ohne Doppelarbeit (Abschnitt 2):** Jede Property kommt **genau einmal** vor. Zu jeder steht, was neu ist, und bei jedem Block ein **Diff gegen den Stand im Studio**.
 - **E Vorab-Test „Erstellt“ (Abschnitt 3):** zwei Minuten, **vor** F1.
 - **Umfang:** 8 Schritte, 37 Properties, 1 neues Steuerelement (`tmrAktualisieren`, das schon aus G8 vorgesehen war).
-- **Geprüft:** maschinell 0 Fehler, unabhängig geprüft (Anhang B). In Studio nichts getestet.
-- **Wenn die Zeit knapp wird:** **F1 + F2 zuerst.** Sie sind unabhängig vom Rest (sicheres Stornieren). F3 bis F8 sind die Freigabe. Sie funktionieren nur **zusammen** richtig, also entweder alle oder keine vor dem Go-Live.
+- **Geprüft:** maschinell 0 Fehler. Unabhängig geprüft: 3 hohe Befunde (Auschecken per Doppelklick, Auschecken nach veraltetem Status, Notweg) und 7 kleinere, **alle eingearbeitet** (`pruefung_paket_f2.md`). In Studio nichts getestet.
+- **Wenn die Zeit knapp wird:** F1 bis F8 gehören **zusammen** (F1 legt `varFreigabeMinuten` an, alle anderen lesen sie). Entweder alle vor dem Go-Live oder keiner. **Notweg für sicheres Stornieren ohne Freigabe:** die drei Blöcke aus **Anhang D** (ohne F1, ohne Freigabe). Später ersetzt F2 sie.
 
 ## 1. Ausgangslage (nach Josias’ Angaben, nicht im Export prüfbar)
 - **Eingefügt:** G1, G2, G3, G6 (Fassung Nachtrag 4), G7, G9, G10, G11, G12, G13, G15, G16, G17, G18, G19, G20, G25. G22 teilweise.
@@ -92,6 +93,8 @@ Reihenfolge: **Vorab-Test (Abschnitt 3) → F1 → F2 → … → F8**. „Im St
 ClearCollect(colTestErstellt; Filter(Tischbuchungen; Endzeit > DateAdd(Now(); -1; TimeUnit.Days)));; Notify(CountRows(colTestErstellt) & " Zeilen, Erstellt der ersten: " & Text(First(colTestErstellt).Erstellt; "dd.mm.yyyy hh:mm"); NotificationType.Information)
 ```
 3. In der Vorschau klicken. Erwartung: „… Zeilen, Erstellt der ersten: 07.10.2026 …“ mit Datum.
+
+**Nur aussagekräftig, wenn mindestens 1 Zeile** geladen wird. Bei 0 Zeilen fehlt das Datum immer: dann `-1` durch `-14` ersetzen. Das Datum „07.10.“ ist nur ein Beispiel.
 
 **Danach beide Steuerelemente löschen.**
 
@@ -1920,8 +1923,10 @@ If(
 - Einchecken nur von 30 Min vor Beginn bis zur Frist. Davor und danach wird frisch geprüft, ob der Tisch schon an jemand anderen vergeben ist.
 - **Auschecken nach Beginn mit zweitem Tippen (Frage 1):**
   - Erstes Tippen: Meldung „Zum Auschecken bitte noch einmal tippen …“, und der Knopf heißt „Wirklich auschecken?“.
-  - Zweites Tippen: Ende = jetzt (nächste Minute).
-  - Der erste Tipp schreibt nichts und liegt **vor** der Sperre. Deshalb wird das zweite Tippen nicht von der 2-Sekunden-Sperre geschluckt.
+  - Zweites Tippen (nach mindestens 1 Sekunde): Ende = jetzt (nächste Minute).
+  - Der erste Tipp schreibt nichts und sperrt für 1 Sekunde. Ein **Doppelklick** bestätigt also nicht.
+  - Die Frage wird erst **hinter** der Sperre zurückgesetzt, ein geschlucktes Tippen verliert sie nicht.
+  - **Abgleich mit dem frischen Stand:** Wurde die Buchung inzwischen anderswo ein- oder ausgecheckt (z. B. Handy), passiert nichts. Es kommt nur die Meldung „Der Status hat sich inzwischen geändert …“, und die Anzeige wird aktualisiert.
   - Beim Öffnen des Dialogs wird die Frage zurückgesetzt (`btnEincheckenHeute`).
   - Vor dem Beginn nimmt Auschecken wie bisher nur den Check-in zurück.
 - `btnEinchecken.DisplayMode` aus G5.
@@ -1931,7 +1936,8 @@ If(
 **Test:**
 - Buchung in 1 Std → „erst ab 30 Minuten vor Beginn“.
 - Laufende Buchung → „Eingecheckt.“.
-- Auschecken → erstes Tippen: Meldung, Knopftext ändert sich. Zweites Tippen → „Ausgecheckt. Deine Buchung endet um …“.
+- Auschecken → erstes Tippen: Meldung, Knopftext ändert sich. **Doppelklick** → nur die Meldung, nicht ausgecheckt. Zweites Tippen nach 1–2 s → „Ausgecheckt. Deine Buchung endet um …“.
+- Statusabgleich: Buchung im PC-Dashboard offen lassen, in SharePoint `CheckedIn` umstellen, dann tippen → „Der Status hat sich inzwischen geändert …“, nichts geschrieben.
 - Dialog schließen und wieder öffnen → Knopf heißt wieder „Auschecken“.
 - Verfallene Buchung → „Zu spät …“, Status grau.
 
@@ -1942,7 +1948,7 @@ Ort: `Screen1 > conCheckinDialog > btnEinchecken` · **ganze Property ersetzen**
 Änderungen gegenüber dem Studio (`-` alt, `+` neu):
 
 ```diff
-@@ -1,6 +1,83 @@
+@@ -1,6 +1,87 @@
 -With(
 -  { aktuelleBuchung: LookUp(Tischbuchungen; ID = varSelectedBuchung.ID) };
 -  Set(varSelectedBuchung; Patch(Tischbuchungen; aktuelleBuchung; {CheckedIn: !aktuelleBuchung.CheckedIn}))
@@ -1952,11 +1958,12 @@ Ort: `Screen1 > conCheckinDialog > btnEinchecken` · **ganze Property ersetzen**
 +If(
 +  varSelectedBuchung.CheckedIn && Now() >= varSelectedBuchung.Startzeit && varAuscheckFrageID <> varSelectedBuchung.ID;
 +  Set(varAuscheckFrageID; varSelectedBuchung.ID);;
++  Set(varSperreBis; DateAdd(Now(); 1; TimeUnit.Seconds));;
 +  Notify("Zum Auschecken bitte noch einmal tippen. Deine Buchung endet dann jetzt."; NotificationType.Information);
-+  Set(varAuscheckFrageID; 0);;
 +  If(
 +    !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis);
 +    Set(varIsLoading; true);;
++    Set(varAuscheckFrageID; 0);;
 +    Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));;
 +    Set(varCheckinBuchung; LookUp(Tischbuchungen; ID = varSelectedBuchung.ID));;
 +    Set(varCheckinTisch; varCheckinBuchung.Tisch.Value);;
@@ -1966,6 +1973,9 @@ Ort: `Screen1 > conCheckinDialog > btnEinchecken` · **ganze Property ersetzen**
 +      IsBlank(varCheckinBuchung.ID);
 +      Notify("Diese Buchung gibt es nicht mehr. Bitte aktualisieren."; NotificationType.Warning);;
 +      Set(varZeigeCheckin; false);
++      Coalesce(varCheckinBuchung.CheckedIn; false) <> Coalesce(varSelectedBuchung.CheckedIn; false);
++      Set(varSelectedBuchung; varCheckinBuchung);;
++      Notify("Der Status hat sich inzwischen geändert. Bitte noch einmal prüfen und tippen."; NotificationType.Information);
 +      varCheckinBuchung.CheckedIn && Now() < varCheckinStart;
 +      IfError(
 +        Patch(Tischbuchungen; varCheckinBuchung; {CheckedIn: false});
@@ -2040,11 +2050,12 @@ Vollständiger Block zum Einfügen:
 If(
   varSelectedBuchung.CheckedIn && Now() >= varSelectedBuchung.Startzeit && varAuscheckFrageID <> varSelectedBuchung.ID;
   Set(varAuscheckFrageID; varSelectedBuchung.ID);;
+  Set(varSperreBis; DateAdd(Now(); 1; TimeUnit.Seconds));;
   Notify("Zum Auschecken bitte noch einmal tippen. Deine Buchung endet dann jetzt."; NotificationType.Information);
-  Set(varAuscheckFrageID; 0);;
   If(
     !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis);
     Set(varIsLoading; true);;
+    Set(varAuscheckFrageID; 0);;
     Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));;
     Set(varCheckinBuchung; LookUp(Tischbuchungen; ID = varSelectedBuchung.ID));;
     Set(varCheckinTisch; varCheckinBuchung.Tisch.Value);;
@@ -2054,6 +2065,9 @@ If(
       IsBlank(varCheckinBuchung.ID);
       Notify("Diese Buchung gibt es nicht mehr. Bitte aktualisieren."; NotificationType.Warning);;
       Set(varZeigeCheckin; false);
+      Coalesce(varCheckinBuchung.CheckedIn; false) <> Coalesce(varSelectedBuchung.CheckedIn; false);
+      Set(varSelectedBuchung; varCheckinBuchung);;
+      Notify("Der Status hat sich inzwischen geändert. Bitte noch einmal prüfen und tippen."; NotificationType.Information);
       varCheckinBuchung.CheckedIn && Now() < varCheckinStart;
       IfError(
         Patch(Tischbuchungen; varCheckinBuchung; {CheckedIn: false});
@@ -2295,10 +2309,12 @@ If(
 
 **Rückfall F8:** die Fassungen aus Anhang A wieder einsetzen, neues Steuerelement löschen. Neu gesetzte `DisplayMode` auf `DisplayMode.Edit` zurück.
 
+**Rückfall des ganzen Pakets:** in **umgekehrter** Reihenfolge F8 → F1 (Anhang A). F1 zuletzt, weil alle anderen `varFreigabeMinuten` lesen. Wer nur F1 zurücknimmt, bekommt rote Fehler in F2–F8.
+
 ## 5. Antworten auf die Fragen
 **1. Bestätigung beim Auschecken:** Ja, jetzt per **zweitem Tippen** auf denselben Knopf, ohne neues Steuerelement (F7). Begründung: Auschecken nach Beginn beendet die Buchung, und neu buchen geht erst ab der nächsten halben Stunde. Ein versehentlicher Klick kostet also den Tisch.
 
-**2. „Sofort frei“:** Das ist korrigiert, in den App-Meldungen (F7) und in `KURZANLEITUNG_und_GoLive_Mail_v3.md` / `BETRIEBSHANDBUCH_Michael_v3.md`. Die Formulierung ist jetzt: „andere können den Tisch wieder buchen“. Der Grundriss zeigt das bei anderen nach dem nächsten Laden, spätestens nach 5 Minuten. Buchbar ist der Tisch ab der nächsten halben Stunde.
+**2. „Sofort frei“:** Das ist korrigiert, in den App-Meldungen (F7) und in `KURZANLEITUNG_und_GoLive_Mail_v3.md` / `BETRIEBSHANDBUCH_Michael_v3.md`. Die Formulierung ist jetzt: „andere können den Tisch wieder buchen“. Der Grundriss zeigt das bei anderen nach dem nächsten Laden, **meist innerhalb von 5 Minuten**: Der Timer lädt nur, wenn bei ihnen kein Dialog offen ist. Buchbar ist der Tisch ab der nächsten halben Stunde.
 
 **3. Zusätzliche Abfragen** (**geschlussfolgert** aus den Formeln, im Monitor prüfbar):
 
@@ -2309,9 +2325,11 @@ If(
 | F8 Timer, Grundlast (wie G8) | `Refresh` (2 Galerien) + Ladezeile (1) = 3 | alle 5 Min je offener App, nur ohne offenen Dialog |
 | F3 Kachel-Klick | +1 nur bei belegtem Tisch (Datensatz für das Popup per ID) | je Klick |
 | F6 Verlängern | +1 („zwei Tische“) | je Verlängern |
-| F7 Einchecken | +2 (vorher und nachher: Tisch schon vergeben?) | je Check-in |
-| F4 Speichern | −2 bis −7 (Nachtrag 4, kein Refresh) | **je Buchung** |
-| F2 Stornieren | ±0 gegenüber heute | je Storno |
+| F7 Einchecken | +3 (Tisch schon vergeben? vorher und nachher, dazu die Nachlese) gegenüber dem Export | je Check-in |
+| F4 Speichern | ±0 gegenüber dem Studio (Nachtrag 4 ist schon drin; gegenüber G6 ohne Nachtrag 4 waren es −2 bis −7) | je Buchung |
+| F2 Stornieren Dashboard | etwa +4 gegenüber heute (frisch lesen, nachlesen, `Refresh` mit 2 Galerien) | je Storno |
+| F2 Stornieren Tab | +2 (frisch lesen, nachlesen) | je Storno |
+| F2 Mehrfach-Stornieren | ±0 | je Storno |
 
 Bei 30 Nutzern und offener App sind das etwa 18 Abfragen pro Minute durch den Timer, fast alles Grundlast aus G8. Die Freigabe selbst kostet in der Anzeige **keine** Abfrage.
 
@@ -2325,6 +2343,11 @@ Bei 30 Nutzern und offener App sind das etwa 18 Abfragen pro Minute durch den Ti
   - Michael ist nur dann nicht betroffen, wenn er **Websitebesitzer** (Vollzugriff) ist, „Mitbesitzer der App“ allein reicht dafür nicht.
   - Der **Aufräum-Flow** läuft mit der Verbindung dessen, der sie angelegt hat. Mit Josias’ Verbindung (Vollzugriff) ist er nicht betroffen.
 - **Vorsicht** (**geschlussfolgert**, Community-Bericht [Microsoft Q&A](https://learn.microsoft.com/en-us/answers/questions/378127/sharepoint-list-permissions-read-only-for-all-item)): Bekommt jemand zusätzlich über eine andere Gruppe „Entwerfen“ oder „Vollzugriff“, sieht und ändert er wieder alles. Deshalb **nach dem Setzen mit einem Kollegen-Konto testen**: fremde Buchung in der Liste ändern geht nicht, eigene geht.
+- **Zusätzlich zu klären (Michael/IT, Prüf-Agent, belegt):**
+  - **Bearbeiten** enthält **„Listen verwalten“**. Mitglieder mit Bearbeiten können deshalb die Listeneinstellungen ändern, auch „nur eigene Elemente“ wieder abschalten, und Spalten oder ganze Listen löschen.
+  - In der Liste `Tische` können sie direkt `Gesperrt` und `Titel` ändern. Das widerspricht „nur Josias sperrt Tische“.
+  - **Empfehlung:** Auf `Tischbuchungen` die Vererbung unterbrechen und den Mitgliedern **Mitwirken** statt Bearbeiten geben. Auf `Tische` (und `Räume`/`Raumbuchungen`) nur **Lesen**. Die App braucht nicht mehr.
+  - Test mit einem Kollegen-Konto: Ein Kollege ändert `Tische.Gesperrt` → nicht erlaubt.
 - **Was ein künftiger Flow beachten muss:**
   1. Seine Verbindung braucht Vollzugriff oder Entwerfen, sonst kann er nur selbst angelegte Zeilen ändern oder löschen.
   2. **Zeilen, die ein Flow anlegt, gehören dem Konto der Verbindung.** Legt ein Flow Buchungen für andere an (z. B. aus Outlook), können diese Personen sie in der App **nicht einchecken, verlängern oder stornieren**. Ohne Check-in verfallen sie. Ein solcher Flow muss `CheckedIn` setzen oder die Buchung über die App der Person anlegen lassen.
@@ -2355,6 +2378,8 @@ Bei 30 Nutzern und offener App sind das etwa 18 Abfragen pro Minute durch den Ti
 | U8 | Die Timer-Vorprüfung vergleicht `colGrundriss.Name` (Anzeigename aus SharePoint) mit `User().FullName`. Weichen beide ab (Schreibweise im Profil), fragt der Timer nie, nur der App-Start fragt | Test F8. Fragt der Timer nicht, melden |
 | U9 | Ob die Galerien nach `Remove` ohne `Refresh` aktualisieren, ist in der Handy-App gemessen (T-23). Hier bleibt `Refresh` beim Stornieren trotzdem drin. Grund: Der Tab „Buchungen“ hat einen bekannten Neuaufbau-Trick (`varGalleryNeuAufbauen`, Frage 15) | kein Test nötig |
 | U3 | Geräteuhr | wie Paket F |
+| U10 | Die Nachlese beim Stornieren und Einchecken ist dieselbe Abfrage (`LookUp(…; ID = …)`) wie das frische Lesen davor. Käme sie aus einem Zwischenspeicher, wäre die Meldung „nicht angekommen“ falsch (Daten richtig). Dasselbe Muster läuft schon in G3 (Verlängern) | Hat G3 beim Test „Buchung geändert, neues Ende …“ gemeldet, ist das entkräftet. Sonst F2-Test beachten |
+| U11 | Ein Timer-Ladevorgang, der während eines Speicherns läuft, kann `colGrundriss` mit einem älteren Stand überschreiben (bis zum nächsten Laden) | selten, harmlos, nächster Tick korrigiert |
 
 ## Anhang A: Fassungen im Studio vor diesem Paket (Rückfall)
 
@@ -3337,5 +3362,277 @@ If(
   );;
   Refresh(Tischbuchungen);;
   With({neu: ForAll(Filter(Tischbuchungen; (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(); 60; TimeUnit.Minutes))) As B; {TischName: B.Tisch.Value; Startzeit: B.Startzeit; Endzeit: B.Endzeit; Eingecheckt: B.CheckedIn; Name: B.Person.DisplayName})}; If(IsError(neu) || IsError(First(neu)); false; ClearCollect(colGrundriss; neu)))
+)
+```
+
+## Anhang D: Notweg „sicher stornieren ohne Freigabe“
+Nur falls F1–F8 **nicht** vor dem Go-Live kommen. Die drei Blöcke stornieren direkt und sicher (Sperre, frisch, nur eigene, Nachlese, Meldung) mit der **bisherigen** Ladezeile, ohne `varFreigabe…`, ohne F1. Kommt Paket F später, ersetzt F2 sie. `DisplayMode` wie in F2 setzen.
+
+#### `btnStornieren.OnSelect` (Notweg)
+
+Änderungen gegenüber dem Studio:
+
+```diff
+@@ -1,2 +1,26 @@
+-Remove(Tischbuchungen; varSelectedBuchung);; Set(varZeigeVerwalten; false);;
+-With({neu: ForAll(Filter(Tischbuchungen; (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(); 60; TimeUnit.Minutes))) As B; {TischName: B.Tisch.Value; Startzeit: B.Startzeit; Endzeit: B.Endzeit; Eingecheckt: B.CheckedIn; Name: B.Person.DisplayName})}; If(IsError(neu) || IsError(First(neu)); Notify("Grundriss konnte nicht aktualisiert werden. Bitte auf Aktualisieren tippen."; NotificationType.Warning); ClearCollect(colGrundriss; neu)))
++If(
++  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis);
++  Set(varIsLoading; true);;
++  Set(varStornoBuchung; LookUp(Tischbuchungen; ID = varSelectedBuchung.ID));;
++  If(
++    IsBlank(varStornoBuchung.ID);
++    Notify("Diese Buchung gibt es nicht mehr. Die Liste wurde aktualisiert."; NotificationType.Warning);;
++    Set(varZeigeVerwalten; false);
++    Lower(varStornoBuchung.Person.Email) <> Lower(User().Email);
++    Notify("Nur eigene Buchungen können storniert werden."; NotificationType.Error);
++    IfError(
++      Remove(Tischbuchungen; varStornoBuchung);
++      Notify("Stornieren fehlgeschlagen. Bitte erneut versuchen."; NotificationType.Error);
++      If(
++        IsBlank(LookUp(Tischbuchungen; ID = varStornoBuchung.ID).ID);
++        Notify("Buchung storniert."; NotificationType.Success);;
++        Set(varZeigeVerwalten; false);
++        Notify("Die Stornierung ist nicht angekommen. Bitte aktualisieren und prüfen."; NotificationType.Warning)
++      )
++    )
++  );;
++  Refresh(Tischbuchungen);;
++  With({neu: ForAll(Filter(Tischbuchungen; (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(); 60; TimeUnit.Minutes))) As B; {TischName: B.Tisch.Value; Startzeit: B.Startzeit; Endzeit: B.Endzeit; Eingecheckt: B.CheckedIn; Name: B.Person.DisplayName})}; If(IsError(neu) || IsError(First(neu)); Notify("Grundriss konnte nicht aktualisiert werden. Bitte auf Aktualisieren tippen."; NotificationType.Warning); ClearCollect(colGrundriss; neu)));;
++  Set(varSperreBis; DateAdd(Now(); 2; TimeUnit.Seconds));;
++  Set(varIsLoading; false)
++)
+```
+
+Vollständiger Block:
+
+```
+If(
+  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis);
+  Set(varIsLoading; true);;
+  Set(varStornoBuchung; LookUp(Tischbuchungen; ID = varSelectedBuchung.ID));;
+  If(
+    IsBlank(varStornoBuchung.ID);
+    Notify("Diese Buchung gibt es nicht mehr. Die Liste wurde aktualisiert."; NotificationType.Warning);;
+    Set(varZeigeVerwalten; false);
+    Lower(varStornoBuchung.Person.Email) <> Lower(User().Email);
+    Notify("Nur eigene Buchungen können storniert werden."; NotificationType.Error);
+    IfError(
+      Remove(Tischbuchungen; varStornoBuchung);
+      Notify("Stornieren fehlgeschlagen. Bitte erneut versuchen."; NotificationType.Error);
+      If(
+        IsBlank(LookUp(Tischbuchungen; ID = varStornoBuchung.ID).ID);
+        Notify("Buchung storniert."; NotificationType.Success);;
+        Set(varZeigeVerwalten; false);
+        Notify("Die Stornierung ist nicht angekommen. Bitte aktualisieren und prüfen."; NotificationType.Warning)
+      )
+    )
+  );;
+  Refresh(Tischbuchungen);;
+  With({neu: ForAll(Filter(Tischbuchungen; (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(); 60; TimeUnit.Minutes))) As B; {TischName: B.Tisch.Value; Startzeit: B.Startzeit; Endzeit: B.Endzeit; Eingecheckt: B.CheckedIn; Name: B.Person.DisplayName})}; If(IsError(neu) || IsError(First(neu)); Notify("Grundriss konnte nicht aktualisiert werden. Bitte auf Aktualisieren tippen."; NotificationType.Warning); ClearCollect(colGrundriss; neu)));;
+  Set(varSperreBis; DateAdd(Now(); 2; TimeUnit.Seconds));;
+  Set(varIsLoading; false)
+)
+```
+
+#### `btnStornieren_1.OnSelect` (Notweg)
+
+Änderungen gegenüber dem Studio:
+
+```diff
+@@ -1,11 +1,26 @@
+-Set(varIsLoading; true);;
+ If(
+-  IsBlank(varSelectedBuchungTab);
+-  Notify("Keine Buchung ausgewählt."; NotificationType.Warning);
+-  Remove(Tischbuchungen; varSelectedBuchungTab);;
++  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis);
++  Set(varIsLoading; true);;
++  Set(varStornoBuchung; LookUp(Tischbuchungen; ID = varSelectedBuchungTab.ID));;
++  If(
++    IsBlank(varStornoBuchung.ID);
++    Notify("Diese Buchung gibt es nicht mehr. Die Liste wurde aktualisiert."; NotificationType.Warning);;
++    Set(varZeigeVerwaltenTab; false);
++    Lower(varStornoBuchung.Person.Email) <> Lower(User().Email);
++    Notify("Nur eigene Buchungen können storniert werden."; NotificationType.Error);
++    IfError(
++      Remove(Tischbuchungen; varStornoBuchung);
++      Notify("Stornieren fehlgeschlagen. Bitte erneut versuchen."; NotificationType.Error);
++      If(
++        IsBlank(LookUp(Tischbuchungen; ID = varStornoBuchung.ID).ID);
++        Notify("Buchung storniert."; NotificationType.Success);;
++        Set(varZeigeVerwaltenTab; false);
++        Notify("Die Stornierung ist nicht angekommen. Bitte aktualisieren und prüfen."; NotificationType.Warning)
++      )
++    )
++  );;
+   Refresh(Tischbuchungen);;
+-With({neu: ForAll(Filter(Tischbuchungen; (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(); 60; TimeUnit.Minutes))) As B; {TischName: B.Tisch.Value; Startzeit: B.Startzeit; Endzeit: B.Endzeit; Eingecheckt: B.CheckedIn; Name: B.Person.DisplayName})}; If(IsError(neu) || IsError(First(neu)); Notify("Grundriss konnte nicht aktualisiert werden. Bitte auf Aktualisieren tippen."; NotificationType.Warning); ClearCollect(colGrundriss; neu)));;
+-  Notify("Buchung storniert."; NotificationType.Success)
+-);;
+-Set(varZeigeVerwaltenTab; false);;
+-Set(varIsLoading; false)
++  With({neu: ForAll(Filter(Tischbuchungen; (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(); 60; TimeUnit.Minutes))) As B; {TischName: B.Tisch.Value; Startzeit: B.Startzeit; Endzeit: B.Endzeit; Eingecheckt: B.CheckedIn; Name: B.Person.DisplayName})}; If(IsError(neu) || IsError(First(neu)); Notify("Grundriss konnte nicht aktualisiert werden. Bitte auf Aktualisieren tippen."; NotificationType.Warning); ClearCollect(colGrundriss; neu)));;
++  Set(varSperreBis; DateAdd(Now(); 2; TimeUnit.Seconds));;
++  Set(varIsLoading; false)
++)
+```
+
+Vollständiger Block:
+
+```
+If(
+  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis);
+  Set(varIsLoading; true);;
+  Set(varStornoBuchung; LookUp(Tischbuchungen; ID = varSelectedBuchungTab.ID));;
+  If(
+    IsBlank(varStornoBuchung.ID);
+    Notify("Diese Buchung gibt es nicht mehr. Die Liste wurde aktualisiert."; NotificationType.Warning);;
+    Set(varZeigeVerwaltenTab; false);
+    Lower(varStornoBuchung.Person.Email) <> Lower(User().Email);
+    Notify("Nur eigene Buchungen können storniert werden."; NotificationType.Error);
+    IfError(
+      Remove(Tischbuchungen; varStornoBuchung);
+      Notify("Stornieren fehlgeschlagen. Bitte erneut versuchen."; NotificationType.Error);
+      If(
+        IsBlank(LookUp(Tischbuchungen; ID = varStornoBuchung.ID).ID);
+        Notify("Buchung storniert."; NotificationType.Success);;
+        Set(varZeigeVerwaltenTab; false);
+        Notify("Die Stornierung ist nicht angekommen. Bitte aktualisieren und prüfen."; NotificationType.Warning)
+      )
+    )
+  );;
+  Refresh(Tischbuchungen);;
+  With({neu: ForAll(Filter(Tischbuchungen; (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(); 60; TimeUnit.Minutes))) As B; {TischName: B.Tisch.Value; Startzeit: B.Startzeit; Endzeit: B.Endzeit; Eingecheckt: B.CheckedIn; Name: B.Person.DisplayName})}; If(IsError(neu) || IsError(First(neu)); Notify("Grundriss konnte nicht aktualisiert werden. Bitte auf Aktualisieren tippen."; NotificationType.Warning); ClearCollect(colGrundriss; neu)));;
+  Set(varSperreBis; DateAdd(Now(); 2; TimeUnit.Seconds));;
+  Set(varIsLoading; false)
+)
+```
+
+#### `btnStornierenKlein.OnSelect` (Notweg)
+
+Änderungen gegenüber dem Studio:
+
+```diff
+@@ -1,36 +1,40 @@
+-Set(varIsLoading; true);;
+-ClearCollect(
+-    colStornoFrisch;
+-    Filter(Tischbuchungen; Person.Email = User().Email && Endzeit >= Now())
+-);;
+-ClearCollect(
+-    colStornoZiele;
+-    Filter(colStornoFrisch As F; !IsBlank(LookUp(colAusgewaehlteBuchungen As A; A.ID = F.ID)))
+-);;
+ If(
+-    CountRows(colAusgewaehlteBuchungen) = 0;
+-    Notify("Keine Buchungen ausgewählt."; NotificationType.Warning);
+-    If(
+-        CountRows(colStornoZiele) = 0;
+-        Notify("Die ausgewählten Buchungen gibt es nicht mehr. Die Liste wurde aktualisiert."; NotificationType.Warning);
+-        IfError(
+-            Remove(Tischbuchungen; colStornoZiele);
+-            Notify("Stornieren fehlgeschlagen. Die Liste wurde aktualisiert, bitte erneut versuchen."; NotificationType.Error);
+-            If(
+-                CountRows(colStornoZiele) < CountRows(colAusgewaehlteBuchungen);
+-                Notify(CountRows(colStornoZiele) & " von " & CountRows(colAusgewaehlteBuchungen) & " Buchungen storniert. Die übrigen waren bereits storniert."; NotificationType.Warning);
+-                Notify(CountRows(colStornoZiele) & " Buchungen storniert."; NotificationType.Success)
+-            )
+-        )
+-    )
+-);;
+-Refresh(Tischbuchungen);;
+-With({neu: ForAll(Filter(Tischbuchungen; (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(); 60; TimeUnit.Minutes))) As B; {TischName: B.Tisch.Value; Startzeit: B.Startzeit; Endzeit: B.Endzeit; Eingecheckt: B.CheckedIn; Name: B.Person.DisplayName})}; If(IsError(neu) || IsError(First(neu)); Notify("Grundriss konnte nicht aktualisiert werden. Bitte auf Aktualisieren tippen."; NotificationType.Warning); ClearCollect(colGrundriss; neu)));;
+-Clear(colStornoFrisch);;
+-Clear(colStornoZiele);;
+-Clear(colAusgewaehlteBuchungen);;
+-Set(varGeklickteBuchungKlein; Blank());;
+-Set(varZeigeVerwaltenKlein; false);;
+-Set(varAuswahlModusAktiv; false);;
+-Reset(tglAuswahlModus);;
+-Set(varIsLoading; false)
++  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis);
++  Set(varIsLoading; true);;
++  ClearCollect(
++      colStornoFrisch;
++      Filter(Tischbuchungen; Person.Email = User().Email && Endzeit >= Now())
++  );;
++  ClearCollect(
++      colStornoZiele;
++      Filter(colStornoFrisch As F; !IsBlank(LookUp(colAusgewaehlteBuchungen As A; A.ID = F.ID)))
++  );;
++  If(
++      CountRows(colAusgewaehlteBuchungen) = 0;
++      Notify("Keine Buchungen ausgewählt."; NotificationType.Warning);
++      If(
++          CountRows(colStornoZiele) = 0;
++          Notify("Die ausgewählten Buchungen gibt es nicht mehr. Die Liste wurde aktualisiert."; NotificationType.Warning);
++          IfError(
++              Remove(Tischbuchungen; colStornoZiele);
++              Notify("Stornieren fehlgeschlagen. Die Liste wurde aktualisiert, bitte erneut versuchen."; NotificationType.Error);
++              If(
++                  CountRows(colStornoZiele) < CountRows(colAusgewaehlteBuchungen);
++                  Notify(CountRows(colStornoZiele) & " von " & CountRows(colAusgewaehlteBuchungen) & " Buchungen storniert. Die übrigen waren bereits storniert."; NotificationType.Warning);
++                  Notify(CountRows(colStornoZiele) & " Buchungen storniert."; NotificationType.Success)
++              )
++          )
++      )
++  );;
++  Refresh(Tischbuchungen);;
++  With({neu: ForAll(Filter(Tischbuchungen; (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(); 60; TimeUnit.Minutes))) As B; {TischName: B.Tisch.Value; Startzeit: B.Startzeit; Endzeit: B.Endzeit; Eingecheckt: B.CheckedIn; Name: B.Person.DisplayName})}; If(IsError(neu) || IsError(First(neu)); Notify("Grundriss konnte nicht aktualisiert werden. Bitte auf Aktualisieren tippen."; NotificationType.Warning); ClearCollect(colGrundriss; neu)));;
++  Clear(colStornoFrisch);;
++  Clear(colStornoZiele);;
++  Clear(colAusgewaehlteBuchungen);;
++  Set(varGeklickteBuchungKlein; Blank());;
++  Set(varZeigeVerwaltenKlein; false);;
++  Set(varAuswahlModusAktiv; false);;
++  Reset(tglAuswahlModus);;
++  Set(varSperreBis; DateAdd(Now(); 2; TimeUnit.Seconds));;
++  Set(varIsLoading; false)
++)
+```
+
+Vollständiger Block:
+
+```
+If(
+  !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis);
+  Set(varIsLoading; true);;
+  ClearCollect(
+      colStornoFrisch;
+      Filter(Tischbuchungen; Person.Email = User().Email && Endzeit >= Now())
+  );;
+  ClearCollect(
+      colStornoZiele;
+      Filter(colStornoFrisch As F; !IsBlank(LookUp(colAusgewaehlteBuchungen As A; A.ID = F.ID)))
+  );;
+  If(
+      CountRows(colAusgewaehlteBuchungen) = 0;
+      Notify("Keine Buchungen ausgewählt."; NotificationType.Warning);
+      If(
+          CountRows(colStornoZiele) = 0;
+          Notify("Die ausgewählten Buchungen gibt es nicht mehr. Die Liste wurde aktualisiert."; NotificationType.Warning);
+          IfError(
+              Remove(Tischbuchungen; colStornoZiele);
+              Notify("Stornieren fehlgeschlagen. Die Liste wurde aktualisiert, bitte erneut versuchen."; NotificationType.Error);
+              If(
+                  CountRows(colStornoZiele) < CountRows(colAusgewaehlteBuchungen);
+                  Notify(CountRows(colStornoZiele) & " von " & CountRows(colAusgewaehlteBuchungen) & " Buchungen storniert. Die übrigen waren bereits storniert."; NotificationType.Warning);
+                  Notify(CountRows(colStornoZiele) & " Buchungen storniert."; NotificationType.Success)
+              )
+          )
+      )
+  );;
+  Refresh(Tischbuchungen);;
+  With({neu: ForAll(Filter(Tischbuchungen; (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(); 60; TimeUnit.Minutes))) As B; {TischName: B.Tisch.Value; Startzeit: B.Startzeit; Endzeit: B.Endzeit; Eingecheckt: B.CheckedIn; Name: B.Person.DisplayName})}; If(IsError(neu) || IsError(First(neu)); Notify("Grundriss konnte nicht aktualisiert werden. Bitte auf Aktualisieren tippen."; NotificationType.Warning); ClearCollect(colGrundriss; neu)));;
+  Clear(colStornoFrisch);;
+  Clear(colStornoZiele);;
+  Clear(colAusgewaehlteBuchungen);;
+  Set(varGeklickteBuchungKlein; Blank());;
+  Set(varZeigeVerwaltenKlein; false);;
+  Set(varAuswahlModusAktiv; false);;
+  Reset(tglAuswahlModus);;
+  Set(varSperreBis; DateAdd(Now(); 2; TimeUnit.Seconds));;
+  Set(varIsLoading; false)
 )
 ```

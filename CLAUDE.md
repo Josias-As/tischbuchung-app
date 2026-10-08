@@ -80,6 +80,8 @@ Monitor-Dateien (`PowerAppsTraceEvents_*.json`, 23 MB) sind nicht im Repo, nur b
 
 - **Nachtrag 4 (08.10.), ersetzt Nachtrag 3:** `arbeit/2026-10-08_Nachtrag4/NACHTRAG_4_Nachlese_ohne_Refresh.md` (`werkzeuge/nachtrag4.py`). Speichern ganz ohne `Refresh(Tischbuchungen)`: Die Nachlese ist pro Klick eindeutig (`varNeuNachVon` = Beginn − Sekunden seit Mitternacht − 1), also kein Zwischenspeicher. Zählung über `SerienID` und Konflikt über Überlappung unverändert. Belege: Handy TB-1 (Liste zeigt die Buchung ohne Refresh, Nachlese anders geformt, gemessen), L2 eindeutige URL. Spart je Buchung 2 (Dialog) bis 7 (Panel) Abfragen. Test 2 (Liste ohne Aktualisieren) entscheidet. Rückfall Nachtrag 3. **Beim nächsten Neuerzeugen von Paket F gleich einbauen.**
 
+- **Paket F, Fassung 2 (08.10.) = maßgeblich, ersetzt Paket F Fassung 1, Nachtrag 3/4, G4, G5, G8:** `arbeit/2026-10-08_PaketF2/UEBERGABE_PaketF2.md` (`werkzeuge/paket_f2.py`, `doc_paket_f2.py`, `paket_f2_text.md`). Ausgangslage = Studio-Stand laut Josias (eingefügt G1 G2 G3 G6[N4] G7 G9–G13 G15–G20 G25, G22 teilweise; nicht G4 G5 G8 G14 G21 G23 G24 G26; nicht veröffentlicht). 37 Properties, F1–F8, Diff je Property gegen den Studio-Stand, Einfügeliste. Storno direkt ohne Rückfrage-Dialog (Josias' Entscheidung), Timer in F8, Auschecken mit zweitem Tippen (1-s-Sperre gegen Doppelklick, Statusabgleich). Anhang D: Storno-Notfassung ohne Freigabe. Rechte: Ausnahme von „nur eigene Elemente“ ist „Listenverhalten außer Kraft setzen“ (Entwerfen/Vollzugriff), nicht „Listen verwalten“; Empfehlung Mitwirken auf Tischbuchungen, Lesen auf Tische. Unabhängig geprüft, 3 hohe + 7 kleinere Befunde eingearbeitet (`pruefung_paket_f2.md`). Texte v3 (Kurzanleitung, Betriebshandbuch).
+
 ## 7. Backlog (nach Paket K v2)
 1. Josias: Paket K v2 einfügen und testen (Testbogen im Dokument). Entscheidungen E1–E7 bestätigen.
 2. Paket L einfügen (nach K v2). Entscheidung P2: Check-in mit automatischer Freigabe oder abschaffen.
@@ -105,3 +107,5 @@ Monitor-Dateien (`PowerAppsTraceEvents_*.json`, 23 MB) sind nicht im Repo, nur b
 - Einen Flow-Filter nicht gegen alle Wege durchgespielt, auf denen Daten entstehen (spät gebucht, ausgecheckt). Regeln gegen jeden Schreibweg prüfen.
 - Tests geschrieben, die in der App so nicht ausführbar sind (Startliste rundet auf, `Erstellt` einer SharePoint-Testzeile ist „jetzt“). Jeden Test gegen die Eingabemöglichkeiten der App prüfen.
 - Rechte „nur eigene Elemente“: zählt der **Ersteller**. Wer für andere anlegt, nimmt ihnen Einchecken, Stornieren und Verlängern.
+- Bestätigung per zweitem Tippen ohne Sperre gebaut: Ein Doppelklick bestätigte sofort. Ein Frage-Zweig, der eine Anzeige-Variable (Galerie-Datensatz) prüft, muss vor dem Schreiben gegen den frisch gelesenen Stand abgeglichen werden.
+- Einen „Notweg“ empfohlen, ohne die Abhängigkeiten (gemeinsame Variable aus F1) zu prüfen.
