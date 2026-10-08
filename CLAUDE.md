@@ -77,6 +77,8 @@ Monitor-Dateien (`PowerAppsTraceEvents_*.json`, 23 MB) sind nicht im Repo, nur b
 
 - **Nachtrag 3 (08.10.):** `arbeit/2026-10-08_Nachtrag3/NACHTRAG_3_Speichern_ohne_Refresh.md` (`werkzeuge/nachtrag3.py`). Das „erste Refresh“ in G6/F4 steht nicht vor dem Sammel-Patch, sondern im Zweig „nichts gebucht“. Entfernt, spart dort 2–7 Abfragen, bei erfolgreicher Buchung keine Änderung, Nachlese unberührt. Blöcke für G6 und F4. **Beim nächsten Neuerzeugen von Paket F (neue Fassung) gleich mit einbauen**, sonst bringt F4 das Refresh zurück. Idee (ungetestet): Nachlese über `SerienID = varSerienID` formen, dann wäre auch das Refresh vor der Nachlese verzichtbar.
 
+- **Nachtrag 4 (08.10.), ersetzt Nachtrag 3:** `arbeit/2026-10-08_Nachtrag4/NACHTRAG_4_Nachlese_ohne_Refresh.md` (`werkzeuge/nachtrag4.py`). Speichern ganz ohne `Refresh(Tischbuchungen)`: Die Nachlese ist pro Klick eindeutig (`varNeuNachVon` = Beginn − Sekunden seit Mitternacht − 1), also kein Zwischenspeicher. Zählung über `SerienID` und Konflikt über Überlappung unverändert. Belege: Handy TB-1 (Liste zeigt die Buchung ohne Refresh, Nachlese anders geformt, gemessen), L2 eindeutige URL. Spart je Buchung 2 (Dialog) bis 7 (Panel) Abfragen. Test 2 (Liste ohne Aktualisieren) entscheidet. Rückfall Nachtrag 3. **Beim nächsten Neuerzeugen von Paket F gleich einbauen.**
+
 ## 7. Backlog (nach Paket K v2)
 1. Josias: Paket K v2 einfügen und testen (Testbogen im Dokument). Entscheidungen E1–E7 bestätigen.
 2. Paket L einfügen (nach K v2). Entscheidung P2: Check-in mit automatischer Freigabe oder abschaffen.
