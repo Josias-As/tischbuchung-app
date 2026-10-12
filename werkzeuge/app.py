@@ -221,3 +221,23 @@ EXPORT_DESKTOP_1210 = os.path.join(REPO, "quellen/2026-10-12_Desktop/Tischbuchun
 
 def lade_desktop_1210():
     return App(entpacke(EXPORT_DESKTOP_1210, "desktop_2026-10-12"))
+
+
+EXPORT_DESKTOP_1210B = os.path.join(REPO, "quellen/2026-10-12_TischZeigen/Tischbuchung12.10.Grundrissemachen_20261012115225.zip")
+EXPORT_HANDY_1210 = os.path.join(REPO, "quellen/2026-10-12_TischZeigen/handytischbuchungegrundrisseinbauen12.10._20261012120337.zip")
+
+
+def lade_desktop_1210b():
+    return App(entpacke(EXPORT_DESKTOP_1210B, "desktop_2026-10-12b"))
+
+
+def lade_handy_1210():
+    return App(entpacke(EXPORT_HANDY_1210, "handy_2026-10-12"))
+
+
+# Achtung: EXPORT_HANDY_1210 („handytischbuchungegrundrisseinbauen“) enthält die Desktop-App (belegt). Echter Handy-Export:
+EXPORT_HANDY_1210_ECHT = os.path.join(REPO, "quellen/2026-10-12_TischZeigen/handyecht12.10._20261012120559.zip")
+
+
+def lade_handy_1210_echt():
+    return App(entpacke(EXPORT_HANDY_1210_ECHT, "handy_2026-10-12_echt"))

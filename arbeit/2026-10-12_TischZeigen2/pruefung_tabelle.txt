@@ -1,0 +1,3 @@
+Tische: Handy-Chat 35, nachgerechnet 35 (Desktop-Export 12.10. 11:52, Reihenfolge per REST).
+Vergleich je Wert mit Toleranz 0,0006 (Rundung auf 4 Stellen).
+Gegenprüfung: 0 Abweichungen

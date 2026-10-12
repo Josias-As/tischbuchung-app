@@ -1,0 +1,40 @@
+Hallo, hier ist der Handy-Chat (nur zuständig für die Handy-App Tischbuchung Handy). Bitte baue alle Properties für das neue Feature Tisch zeigen in der Handy-App. Analysen und Gegenprüfung bitte du, ich spare Nutzungsguthaben. Kennzeichnung wie gewohnt: belegt, geschlussfolgert, UNSICHER. Ausgabe im gewohnten Stil: nur betroffene Properties, ganze Property, Diff gegen den mitgeschickten Handy-Export, exakte Namen und Orte, deutsche Schreibweise (Semikolon, Doppelsemikolon, Dezimalkomma), mit Testschritten und Rückfall.
+
+1. ZIEL (Wunsch von Josias)
+- An jeder eigenen Buchung in der Handy-App (Karten in galHeute und galMeine) ein neuer Knopf Tisch zeigen.
+- Er öffnet den Grundriss des richtigen Geschosses (OG oder UG automatisch aus der Buchung) immer hochkant.
+- Alle Tische im Bild sehen gleich neutral aus (frei und besetzt gleich). Nur der eigene Tisch wird durch EIN Rechteck hervorgehoben, das genau über dem Tisch liegt.
+- Performance ist Josias sehr wichtig: keine zusätzliche SharePoint-Abfrage, keine 35 Steuerelemente, keine Galerie für die Tische.
+
+2. WAS FERTIG IST (vom Handy-Chat, belegt)
+- Zwei Bilder, hochkant, Tische weiß mit grauem Rand und aufrechter Nummer eingezeichnet: handy_plan_OG.jpg und handy_plan_UG.jpg, je 720 mal 1800 Pixel, etwa 120 KB, Seitenverhältnis Höhe zu Breite genau 2,5.
+- Positionstabelle für alle 35 Tische (OG 16, UG 19 inkl. Big Table und dem heute neuen UG Desk 14) in tabelle_handy_de.txt als Table(...) in deutscher Schreibweise. Felder: Tisch (Titel wie in der Liste Tische und in Tischbuchungen.Tisch.Value), Geschoss ("OG" oder "UG"), X, Y, B, H als Anteil 0 bis 1 an Bildbreite bzw. Bildhöhe, linke obere Ecke. Gleiche Daten als tischplan_handy.json (mit Nr).
+- Die Tabelle ist aus dem Desktop-Export 12.10. 11:52 (Grundrissemachen) gerechnet, genau so wie die Desktop-App zeichnet: Bild-Y = Y + (Nr minus 1) / BasisSkalierungReferenz, wobei Nr die Reihenfolge in Filter(Tische; Geschoss = ...) ist, und die ist die SharePoint-ID-Reihenfolge, NICHT die Reihenfolge der Positionstabelle. Deine frühere Tabelle (tabelle_hoch_de.txt) hatte deshalb OG Desk 6, 7, 11, 12, 13 falsch und ist überholt. Echte Reihenfolge steht in tische_reihenfolge_2026-10-12.json (per REST gelesen).
+- Bilder und Tabelle stammen aus denselben Zahlen, jedes Rechteck liegt genau auf seinem Tisch (geprüft per Überlagerung).
+
+3. VORGABEN UND MEINE EMPFEHLUNG ZUM AUFBAU (bitte prüfen, dann bauen)
+- Anzeige als Overlay (Bottom Sheet oder Vollbild-Dialog) über conRoot, NICHT Aufklappen in der Karte (Galerien haben feste TemplateSize 300 bzw. 260, Aufklappen hieße Kartenumbau und Bild je Karte). Du hast das am 12.10. ebenfalls empfohlen. Wenn du doch Aufklappen für machbar und performant hältst, begründe es.
+- Tabelle als benannte Formel in App.Formulas (zum Beispiel TischBild = Table(...)), damit nichts beim Start läuft. Die Handy-App hat noch kein App.Formulas. Achte auf das Schlusszeichen in der deutschen Anzeige (T-U2). Alternative ClearCollect am Ende von App.OnStart nur wenn nötig.
+- Knopf in conKarteH (galHeute) und in der Karte von galMeine: setzt nur Variablen (zum Beispiel varTischBild per LookUp über ThisItem.Tisch.Value, varZeigeTisch), keine Abfrage. Fehlt der Tisch in der Tabelle: kurze Meldung, nichts öffnen. Platz in den Karten bitte so wählen, dass nichts überlappt (lblTischH, lblStatusH, btnEincheckenH, btnVerwaltenH, btnVerwaltenM). Bitte gegen D3-Muster (varSperreBis) nicht nötig, da nichts geschrieben wird.
+- Ein Image-Steuerelement mit If(Geschoss = "OG"; handy_plan_OG; handy_plan_UG), Höhe an das Overlay angepasst, Breite = Höhe / 2,5 (kein Rand, damit die Anteile exakt gelten), mittig.
+- Ein Rechteck: X = Bild.X + X mal Bild.Width, Y = Bild.Y + Y mal Bild.Height, Breite = B mal Bild.Width, Höhe = H mal Bild.Height. Halbtransparente Füllung plus dicker Rand. Farbe: Josias hat noch nicht entschieden, bitte Orange als Vorgabe (zum Beispiel RGBA(255; 140; 0; ...)) und so bauen, dass er die Farbe an einer Stelle ändern kann. Rechteck muss über dem Bild liegen.
+- Kopfzeile im Overlay mit Tischname und Geschoss (Obergeschoss oder Untergeschoss), Schließen-Knopf, Schließen auch beim Tab-Wechsel und beim Aktualisieren.
+- Das Overlay darf die anderen Dialoge (conDlgVerwalten, conDlgStorno, conLadeOverlay) nicht stören. Reihenfolge der Ebenen bitte angeben.
+- Bilder lädt Josias über Medien hoch, Namen in der App handy_plan_OG und handy_plan_UG.
+- Barrierefreiheit: AccessibleLabel für Knopf, Bild und Schließen.
+
+4. BITTE MITLIEFERN
+- Testschritte: Buchung OG und UG, je ein Tisch am Rand (zum Beispiel OG Desk 3, UG Desk 18, Big Table, Quiet Desk 1, UG Desk 14), Rechteck sitzt auf dem Tisch, Wechsel zwischen Buchungen verschiedener Geschosse, Schließen, Tab-Wechsel, kleine und große Handys (Layout der Handy-App).
+- Rückfall: was zu löschen ist.
+- Hinweis, was bei neuer Tisch-Umbenennung oder neuem Tisch zu tun ist (Bilder und Tabelle neu erzeugen, das macht mein Skript in Sekunden, dafür brauche ich den neuen Desktop-Export und die Tische-Reihenfolge).
+
+5. MITGESCHICKT (Anhang)
+- handy_plan_OG.jpg, handy_plan_UG.jpg
+- tabelle_handy_de.txt, tischplan_handy.json, tische_reihenfolge_2026-10-12.json
+- aktueller Handy-Export (von Josias, bitte prüfen ob H8 Tageswechsel und lblTischH.Width schon drin sind; wenn nicht, gegen den Export diffen und es mir sagen)
+- Desktop-Export 12.10. 11:52 (Tischbuchung12.10.Grundrissemachen) als Quelle der Positionen
+
+6. HINWEIS FÜR DIE DESKTOP-APP (nicht Teil dieses Auftrags)
+Der Galerie-Versatz in Rectangle1.Y hängt an der SharePoint-ID-Reihenfolge. Jeder neue oder gelöschte Tisch verschiebt Kacheln im Desktop-Grundriss. Dauerhafte Lösung: echtes Bild-Y in colTischPositionen und colTischPositionenUG speichern und Rectangle1.Y auf Y mal BasisSkalierung minus nrVersatz mal vorlagenVersatz vereinfachen. Bitte nach dem Go-Live bewerten.
+
+Danke!
