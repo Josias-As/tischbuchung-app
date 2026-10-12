@@ -51,6 +51,8 @@ Kennzeichnung:
 ## 3. Anleitung für die Kollegen: Handy-App auf den Home-Bildschirm
 **Einmalig:**
 1. App **„Power Apps“** von Microsoft installieren. Sie kommt aus dem App Store bzw. Google Play, auf verwalteten Firmenhandys ggf. aus dem **Firmenportal**.
+   - **Die richtige App:** Anbieter Microsoft Corporation, im App Store unter **„Wirtschaft“** (Business).
+   - **Nicht** „Power Apps Mobile Preview“ unter **„Entwicklertools“**. Das ist eine Test-App für Entwickler, die Apps von einem lokalen Entwicklungsserver lädt. Mit ihr laufen keine veröffentlichten Firmen-Apps (laut App-Store-Beschreibung).
 2. Öffnen und mit der **Firmen-E-Mail** anmelden.
 3. In der Liste **„Tischbuchung Handy“** suchen. Nicht „Tischbuchung“, das ist die PC-Fassung und auf dem Handy winzig.
 4. Optional: Stern = Favorit, dann steht die App immer oben.
@@ -84,6 +86,7 @@ Nach dem Tippen auf das Symbol öffnet sich zuerst kurz die Power-Apps-App, dann
 - **Teams-Richtlinie:** „Tischbuchung“ für alle in Teams anheften.
 
 ## Quellen
+- App Store: [Power Apps (Wirtschaft)](https://apps.apple.com/DE/app/id1047318566), [Power Apps Mobile Preview (Entwicklertools)](https://apps.apple.com/us/app/power-apps-mobile-preview/id6753083462)
 - [Microsoft Learn: Power-Apps-App installieren und Apps an den Home-Bildschirm heften (iOS-Kurzbefehle, Android)](https://learn.microsoft.com/en-us/power-apps/mobile/run-powerapps-on-mobile)
 - [Microsoft Learn: Troubleshooting Power-Apps-App (Safari-„Pin to Home“ ab iOS 14 nicht mehr)](https://learn.microsoft.com/en-us/power-apps/mobile/powerapps-mobile-troubleshoot)
 - [Microsoft Learn: Systemvoraussetzungen und Browser](https://learn.microsoft.com/en-us/power-apps/limits-and-config)
