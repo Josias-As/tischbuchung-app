@@ -214,3 +214,10 @@ def ws(s):
 if __name__ == "__main__":
     a = lade_desktop()
     print(len(a.props), "Properties,", len(a.typ), "Steuerelemente")
+
+
+EXPORT_DESKTOP_1210 = os.path.join(REPO, "quellen/2026-10-12_Desktop/TischbuchungDesktop12.10.2026Einchecken_20261012072631.zip")
+
+
+def lade_desktop_1210():
+    return App(entpacke(EXPORT_DESKTOP_1210, "desktop_2026-10-12"))
