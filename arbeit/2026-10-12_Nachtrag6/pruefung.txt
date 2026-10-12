@@ -1,0 +1,6 @@
+25 Properties in 3 Schritten, 1 neues Steuerelement (btnNeuBuchenHeute). Grundlage: Export 08.10. 14:26 + Nachtrag 5.
+Je Property: Klammern, Rückübersetzung, Variablen gesetzt, Steuerelemente vorhanden, keine neue Abfrage und kein Schreiben auf Tischbuchungen (nur „Neu buchen“ liest einmal Tische).
+„Neu buchen“ öffnet den Buchungsdialog mit denselben Rücksetzungen wie die Kachel (btnHitArea), nur Tisch und Ende-Vorgabe anders.
+Öffner des Buchungsdialogs: btnHitArea.OnSelect, btnNeuBuchenHeute.OnSelect; jeder setzt die Ende-Vorgabe vor Reset(ddEnde).
+Verfallsregel in Karte und Knopf zeichengleich mit lblStatusHeute (S3b über Nachtrag 5 N4).
+Prüfung: 0 Fehler
