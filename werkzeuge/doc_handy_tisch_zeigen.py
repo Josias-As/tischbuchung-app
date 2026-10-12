@@ -26,7 +26,7 @@ for s in D["app"]:
     if s["diff"]:
         out += ["Änderung gegenüber dem Handy-Export 12.10. 12:05 (`-` alt, `+` neu):", "", "```diff", s["diff"], "```", ""]
     out += ["```", s["de"], "```", ""]
-out += [T["test"], "", T["unsicher"], "", T["rueckfall"], "", T["neu"], ""]
+out += [T["test"], "", T["unsicher"], "", T["selbst"], "", T["rueckfall"], "", T["neu"], ""]
 out += ["## Anhang A: Fassungen im Handy-Export 12.10. 12:05 (Rückfall)", ""]
 for s in D["app"]:
     if s["vorher_de"] is not None:

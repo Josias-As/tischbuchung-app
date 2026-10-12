@@ -152,7 +152,7 @@ TischPlan = {
 2. Einfügen → Schaltfläche (klassisch).
 3. Umbenennen in **`btnTischZeigenH`**. Er muss **in** `conKarteH` liegen.
 
-Lage: rechts neben der Uhrzeit, unter dem Status (Y 80–130). Die Knöpfe „Einchecken“ und „Verwalten“ beginnen bei Y 150. `lblZeitH` wird 190 schmaler: Platz für „hh:mm bis hh:mm“ bleibt (geschlussfolgert, Breite etwa 346 bei Layout 640).
+Lage: rechts neben der Uhrzeit, unter dem Status (X wie „Verwalten“ in „Meine“, 200 breit, Y 80–130). Die Knöpfe „Einchecken“ und „Verwalten“ beginnen bei Y 150. `lblZeitH` wird 220 schmaler. Bei Layout 640 bleiben etwa 316 für „hh:mm bis hh:mm“, gebraucht werden etwa 290 (geschätzt, siehe Selbstprüfung).
 
 #### `btnTischZeigenH.Text`
 
@@ -167,7 +167,7 @@ Ort: `Screen1 > conRoot > conInhalt > conHeute > galHeute > conKarteH > btnTisch
 Ort: `Screen1 > conRoot > conInhalt > conHeute > galHeute > conKarteH > btnTischZeigenH` · **neu setzen**
 
 ```
-Parent.Width - 198
+Parent.Width - 228
 ```
 
 #### `btnTischZeigenH.Y`
@@ -183,7 +183,7 @@ Ort: `Screen1 > conRoot > conInhalt > conHeute > galHeute > conKarteH > btnTisch
 Ort: `Screen1 > conRoot > conInhalt > conHeute > galHeute > conKarteH > btnTischZeigenH` · **neu setzen**
 
 ```
-170
+200
 ```
 
 #### `btnTischZeigenH.Height`
@@ -344,11 +344,11 @@ Ort: `Screen1 > conRoot > conInhalt > conHeute > galHeute > conKarteH > lblZeitH
 ```diff
 @@ -1 +1 @@
 -Parent.Width - 56
-+Parent.Width - 246
++Parent.Width - 276
 ```
 
 ```
-Parent.Width - 246
+Parent.Width - 276
 ```
 
 ### T3 Knopf in der Karte „Meine“
@@ -849,7 +849,7 @@ Ort: `Screen1 > conTischPlan > lblTischPlanTitel` · **neu setzen**
 Ort: `Screen1 > conTischPlan > lblTischPlanTitel` · **neu setzen**
 
 ```
-26
+22
 ```
 
 #### `lblTischPlanTitel.Font`
@@ -1243,7 +1243,7 @@ Vorher: T0–T5 eingefügt, Bilder hochgeladen, App-Prüfung ohne rote Fehler. V
 | ☐ | 2 Bei jeder Buchung **„Tisch zeigen“** | Plan des richtigen Geschosses, hochkant. Titel z. B. „OG Desk 3 · Obergeschoss“. Das orange Rechteck liegt **genau** auf dem Tisch mit der Nummer. Kein anderer Tisch ist markiert |
 | ☐ | 3 Schließen über „Schließen“, über einen Tipp neben den Plan, über einen Tab-Knopf | Der Plan ist zu, die App ist normal bedienbar |
 | ☐ | 4 OG-Buchung zeigen, schließen, dann UG-Buchung zeigen | Das Bild wechselt aufs UG, das Rechteck sitzt richtig. Kein Rest vom OG |
-| ☐ | 5 Plan offen, auf „Aktualisieren“ tippen geht nicht, weil der Plan alles abdeckt. Nach dem Schließen „Aktualisieren“ | „Aktualisiert.“. Der Plan bleibt zu |
+| ☐ | 5 Plan offen: Die Kopfzeile mit „Aktualisieren“ ist abgedeckt, ein Tipp dort schließt nur den Plan. Danach „Aktualisieren“ | „Aktualisiert.“, der Plan bleibt zu |
 | ☐ | 6 Plan offen, auf „Verwalten“ einer Karte tippen geht nicht, weil der Hintergrund abdeckt | kein Verwalten-Dialog unter dem Plan |
 | ☐ | 7 Karten ansehen | „Tisch zeigen“ überlappt weder Status, Uhrzeit noch Knöpfe. Die Uhrzeit ist vollständig lesbar |
 | ☐ | 8 Kleines Handy (z. B. iPhone SE) und großes Handy | Der Plan passt ganz auf den Bildschirm, „Schließen“ ist sichtbar, das Rechteck sitzt |
@@ -1254,9 +1254,26 @@ Vorher: T0–T5 eingefügt, Bilder hochgeladen, App-Prüfung ohne rote Fehler. V
 ## 4. UNSICHER
 | Nr | Was | Prüfen |
 |---|---|---|
-| H-U1 | Benannte Formel als Datensatz mit `Table` in der Handy-App (`App.Formulas` ist dort neu). Belegt nur für die Desktop-App | App-Prüfung nach T1. Wenn rot: dasselbe als `Set(varTischPlan; { … })` am Ende von `App.OnStart` und in den Formeln `TischPlan` durch `varTischPlan` ersetzen. Dann melden, ich erzeuge die Blöcke neu |
+| H-U1 | Benannte Formel als Datensatz mit `Table` in der Handy-App (`App.Formulas` ist dort neu). Die Desktop-App nutzt `App.Formulas` mit **denselben App-Einstellungen** (`AppPreviewFlagsMap` gleich, belegt), ein Datensatz mit Tabelle als benannte Formel ist dort aber nicht belegt | App-Prüfung nach T1. Wenn rot: dasselbe als `Set(varTischPlan; { … })` am Ende von `App.OnStart` und in den Formeln `TischPlan` durch `varTischPlan` ersetzen. Dann melden, ich erzeuge die Blöcke neu |
 | H-U2 | Medienname nach dem Hochladen genau `handy_plan_OG`/`handy_plan_UG` | Test 2 |
 | H-U3 | Tippen auf `btnTischPlanHintergrund` über den Galerien wird abgefangen (klassische Schaltfläche, Muster wie Desktop `btnHitArea`) | Test 6 |
+
+## Selbstprüfung (12.10., auf Josias' Wunsch)
+**Gefunden und behoben:**
+1. **„Tisch zeigen“ passte nicht in 170 Breite** (Größe 20, etwa 184 nötig). Der Text wäre umgebrochen und in der Höhe 50 abgeschnitten worden. Jetzt 200 breit, bündig mit „Verwalten“ in „Meine“, `lblZeitH` dafür 220 schmaler statt 190.
+2. **Titel zu breit** bei Größe 26: „Quiet Desk 3 · Untergeschoss“ braucht etwa 551 bei 544 Platz. Jetzt Größe 22.
+3. **Meine Prüfung vom Vormittag war zirkulär:** Ich hatte das Rechteck auf ein Bild gelegt, das ich aus denselben, falsch geordneten Daten selbst gezeichnet hatte. Deshalb fiel der Fehler bei OG 6–13 nicht auf. Die Gegenprüfung jetzt ist unabhängig: aus dem Desktop-Export plus REST-Reihenfolge nachgerechnet und auf **deine** Bilder gelegt.
+4. **Neue Prüfung im Generator:** Textbreiten werden je Zeichenart geschätzt (Open Sans). Eine Gegenprobe mit den alten Werten meldet alle drei Fehler (Knopf, Überlappung, Titel).
+
+**Nachgeprüft, in Ordnung (belegt):**
+- `Screen1.Width = Max(App.Width; App.MinScreenWidth)`, `MinScreenWidth` 640. Die Layoutprüfung bei 640 ist also der schmalste Fall, auf breiteren Geräten wächst alles über `Parent.Width`.
+- `MinScreenHeight` ist 640. Selbst dann passt der Plan: Bildhöhe 316, Schließen-Knopf darunter.
+- Bild und Schließen-Knopf überlappen nicht. Das Bild endet bei `Parent.Height − 148`, der Knopf beginnt bei `Parent.Height − 124`.
+- T0 ist zeichengleich mit H8, die Vorher-Fassung ist zeichengleich mit dem Export.
+- T5 stellt nur `Set(varZeigeTisch; false);;` voran (maschinell geprüft). Die Tabs liegen bei offenem Plan unter dem Hintergrund, T5 ist also eine Absicherung, falls H-U3 nicht hält.
+- Die Tabelle in T1 ist zahlengleich mit `tabelle_handy_de.txt`, und die ist unabhängig nachgerechnet (0 Abweichungen).
+
+**Bleibt UNSICHER:** H-U1 bis H-U3. Die Textbreiten sind geschätzt, Test 7 und Test 8 entscheiden.
 
 ## 5. Rückfall
 1. Die 8 neuen Steuerelemente löschen: `btnTischZeigenH`, `btnTischZeigenM`, `btnTischPlanHintergrund`, `conTischPlan` samt Inhalt.
@@ -1354,6 +1371,7 @@ Notify("Aktualisiert."; NotificationType.Success)
 123 Properties in 6 Schritten, 8 neue Steuerelemente. Grundlage: Handy-Export 12.10. 12:05 („handy echt“).
 Je Property: Klammern, Rückübersetzung, Variablen gesetzt, Steuerelemente vorhanden, keine neue Abfrage.
 T1: Tabelle zahlengleich mit tabelle_handy_de.txt (35 Tische); diese ist gegen den Desktop-Export 11:52 + Reihenfolge nachgerechnet (pruefung_tabelle.txt).
+Textbreiten (Schätzung je Zeichenart, Open Sans, halbfett +5 %, Innenabstand 20): alle Texte passen bei Layoutbreite 640.
 Bilder: Seitenverhältnis 2,5. Karten: der neue Knopf überlappt nichts bei Layoutbreite 640 (btnVerwaltenM überlappt lblTischM/lblTagM schon im Export um 6 px, unverändert).
 T5: an den vier Knöpfen nur das Schließen vorangestellt.
 Prüfung: 0 Fehler

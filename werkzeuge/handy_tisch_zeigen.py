@@ -54,8 +54,8 @@ def knopf(name, x, y, w, hh, s):
 
 
 assert ist["lblZeitH.Width"] == "Parent.Width - 56" and ist["lblZeitH.Y"] == "76"
-knopf("btnTischZeigenH", "Parent.Width - 198", "80", "170", "50", "T2")
-setze("lblZeitH.Width", "Parent.Width - 246", "T2")
+knopf("btnTischZeigenH", "Parent.Width - 228", "80", "200", "50", "T2")
+setze("lblZeitH.Width", "Parent.Width - 276", "T2")
 assert ist["lblZeitM.Width"] == "Parent.Width - 250" and ist["btnVerwaltenM.X"] == "Parent.Width - 228"
 knopf("btnTischZeigenM", "Parent.Width - 228", "176", "200", "48", "T3")
 setze("lblZeitM.Width", "Parent.Width - 260", "T3")
@@ -75,7 +75,7 @@ for p, v in {"X": "20", "Y": "40", "Width": "Parent.Width - 40", "Height": "Pare
     setze(f"conTischPlan.{p}", v, "T4")
 NEUE["lblTischPlanTitel"] = "T4"
 for p, v in {"Text": 'varTischBild.Tisch & "  ·  " & If(varTischBild.Geschoss = "OG", "Obergeschoss", "Untergeschoss")',
-             "X": "28", "Y": "20", "Width": "Parent.Width - 56", "Height": "60", "Size": "26",
+             "X": "28", "Y": "20", "Width": "Parent.Width - 56", "Height": "60", "Size": "22",
              "Font": "Font.'Open Sans'", "FontWeight": "FontWeight.Semibold", "Color": "RGBA(32, 54, 71, 1)"}.items():
     setze(f"lblTischPlanTitel.{p}", v, "T4")
 NEUE["imgTischPlan"] = "T4"
@@ -146,9 +146,9 @@ for g in ("OG", "UG"):
 KW = 592
 def box(x, y, w, hh): return (x, y, x + w, y + hh)
 def ueber(a, b): return a[0] < b[2] and b[0] < a[2] and a[1] < b[3] and b[1] < a[3]
-H_BOXEN = {"lblTischH": box(28, 16, KW - 360, 58), "lblStatusH": box(KW - 330, 20, 302, 52), "lblZeitH": box(28, 76, KW - 246, 58),
+H_BOXEN = {"lblTischH": box(28, 16, KW - 360, 58), "lblStatusH": box(KW - 330, 20, 302, 52), "lblZeitH": box(28, 76, KW - 276, 58),
            "btnEincheckenH": box(28, 150, (KW - 80) / 2, 100), "btnVerwaltenH": box(KW - 28 - (KW - 80) / 2, 150, (KW - 80) / 2, 100),
-           "btnTischZeigenH": box(KW - 198, 80, 170, 50)}
+           "btnTischZeigenH": box(KW - 228, 80, 200, 50)}
 M_BOXEN = {"lblTischM": box(28, 18, KW - 250, 58), "lblTagM": box(28, 78, KW - 250, 50), "lblZeitM": box(28, 132, KW - 260, 58),
            "btnVerwaltenM": box(KW - 228, 70, 200, 96), "btnTischZeigenM": box(KW - 228, 176, 200, 48)}
 for name, boxen, hoehe in [("galHeute", H_BOXEN, 276), ("galMeine", M_BOXEN, 236)]:
@@ -158,6 +158,27 @@ for name, boxen, hoehe in [("galHeute", H_BOXEN, 276), ("galMeine", M_BOXEN, 236
         for b in boxen:
             if a < b and "TischZeigen" in a + b and ueber(boxen[a], boxen[b]):
                 fehler.append(f"{name}: {a} überlappt {b}")
+def textbreite(text, size):
+    # Zeichenbreiten Open Sans in em (geschlussfolgert, Halbfett ~ +5 %), Punkt -> Pixel 1,333, Innenabstand 2 x 10
+    em = 0
+    for ch in text:
+        if ch.isdigit(): em += 0.572
+        elif ch == " ": em += 0.26
+        elif ch in ":.·,": em += 0.27
+        elif ch in "il": em += 0.26
+        elif ch in "mw": em += 0.85
+        elif ch.isupper(): em += 0.68
+        else: em += 0.55
+    return em * 1.05 * size * 1.333 + 20
+
+
+LANG = max((t for t in re.findall(r'Tisch: "([^"]+)"', tab)), key=len)
+for name, text, size, breite in [("btnTischZeigenH", "Tisch zeigen", 20, 200), ("btnTischZeigenM", "Tisch zeigen", 20, 200),
+                                  ("lblZeitH", "09:00 bis 17:00", 28, KW - 276), ("lblZeitM", "09:00 bis 17:00", 28, KW - 260),
+                                  ("lblTischPlanTitel", LANG + "  ·  Untergeschoss", 22, (640 - 40) - 56),
+                                  ("btnTischPlanSchliessen", "Schließen", 26, (640 - 40) - 72)]:
+    if textbreite(text, size) > breite:
+        fehler.append(f"{name}: Text „{text}“ (~{textbreite(text, size):.0f}) passt nicht in {breite}")
 for k, v in [("conKarteH.Height", "276"), ("conKarteM.Height", "236"), ("lblStatusH.X", "Parent.Width - 330"), ("lblTischH.Width", "Parent.Width - 360"),
              ("lblTagM.Y", "78"), ("lblZeitM.Y", "132"), ("btnVerwaltenM.Y", "70"), ("btnVerwaltenM.Height", "96")]:
     if ist.get(k) != v:
@@ -185,6 +206,7 @@ json.dump(dict(app=out, neue={n: dict(schritt=NEUE[n], ort=ORT[n], typ=TYP[n]) f
 z = [f"{len(out)} Properties in {len(reihen)} Schritten, {len(NEUE)} neue Steuerelemente. Grundlage: Handy-Export 12.10. 12:05 („handy echt“).",
      "Je Property: Klammern, Rückübersetzung, Variablen gesetzt, Steuerelemente vorhanden, keine neue Abfrage.",
      "T1: Tabelle zahlengleich mit tabelle_handy_de.txt (35 Tische); diese ist gegen den Desktop-Export 11:52 + Reihenfolge nachgerechnet (pruefung_tabelle.txt).",
+     "Textbreiten (Schätzung je Zeichenart, Open Sans, halbfett +5 %, Innenabstand 20): alle Texte passen bei Layoutbreite 640.",
      "Bilder: Seitenverhältnis 2,5. Karten: der neue Knopf überlappt nichts bei Layoutbreite 640 (btnVerwaltenM überlappt lblTischM/lblTagM schon im Export um 6 px, unverändert).",
      "T5: an den vier Knöpfen nur das Schließen vorangestellt."]
 z += ["FEHLER: " + x for x in fehler] if fehler else ["Prüfung: 0 Fehler"]
