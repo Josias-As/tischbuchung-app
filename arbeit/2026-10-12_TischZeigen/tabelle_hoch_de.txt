@@ -1,0 +1,36 @@
+Table(
+  {Tisch: "OG Desk 1"; Geschoss: "OG"; X: 0,7625; Y: 0,7333; B: 0,1403; H: 0,0333};
+  {Tisch: "OG Desk 2"; Geschoss: "OG"; X: 0,7886; Y: 0,8717; B: 0,0833; H: 0,0561};
+  {Tisch: "OG Desk 3"; Geschoss: "OG"; X: 0,7884; Y: 0,9289; B: 0,0833; H: 0,0561};
+  {Tisch: "OG Desk 4"; Geschoss: "OG"; X: 0,702; Y: 0,8717; B: 0,0833; H: 0,0561};
+  {Tisch: "OG Desk 5"; Geschoss: "OG"; X: 0,7018; Y: 0,9289; B: 0,0833; H: 0,0561};
+  {Tisch: "OG Desk 6"; Geschoss: "OG"; X: 0,4349; Y: 0,93; B: 0,0833; H: 0,0561};
+  {Tisch: "OG Desk 7"; Geschoss: "OG"; X: 0,3485; Y: 0,93; B: 0,0833; H: 0,0561};
+  {Tisch: "OG Desk 8"; Geschoss: "OG"; X: 0,4441; Y: 0,8; B: 0,1403; H: 0,0333};
+  {Tisch: "OG Desk 9"; Geschoss: "OG"; X: 0,3022; Y: 0,8; B: 0,1403; H: 0,0333};
+  {Tisch: "OG Desk 10"; Geschoss: "OG"; X: 0,1616; Y: 0,8; B: 0,1403; H: 0,0333};
+  {Tisch: "OG Desk 11"; Geschoss: "OG"; X: 0,4572; Y: 0,8333; B: 0,1403; H: 0,0333};
+  {Tisch: "OG Desk 12"; Geschoss: "OG"; X: 0,2959; Y: 0,8333; B: 0,1403; H: 0,0333};
+  {Tisch: "OG Desk 13"; Geschoss: "OG"; X: 0,1553; Y: 0,8333; B: 0,1403; H: 0,0333};
+  {Tisch: "Quiet Desk 3"; Geschoss: "OG"; X: 0,1537; Y: 0,45; B: 0,1306; H: 0,0278};
+  {Tisch: "Quiet Desk 2"; Geschoss: "OG"; X: 0,2798; Y: 0,45; B: 0,1306; H: 0,0278};
+  {Tisch: "Quiet Desk 1"; Geschoss: "OG"; X: 0,406; Y: 0,45; B: 0,1306; H: 0,0278};
+  {Tisch: "UG Desk 1"; Geschoss: "UG"; X: 0,3319; Y: 0,2611; B: 0,1236; H: 0,0289};
+  {Tisch: "UG Desk 2"; Geschoss: "UG"; X: 0,2081; Y: 0,2611; B: 0,1236; H: 0,0289};
+  {Tisch: "UG Desk 3"; Geschoss: "UG"; X: 0,3314; Y: 0,29; B: 0,1236; H: 0,0289};
+  {Tisch: "UG Desk 4"; Geschoss: "UG"; X: 0,2076; Y: 0,29; B: 0,1236; H: 0,0289};
+  {Tisch: "UG Desk 5"; Geschoss: "UG"; X: 0,3309; Y: 0,3767; B: 0,1236; H: 0,0289};
+  {Tisch: "UG Desk 6"; Geschoss: "UG"; X: 0,2071; Y: 0,3767; B: 0,1236; H: 0,0289};
+  {Tisch: "UG Desk 7"; Geschoss: "UG"; X: 0,3318; Y: 0,4056; B: 0,1236; H: 0,0289};
+  {Tisch: "UG Desk 8"; Geschoss: "UG"; X: 0,208; Y: 0,4056; B: 0,1236; H: 0,0289};
+  {Tisch: "UG Desk 9"; Geschoss: "UG"; X: 0,3313; Y: 0,5283; B: 0,1236; H: 0,0289};
+  {Tisch: "UG Desk 10"; Geschoss: "UG"; X: 0,2075; Y: 0,5283; B: 0,1236; H: 0,0289};
+  {Tisch: "UG Desk 11"; Geschoss: "UG"; X: 0,3308; Y: 0,5572; B: 0,1236; H: 0,0289};
+  {Tisch: "UG Desk 12"; Geschoss: "UG"; X: 0,207; Y: 0,5572; B: 0,1236; H: 0,0289};
+  {Tisch: "UG Desk 13"; Geschoss: "UG"; X: 0,7567; Y: 0,6344; B: 0,1236; H: 0,0289};
+  {Tisch: "UG Desk 14"; Geschoss: "UG"; X: 0,6829; Y: 0,6389; B: 0,0722; H: 0,0494};
+  {Tisch: "UG Desk 15"; Geschoss: "UG"; X: 0,7562; Y: 0,6639; B: 0,1236; H: 0,0289};
+  {Tisch: "UG Desk 16"; Geschoss: "UG"; X: 0,756; Y: 0,7222; B: 0,1236; H: 0,0289};
+  {Tisch: "UG Desk 17"; Geschoss: "UG"; X: 0,7557; Y: 0,75; B: 0,1236; H: 0,0289};
+  {Tisch: "Big Table"; Geschoss: "UG"; X: 0,2791; Y: 0,6633; B: 0,0722; H: 0,1222}
+)
