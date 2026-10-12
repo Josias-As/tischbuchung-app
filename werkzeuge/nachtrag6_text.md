@@ -15,7 +15,7 @@ Für den Desktop-Chat. Grundlage: **Export 08.10. 14:26** + **Nachtrag 5**. Nach
   - Die eigene verfallene Buchung blockiert nicht, weil die Freigabe-Regel in `btnSpeichern` sie als frei zählt (F4, belegt).
   - Ist der Tisch inzwischen an jemand anderen vergeben, meldet `btnSpeichern` das wie sonst auch.
 - **R3:** Der Kachel-Dialog setzt die neue Ende-Vorgabe zurück, sonst stünde dort das Ende aus „Neu buchen“.
-- **Umfang:** 25 Properties, 1 neues Steuerelement (`btnNeuBuchenHeute`). Maschinell 0 Fehler. In Studio ist nichts getestet.
+- **Umfang:** 25 Properties, 1 neues Steuerelement (`btnNeuBuchenHeute`). Maschinell 0 Fehler. **Nicht unabhängig geprüft** (Josias’ Entscheidung, 12.10.). In Studio ist nichts getestet.
 - **Abfragen:** Die Karte rechnet nur mit Variablen und dem Takt (`varJetztTakt`, alle 15 s). „Neu buchen“ liest beim Tippen einmal `Tische` (Gesperrt). Keine Abfrage ohne Tippen.
 - **Voraussetzung:** Nachtrag 5 N4 (S3b) ist eingefügt. Sonst zeigt die Statusanzeige „Verfallen“ später als Karte und Knopf.
 
