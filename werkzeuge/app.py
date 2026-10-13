@@ -241,3 +241,10 @@ EXPORT_HANDY_1210_ECHT = os.path.join(REPO, "quellen/2026-10-12_TischZeigen/hand
 
 def lade_handy_1210_echt():
     return App(entpacke(EXPORT_HANDY_1210_ECHT, "handy_2026-10-12_echt"))
+
+
+EXPORT_DESKTOP_1310 = os.path.join(REPO, "quellen/2026-10-13_Desktop/TischbuchungApp13.10.2026959_20261013075948.zip")
+
+
+def lade_desktop_1310():
+    return App(entpacke(EXPORT_DESKTOP_1310, "desktop_2026-10-13"))
