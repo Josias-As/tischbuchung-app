@@ -1,6 +1,6 @@
 @@ kopf
 # ÜBERGABE Tischbuchung: Grundriss-Ladeverhalten (Laden v1)
-**v1 · 13.10.2026 · für Josias (Desktop-App „Tischbuchung“) · maschinell aus dem Export 13.10. 09:59 erzeugt und geprüft (`werkzeuge/grundriss_laden.py`) · unabhängig geprüft (Abschnitt 7) · in Studio nichts getestet**
+**v1 · 13.10.2026 · für Josias (Desktop-App „Tischbuchung“) · maschinell aus dem Export 13.10. 09:59 erzeugt und geprüft (`werkzeuge/grundriss_laden.py`) · **nicht unabhängig geprüft** (Josias’ Entscheidung, 13.10.) · in Studio nichts getestet**
 
 Grundlage: Export `TischbuchungApp13.10.2026959_20261013075948.zip`. Er ist zeichengleich mit dem Analyse-Paket, und `props_de.json` = Export (maschinell geprüft). Kennzeichnung: **belegt** (Export/Dokument), **geschlussfolgert**, **UNSICHER** (mit Prüftest).
 
@@ -149,7 +149,7 @@ Gezählt wird beim Start, nicht beim Speichern. Testbuchungen danach stornieren.
 
 @@ pruefung_unabh
 ## 7. Unabhängige Prüfung
-PRUEFUNG_PLATZHALTER
+Auf Josias’ Wunsch (13.10.) **keine unabhängige Prüfung**. Die begonnene Prüfung wurde abgebrochen, bevor sie einen Bericht geschrieben hat. Geprüft ist nur maschinell (Anhang B) und durch meine eigene Durchsicht. Umso wichtiger sind Test 0 (Fotos vorher) und Test 5 (Positionen gegen die Fotos).
 
 @@ anhang_hinweis
 Die Originale stammen aus dem Export 13.10. 09:59 (deutsche Schreibweise).
