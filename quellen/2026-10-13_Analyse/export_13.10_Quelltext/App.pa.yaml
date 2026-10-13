@@ -1,0 +1,159 @@
+# ************************************************************************************************
+# Warning: YAML source code for Canvas Apps should only be used to review changes made within Power Apps Studio and for minor edits (Preview).
+# Use the maker portal to create and edit your Power Apps.
+# 
+# The schema file for Canvas Apps is available at https://go.microsoft.com/fwlink/?linkid=2304907
+# 
+# For more information, visit https://go.microsoft.com/fwlink/?linkid=2292623
+# ************************************************************************************************
+App:
+  Properties:
+    Formulas: |-
+      =BasisBreite = 1920;
+      BasisHoehe = 1080;
+      BasisSkalierung = Min(conGrundriss.Width / BasisBreite, conGrundriss.Height / BasisHoehe);
+      BasisKachelbreiteQuer = 101;
+      BasisKachelhoeheQuer = 60;
+      BasisKachelbreiteHoch = 60;
+      BasisKachelhoeheHoch = 101;
+      BasisKreisgroesse = 45;
+      btnAbstand = 6;
+      btnBreite = Min(80, Max(44, (conVerwaltenDialog_1.Width - 5*btnAbstand - 40) / 6));
+      BasisKachelbreiteHochUG = 52;
+      BasisKachelhoeheHochUG = 89;
+      BasisKachelbreiteQuerUG = 89;
+      BasisKachelhoeheQuerUG = 52;
+      BasisKreisgroesseUG = 39;
+      BasisSchriftgroesseUG = 11;
+      // Josias 2026-09-28: eigene Breite fuer Big Table UG, deutlich breiter als Standardtisch, Hoehe bleibt Basishoehe horizontal
+      BasisKachelbreiteBigTableUG = 220;
+
+      // Grundriss-Fix 2026-09-30: laufende Nummer je Tisch in derselben Reihenfolge wie Gallery1.Items (Gallery1 versetzt jeden Eintrag um eine Vorlagenhoehe)
+      TischNrOG = With({src: Filter(Tische, Geschoss.Value = "OG")}, ForAll(Sequence(CountRows(src)), {Titel: Index(src, Value).Titel, Nr: Value}));
+      TischNrUG = With({src: Filter(Tische, Geschoss.Value = "UG")}, ForAll(Sequence(CountRows(src)), {Titel: Index(src, Value).Titel, Nr: Value}));
+      // Grundriss-Fix 2026-09-30: Skalierung, bei der die Tischpositionen eingemessen wurden (Design 1366 x 768 -> conGrundriss 881 x 678)
+      BasisSkalierungReferenz = Min(881 / BasisBreite, 678 / BasisHoehe);
+    OnStart: |-
+      =Set(varFreigabeMinuten, 30);
+      Set(varCheckinGefragtID, 0);
+      Set(varAuscheckFrageID, 0);
+      Set(varGrundrissSperreSekunden, 120);
+      Set(varSperreBis, Now());
+      Set(varVerlGrenze, Now());
+      Set(varVerlGrenzeTab, Now());
+      Set(varSelectedTisch, Blank());
+      Set(varZeigeDialog, false);
+      Set(varZeigeDetails, false);
+      Set(varZeigeCheckin, false);
+      Set(varZeigeVerwalten, false);
+      Set(varZeigeVerlaengern, false);
+      Set(varSelectedBuchung, Blank());
+      Set(varAktiverTab, "dashboard");
+      Set(varZeigeRaumBuchungForm, false);
+      Set(varAusgewähltRaum, Blank());
+      Set(varAusgewählteStartzeit, Blank());
+      Set(varAusgewählteEndzeit, Blank());
+      Set(varZeigeRaumBestätigung, false);
+      Set(varWiederholen, false);
+      Set(varWiederholenModus, "Wochentage");
+      Set(varTagMo, false);
+      Set(varTagDi, false);
+      Set(varTagMi, false);
+      Set(varTagDo, false);
+      Set(varTagFr, false);
+      Set(varTagSa, false);
+      Set(varTagSo, false);
+      Set(varWiederholenBis, Today() + 14);
+      Set(varAusgewaehltePlusDauer, Blank());
+      Set(varZeigeRaumInfo, false);
+      Set(varZeigeRaumVerwalten, false);
+      Set(
+        varProfilFarbe,
+        Switch(
+          RandBetween(1, 8),
+          1, ColorValue("#8CAFF4"),
+          2, ColorValue("#82C7B3"),
+          3, ColorValue("#EFA897"),
+          4, ColorValue("#B59EDC"),
+          5, ColorValue("#82CCC5"),
+          6, ColorValue("#F5C295"),
+          7, ColorValue("#A1AADB"),
+          ColorValue("#A1B1BA")
+        )
+      );
+      Set(varZoom, 1);
+      Set(varPanX, 0);
+      Set(varPanY, 0);
+      Set(varWiederholenBisGewaehlt, false);
+      ClearCollect(
+        colTischPositionen,
+        {Tisch: "OG Desk 1", X: 1380, Y: 270, Ausrichtung: "Vertikal"},
+        {Tisch: "OG Desk 2", X: 1629, Y: 290, Ausrichtung: "Horizontal"},
+        {Tisch: "OG Desk 3", X: 1732, Y: 288, Ausrichtung: "Horizontal"},
+        {Tisch: "OG Desk 4", X: 1629, Y: 348, Ausrichtung: "Horizontal"},
+        {Tisch: "OG Desk 5", X: 1732, Y: 346, Ausrichtung: "Horizontal"},
+        {Tisch: "OG Desk 6", X: 1734, Y: 536, Ausrichtung: "Horizontal"},
+        {Tisch: "OG Desk 7", X: 1734, Y: 596, Ausrichtung: "Horizontal"},
+        {Tisch: "OG Desk 8", X: 1500, Y: 484, Ausrichtung: "Vertikal"},
+        {Tisch: "OG Desk 9", X: 1500, Y: 584, Ausrichtung: "Vertikal"},
+        {Tisch: "OG Desk 10", X: 1500, Y: 683, Ausrichtung: "Vertikal"},
+        {Tisch: "OG Desk 11", X: 1560, Y: 468, Ausrichtung: "Vertikal"},
+        {Tisch: "OG Desk 12", X: 1560, Y: 582, Ausrichtung: "Vertikal"},
+        {Tisch: "OG Desk 13", X: 1560, Y: 681, Ausrichtung: "Vertikal"},
+        {Tisch: "Quiet Desk 3", X: 870, Y: 687, Ausrichtung: "Vertikal"},
+        {Tisch: "Quiet Desk 2", X: 870, Y: 594, Ausrichtung: "Vertikal"},
+        {Tisch: "Quiet Desk 1", X: 870, Y: 501, Ausrichtung: "Vertikal"}
+      );
+      Set(varSelectedBuchungTab, Blank());
+      Set(varZeigeVerwaltenTab, false);
+      Set(varStartOverridePanel, "");
+      Set(varEndeOverridePanel, "");
+      Set(varAusgewaehltePanelDauer, Blank());
+      Set(varAnsichtsDatum, Today());
+      Set(varAusgewaehltesStockwerk, "UG");
+      Set(varStockwerkDropdownOffen, false);
+      Set(varStartOverride, "");
+      Set(varEndeOverride, "");
+      Clear(colAusgewaehlteBuchungen);
+      Set(varMehrfachAuswahlModus, false);
+      Set(varAuswahlModusAktiv, false);
+      Set(varZeigeVerwaltenKlein, false);
+      Set(varGalleryNeuAufbauen, 0);
+      Set(varGeklickteBuchungKlein, Blank());
+      ClearCollect(
+        colTischPositionenUG,
+        {Tisch: "UG Desk 1",  X: 530,  Y: 592, Ausrichtung: "Vertikal"},
+        {Tisch: "UG Desk 2",  X: 530,  Y: 679, Ausrichtung: "Vertikal"},
+        {Tisch: "UG Desk 3",  X: 582,  Y: 588, Ausrichtung: "Vertikal"},
+        {Tisch: "UG Desk 4",  X: 582,  Y: 675, Ausrichtung: "Vertikal"},
+        {Tisch: "UG Desk 5",  X: 738,  Y: 584, Ausrichtung: "Vertikal"},
+        {Tisch: "UG Desk 6",  X: 738,  Y: 671, Ausrichtung: "Vertikal"},
+        {Tisch: "UG Desk 7",  X: 790,  Y: 579, Ausrichtung: "Vertikal"},
+        {Tisch: "UG Desk 8",  X: 790,  Y: 666, Ausrichtung: "Vertikal"},
+        {Tisch: "UG Desk 9",  X: 1011, Y: 575, Ausrichtung: "Vertikal"},
+        {Tisch: "UG Desk 10", X: 1011, Y: 662, Ausrichtung: "Vertikal"},
+        {Tisch: "UG Desk 11", X: 1063, Y: 571, Ausrichtung: "Vertikal"},
+        {Tisch: "UG Desk 12", X: 1063, Y: 658, Ausrichtung: "Vertikal"},
+        {Tisch: "UG Desk 13", X: 1202, Y: 260, Ausrichtung: "Vertikal"},
+        {Tisch: "UG Desk 14", X: 1202, Y: 337, Ausrichtung: "Vertikal"},
+        {Tisch: "UG Desk 16", X: 1255, Y: 346, Ausrichtung: "Vertikal"},
+        {Tisch: "UG Desk 15", X: 1255, Y: 258, Ausrichtung: "Vertikal"},
+        {Tisch: "UG Desk 17", X: 1360, Y: 254, Ausrichtung: "Vertikal"},
+        {Tisch: "UG Desk 18", X: 1410, Y: 252, Ausrichtung: "Vertikal"},
+        {Tisch: "Big Table", X: 1254, Y: 630, Ausrichtung: "BigTable"}
+      );
+      Set(varIsLoading, false);
+      Set(varSpinnerWinkel, 0);
+      Set(varFreigabeGrenze, DateAdd(Now(), -Coalesce(varFreigabeMinuten, 30), TimeUnit.Minutes));
+      ClearCollect(colCheckinFrage, Filter(Tischbuchungen, Person.Email = User().Email && Startzeit <= DateAdd(Now(), 30, TimeUnit.Minutes) && Endzeit > Now()));
+      RemoveIf(colCheckinFrage, CheckedIn || (Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze));
+      If(
+        !IsEmpty(colCheckinFrage),
+        Set(varCheckinGefragtID, First(SortByColumns(colCheckinFrage, "Startzeit", SortOrder.Ascending)).ID);
+        Set(varSelectedBuchung, LookUp(Tischbuchungen, ID = varCheckinGefragtID));
+        Set(varZeigeCheckin, true)
+      );
+      Set(varFreigabeGrenze, DateAdd(Now(), -Coalesce(varFreigabeMinuten, 30), TimeUnit.Minutes));
+      With({neu: ForAll(Filter(Tischbuchungen, (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum, 1, TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(), 60, TimeUnit.Minutes))) As B, {TischName: B.Tisch.Value, Startzeit: B.Startzeit, Endzeit: B.Endzeit, Eingecheckt: B.CheckedIn, Name: B.Person.DisplayName, Erstellt: B.Erstellt})}, If(IsError(neu) || IsError(First(neu)), Notify("Grundriss konnte nicht aktualisiert werden. Bitte auf Aktualisieren tippen.", NotificationType.Warning), ClearCollect(colGrundriss, DropColumns(Filter(neu, Eingecheckt || Startzeit > varFreigabeGrenze || Erstellt > varFreigabeGrenze), Erstellt)); Set(varGrundrissStand, Now())));
+      Set(varJetztTakt, Now())
+    Theme: =PowerAppsTheme

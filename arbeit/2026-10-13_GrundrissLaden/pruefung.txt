@@ -1,0 +1,16 @@
+Grundriss-Laden v1: 6 Blöcke (6 Properties, App.Formulas zweistufig) in 5 Schritten. Grundlage: Export 13.10. 09:59.
+Je Block: Anker genau 1x, Klammern, Rückübersetzung (App.Formulas mit Kommentaren), keine Kommentare in anderen Formeln,
+benannte Formeln eindeutig und je mit ';' (deutsch ';;') abgeschlossen, vorhandener Text unverändert, OnStart nur um die zwei Blöcke kürzer,
+varJetztTakt bleibt letzte Anweisung, Ladezeile unverändert, Positionen 1:1, keine Schreibzugriffe auf die Positionen, Felder vollständig,
+ein Record-Typ für varSelectedTisch/varDetailsTisch, Tische nur noch in TischeLokal + frische Gesperrt-Prüfung beim Speichern.
+props_de.json = Export 13.10. (2076 Properties, nach Abzug der Anführungszeichen-Reste 0 Abweichungen)
+ddStockwerk: Kontrast Schrift/Auswahl alt 1.73:1, neu 7.21:1 (WCAG AA verlangt 4,5:1)
+App.Formulas#1: 22 benannte Formeln: BasisBreite, BasisHoehe, BasisSkalierung, BasisKachelbreiteQuer, BasisKachelhoeheQuer, BasisKachelbreiteHoch, BasisKachelhoeheHoch, BasisKreisgroesse, btnAbstand, btnBreite, BasisKachelbreiteHochUG, BasisKachelhoeheHochUG, BasisKachelbreiteQuerUG, BasisKachelhoeheQuerUG, BasisKreisgroesseUG, BasisSchriftgroesseUG, BasisKachelbreiteBigTableUG, TischNrOG, TischNrUG, BasisSkalierungReferenz, colTischPositionen, colTischPositionenUG
+App.Formulas: 23 benannte Formeln: BasisBreite, BasisHoehe, BasisSkalierung, BasisKachelbreiteQuer, BasisKachelhoeheQuer, BasisKachelbreiteHoch, BasisKachelhoeheHoch, BasisKreisgroesse, btnAbstand, btnBreite, BasisKachelbreiteHochUG, BasisKachelhoeheHochUG, BasisKachelbreiteQuerUG, BasisKachelhoeheQuerUG, BasisKreisgroesseUG, BasisSchriftgroesseUG, BasisKachelbreiteBigTableUG, TischeLokal, TischNrOG, TischNrUG, BasisSkalierungReferenz, colTischPositionen, colTischPositionenUG
+Positionen: OG 16, UG 19 (inkl. Big Table) = Tische-Liste 12.10. (REST, 35 Zeilen), Namen und Geschoss gleich
+Nr OG (Listenreihenfolge 12.10.): 1=OG 1, 2=OG 2, 3=OG 3, 4=OG 4, 5=OG 5, 6=OG 8, 7=OG 9, 8=OG 12, 9=OG 10, 10=OG 13, 11=OG 6, 12=OG 7, 13=OG 11, 14=Quiet 3, 15=Quiet 2, 16=Quiet 1
+Nr UG (Listenreihenfolge 12.10.): 1=UG 1, 2=UG 2, 3=UG 3, 4=UG 4, 5=UG 5, 6=UG 6, 7=UG 7, 8=UG 8, 9=UG 9, 10=UG 10, 11=UG 11, 12=UG 12, 13=UG 13, 14=UG 15, 15=UG 16, 16=UG 17, 17=UG 18, 18=Big Table, 19=UG 14
+Gelesene Felder aus Kachel/Auswahl/Tischliste: Geschoss, Gesperrt, ID, Titel (alle in TischeLokal)
+Tische direkt gelesen vorher: App.Formulas, Gallery1.Items, btnSpeichern.OnSelect, btnSpeichernTischePanel.OnSelect, ddTischePanel.Items
+Tische direkt gelesen nachher: App.Formulas, btnSpeichern.OnSelect, btnSpeichernTischePanel.OnSelect (App.Formulas nur noch in TischeLokal, Speichern prüft Gesperrt weiter frisch am Server)
+Prüfung: 0 Fehler

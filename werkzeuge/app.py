@@ -121,8 +121,9 @@ def _string_ende(f, i):
     raise ValueError("offene Zeichenkette bei %d" % i)
 
 
-def to_de(f):
-    """Englische -> deutsche Schreibweise. Zeichenketten und '...' bleiben unangetastet."""
+def to_de(f, kommentare=False):
+    """Englische -> deutsche Schreibweise. Zeichenketten und '...' bleiben unangetastet.
+    kommentare=True: // bis Zeilenende unverändert übernehmen (nur für App.Formulas)."""
     out = []
     i, n = 0, len(f)
     while i < n:
@@ -133,7 +134,13 @@ def to_de(f):
             i = j + 1
             continue
         if f.startswith("//", i):
-            raise ValueError("Kommentar in Formel")
+            if not kommentare:
+                raise ValueError("Kommentar in Formel")
+            j = f.find("\n", i)
+            j = n if j < 0 else j
+            out.append(f[i:j])
+            i = j
+            continue
         if ch == ";":
             out.append(";;")
         elif ch == ",":
@@ -149,7 +156,7 @@ def to_de(f):
     return "".join(out)
 
 
-def from_de(f):
+def from_de(f, kommentare=False):
     """Deutsche -> englische Schreibweise (Gegenstück zu to_de, für Prüfungen)."""
     out = []
     i, n = 0, len(f)
@@ -159,6 +166,12 @@ def from_de(f):
             j = _string_ende(f, i)
             out.append(f[i:j + 1])
             i = j + 1
+            continue
+        if kommentare and f.startswith("//", i):
+            j = f.find("\n", i)
+            j = n if j < 0 else j
+            out.append(f[i:j])
+            i = j
             continue
         if f.startswith(";;", i):
             out.append(";")
