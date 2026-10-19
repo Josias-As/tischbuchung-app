@@ -261,3 +261,10 @@ EXPORT_DESKTOP_1310 = os.path.join(REPO, "quellen/2026-10-13_Desktop/Tischbuchun
 
 def lade_desktop_1310():
     return App(entpacke(EXPORT_DESKTOP_1310, "desktop_2026-10-13"))
+
+
+EXPORT_DESKTOP_1910 = os.path.join(REPO, "quellen/2026-10-19_HeuteButton/TischbuchungHeutebutton_20261019103505.zip")
+
+
+def lade_desktop_1910():
+    return App(entpacke(EXPORT_DESKTOP_1910, "desktop_2026-10-19"))

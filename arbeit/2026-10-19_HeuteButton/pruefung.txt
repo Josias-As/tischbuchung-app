@@ -1,0 +1,8 @@
+Knopf btnHeuteDatum: 25 Properties, 1 neues Steuerelement in conDashboard. Grundlage: Export 19.10. 10:35.
+varAnsichtsDatum lesen (stellen sich mit um): Circle1.BorderStyle, Circle1.Fill, Icon1.OnSelect, Icon1_1.OnSelect, Image6.OnSelect, Label1.Text, Label16.Text, Rectangle1.Fill, btnEinchecken.OnSelect, btnGrundrissAktualisieren.OnSelect, btnHitArea.OnSelect, btnHitArea_1.OnSelect, btnSpeichern.OnSelect, btnSpeichernTischePanel.OnSelect, btnStornieren.OnSelect, btnStornierenKlein.OnSelect, btnStornieren_1.OnSelect, btnVerlängern.OnSelect, btnVerlängern_1.OnSelect, ddStockwerk.OnChange, dpDatum.DefaultDate, dpDatumTischePanel.DefaultDate, galTischbuchungenHeute.Items, icoAktualisierenGrundriss.OnSelect
+varAnsichtsDatum/dpAnsichtsDatum schreiben bisher: App.OnStart, Timer1.OnTimerEnd, dpAnsichtsDatum.OnChange
+dpAnsichtsDatum.DefaultDate nicht gesetzt (Standard Today()) -> Reset(dpAnsichtsDatum) zeigt heute
+Lage: Y 33.5–65.5 (lblMyPersonalDesk ab 75), X = Image4.X + Image4.Width + 5 = 85 + Image4.Width + 5 (Image4.Width im Export Standard, nicht gesetzt)
+Kontrast Weiß auf Fill (23, 20, 150): 13.3:1
+Textbreite „Heute“ bei Größe 12 halbfett ca. 45 (geschätzt) < 90
+Prüfung: 0 Fehler

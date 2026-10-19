@@ -1,0 +1,155 @@
+{
+ "app": [
+  {
+   "control": "btnHeuteDatum",
+   "prop": "Text",
+   "neu": "\"Heute\"",
+   "de": "\"Heute\""
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "X",
+   "neu": "Image4.X + Image4.Width + 5",
+   "de": "Image4.X + Image4.Width + 5"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "Y",
+   "neu": "dpAnsichtsDatum.Y + (dpAnsichtsDatum.Height - Self.Height) / 2",
+   "de": "dpAnsichtsDatum.Y + (dpAnsichtsDatum.Height - Self.Height) / 2"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "Width",
+   "neu": "90",
+   "de": "90"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "Height",
+   "neu": "32",
+   "de": "32"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "Font",
+   "neu": "Font.'Open Sans'",
+   "de": "Font.'Open Sans'"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "Size",
+   "neu": "12",
+   "de": "12"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "FontWeight",
+   "neu": "FontWeight.Semibold",
+   "de": "FontWeight.Semibold"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "Fill",
+   "neu": "ColorValue(\"#171496\")",
+   "de": "ColorValue(\"#171496\")"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "Color",
+   "neu": "RGBA(255, 255, 255, 1)",
+   "de": "RGBA(255; 255; 255; 1)"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "HoverFill",
+   "neu": "ColorFade(Self.Fill, -20%)",
+   "de": "ColorFade(Self.Fill; -20%)"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "HoverColor",
+   "neu": "RGBA(255, 255, 255, 1)",
+   "de": "RGBA(255; 255; 255; 1)"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "PressedFill",
+   "neu": "ColorFade(Self.Fill, -30%)",
+   "de": "ColorFade(Self.Fill; -30%)"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "PressedColor",
+   "neu": "RGBA(255, 255, 255, 1)",
+   "de": "RGBA(255; 255; 255; 1)"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "BorderThickness",
+   "neu": "0",
+   "de": "0"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "DisabledFill",
+   "neu": "ColorFade(ColorValue(\"#171496\"), 50%)",
+   "de": "ColorFade(ColorValue(\"#171496\"); 50%)"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "DisabledColor",
+   "neu": "RGBA(255, 255, 255, 1)",
+   "de": "RGBA(255; 255; 255; 1)"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "RadiusTopLeft",
+   "neu": "10",
+   "de": "10"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "RadiusTopRight",
+   "neu": "10",
+   "de": "10"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "RadiusBottomLeft",
+   "neu": "10",
+   "de": "10"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "RadiusBottomRight",
+   "neu": "10",
+   "de": "10"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "Visible",
+   "neu": "varAnsichtsDatum <> Date(Year(Coalesce(varJetztTakt, Now())), Month(Coalesce(varJetztTakt, Now())), Day(Coalesce(varJetztTakt, Now())))",
+   "de": "varAnsichtsDatum <> Date(Year(Coalesce(varJetztTakt; Now())); Month(Coalesce(varJetztTakt; Now())); Day(Coalesce(varJetztTakt; Now())))"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "DisplayMode",
+   "neu": "If(!varIsLoading && !varZeigeDialog && !varZeigeVerwalten && !varZeigeCheckin, DisplayMode.Edit, DisplayMode.Disabled)",
+   "de": "If(!varIsLoading && !varZeigeDialog && !varZeigeVerwalten && !varZeigeCheckin; DisplayMode.Edit; DisplayMode.Disabled)"
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "AccessibleLabel",
+   "neu": "\"Datum auf heute zurücksetzen\"",
+   "de": "\"Datum auf heute zurücksetzen\""
+  },
+  {
+   "control": "btnHeuteDatum",
+   "prop": "OnSelect",
+   "neu": "If(\n  !varIsLoading && !varZeigeDialog && !varZeigeVerwalten && !varZeigeCheckin,\n  Set(varAnsichtsDatum, Today());\n  Reset(dpAnsichtsDatum);\n  Set(varZeigeDetails, false);\n  Set(varFreigabeGrenze, DateAdd(Now(), -Coalesce(varFreigabeMinuten, 30), TimeUnit.Minutes));\n  With({neu: ForAll(Filter(Tischbuchungen, (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum, 1, TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(), 60, TimeUnit.Minutes))) As B, {TischName: B.Tisch.Value, Startzeit: B.Startzeit, Endzeit: B.Endzeit, Eingecheckt: B.CheckedIn, Name: B.Person.DisplayName, Erstellt: B.Erstellt})}, If(IsError(neu) || IsError(First(neu)), Notify(\"Grundriss konnte nicht aktualisiert werden. Bitte auf Aktualisieren tippen.\", NotificationType.Warning), ClearCollect(colGrundriss, DropColumns(Filter(neu, Eingecheckt || Startzeit > varFreigabeGrenze || Erstellt > varFreigabeGrenze), Erstellt)); Set(varGrundrissStand, Now())))\n)",
+   "de": "If(\n  !varIsLoading && !varZeigeDialog && !varZeigeVerwalten && !varZeigeCheckin;\n  Set(varAnsichtsDatum; Today());;\n  Reset(dpAnsichtsDatum);;\n  Set(varZeigeDetails; false);;\n  Set(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));;\n  With({neu: ForAll(Filter(Tischbuchungen; (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(); 60; TimeUnit.Minutes))) As B; {TischName: B.Tisch.Value; Startzeit: B.Startzeit; Endzeit: B.Endzeit; Eingecheckt: B.CheckedIn; Name: B.Person.DisplayName; Erstellt: B.Erstellt})}; If(IsError(neu) || IsError(First(neu)); Notify(\"Grundriss konnte nicht aktualisiert werden. Bitte auf Aktualisieren tippen.\"; NotificationType.Warning); ClearCollect(colGrundriss; DropColumns(Filter(neu; Eingecheckt || Startzeit > varFreigabeGrenze || Erstellt > varFreigabeGrenze); Erstellt));; Set(varGrundrissStand; Now())))\n)"
+  }
+ ],
+ "onchange_vorher_de": "Set(varAnsichtsDatum; dpAnsichtsDatum.SelectedDate);;\nSet(varFreigabeGrenze; DateAdd(Now(); -Coalesce(varFreigabeMinuten; 30); TimeUnit.Minutes));;\nWith({neu: ForAll(Filter(Tischbuchungen; (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum; 1; TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(); 60; TimeUnit.Minutes))) As B; {TischName: B.Tisch.Value; Startzeit: B.Startzeit; Endzeit: B.Endzeit; Eingecheckt: B.CheckedIn; Name: B.Person.DisplayName; Erstellt: B.Erstellt})}; If(IsError(neu) || IsError(First(neu)); Notify(\"Grundriss konnte nicht aktualisiert werden. Bitte auf Aktualisieren tippen.\"; NotificationType.Warning); ClearCollect(colGrundriss; DropColumns(Filter(neu; Eingecheckt || Startzeit > varFreigabeGrenze || Erstellt > varFreigabeGrenze); Erstellt));; Set(varGrundrissStand; Now())))"
+}
