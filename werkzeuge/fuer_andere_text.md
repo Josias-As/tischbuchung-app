@@ -1,9 +1,9 @@
 @@ kopf
 # Für andere buchen + weicher Hinweis (Tischbuchung Desktop, 26.10.2026)
 
-Für Josias. Grundlage: **Export 25.10. 20:09** (`Tischbuchungsapp25.10.26_20261025200901.zip`). Erzeugt und maschinell geprüft mit `werkzeuge/fuer_andere.py` (0 Fehler, Mutationstest 8 von 8 erkannt). PRUEFSTATUS. In Studio nichts getestet. Kennzeichnung: **belegt**, **geschlussfolgert**, **UNSICHER**.
+Für Josias. Grundlage: **Export 25.10. 20:09** (`Tischbuchungsapp25.10.26_20261025200901.zip`). Erzeugt und maschinell geprüft mit `werkzeuge/fuer_andere.py` (0 Fehler, Mutationstest 13 von 13 erkannt). PRUEFSTATUS. In Studio nichts getestet. Kennzeichnung: **belegt**, **geschlussfolgert**, **UNSICHER**.
 
-**Voraussetzung:** Jeder Block ersetzt die **ganze** Property. Hast du nach dem 25.10. 20:09 an einer der 14 geänderten Properties etwas gespeichert, erst neu exportieren, ich erzeuge die Blöcke dann neu.
+**Voraussetzung:** Jeder Block ersetzt die **ganze** Property. Hast du nach dem 25.10. 20:09 an einer der 17 geänderten Properties etwas gespeichert, erst neu exportieren, ich erzeuge die Blöcke dann neu.
 
 @@ kurzfassung
 ## Kurzfassung
@@ -20,7 +20,9 @@ Für Josias. Grundlage: **Export 25.10. 20:09** (`Tischbuchungsapp25.10.26_20261
   - Grundriss-Popup: Gastname, darunter „gebucht von <Buchender>“.
   - „My personal desk“, Tab „Buchungen“ und beide Verwalten-Dialoge: „für <Gast>“.
   - **Altbestand ohne Gastnamen sieht genau aus wie heute.** Jede geänderte Anzeige enthält die alte Formel zeichengleich im Zweig „GastName leer“ (maschinell geprüft).
-- **Umfang:** 14 bestehende Properties und 9 neue Steuerelemente, alle direkt im Screen oder im jeweiligen Container. Keine Auto-Layout-Container.
+- **Umfang:**
+  - 17 bestehende Properties werden ersetzt. 6 bisher nicht gesetzte Maße an bestehenden Labels kommen dazu (Rückfall: Standardwert, steht beim Block).
+  - 9 neue Steuerelemente, alle direkt im Screen oder im jeweiligen Container. Keine Auto-Layout-Container.
   - Neue Variablen tragen alle den Präfix `varFb…` (7 Stück).
   - Kein neuer Server-Filter: `GastName` wird nur lokal geprüft, deshalb keine neue Delegationswarnung.
 - **Nicht angefasst:**
@@ -29,6 +31,14 @@ Für Josias. Grundlage: **Export 25.10. 20:09** (`Tischbuchungsapp25.10.26_20261
   - Der nächtliche Lösch-Flow filtert nur nach `Endzeit` (laut Betriebshandbuch). Er ist nicht im Export.
 - **Handy-App:** unverändert. Bekannte Folge, von dir akzeptiert: Gast-Buchungen blockieren dort den Buchenden zur selben Zeit.
 - **Hinweistext:** Er nennt „Fragen: Axel Krägelius (PC-Admin) oder Norman Horn (Admin, NHN IT).“ Frage 5 ist offen. Ändern geht an einer Stelle: `lblFbHinweis.Text`.
+- **Unabhängig geprüft (Abschnitt 6):**
+  - 3 Befunde sind behoben, die das Einfügen blockiert hätten:
+    - „Trotzdem verlängern“ lief ins Leere.
+    - Zweizeilige Texte wurden abgeschnitten.
+    - Texte überlappten oder waren zu lang.
+  - Dazu kleinere Punkte.
+  - Für die Breiten rechnet der Generator jetzt je Zeichenart und mit Pixeln, nicht mehr mit einer Pauschale.
+- **Nachtrag 6 (noch nicht eingefügt)** ändert ebenfalls `btnHitArea.OnSelect`. Fügst du ihn später ein, erzeuge ich ihn auf diesem Stand neu.
 
 @@ ablauf
 ## 1. Einfügen (Reihenfolge)
@@ -52,7 +62,7 @@ NEUE_TABELLE
 - **In Studio** verdecken die neuen Flächen den Bildschirm nicht, weil `varFbZeige` leer ist. Zum Gestalten kurz `Visible` auf `true` setzen und danach die Formel aus dem Block zurück einsetzen.
 
 @@ S2
-**Was:** Ein Hinweis mit Vollbild-Hintergrund. Der Hintergrund fängt alle Klicks ab, solange der Hinweis offen ist. Daneben ist nichts bedienbar, also kann sich auch keine Variable ändern.
+**Was:** Ein Hinweis (500 × 280) mit Vollbild-Hintergrund. Der Hintergrund fängt alle Klicks ab, solange der Hinweis offen ist. Daneben ist nichts bedienbar, also kann sich auch keine Variable ändern.
 - **„Abbrechen“** schließt den Hinweis, nichts wird gespeichert. Der Buchungsdialog oder das Panel bleibt offen.
 - **„Trotzdem buchen“ / „Trotzdem verlängern“** führt den Knopf, der gefragt hat, noch einmal aus, diesmal mit Bestätigung (`varFbTrotzdem`). Die Speicherlogik steht also nur einmal da.
 - Der Knopf blendet den Hinweis nicht selbst aus. Das macht der Speichern- bzw. Verlängern-Knopf als erste Anweisung. So trifft ein Doppelklick nie den Dialog darunter, und während des Speicherns deckt die Ladeanzeige alles ab.
@@ -77,6 +87,7 @@ NEUE_TABELLE
 2. Neue Prüfung: „Für andere“ ohne Namen → Meldung, nichts gespeichert.
 3. Eigene Buchungen, die zur selben Zeit liegen (`colNeuIch`): Gast-Buchungen (`GastName` nicht leer) zählen nicht. Bei einer Buchung **für** andere wird gar nicht geprüft.
    - Der Server-Filter bleibt gleich, die Gast-Buchungen fallen lokal per `RemoveIf` heraus. So entsteht keine neue Delegationswarnung.
+   - `colNeuIch` wird jetzt mit genannten Spalten geladen (`ForAll(… As B; {ID; Startzeit; Endzeit; CheckedIn; Erstellt; GastName})`, wie in der Ladezeile). So kommen `GastName` und `Erstellt` sicher an.
 4. **Statt Sperre:** Überschneidet mindestens ein Termin eine eigene Buchung, öffnet sich der Hinweis, und **nichts** wird gespeichert. Mit „Trotzdem buchen“ werden alle freien Termine gespeichert, auch die mit Überschneidung. Termine, an denen der Tisch selbst belegt ist, bleiben wie heute ausgeschlossen.
 5. Der Sammel-Patch schreibt `GastName` mit. Bei eigenen Buchungen bleibt die Spalte leer.
 6. Die Erfolgsmeldung nennt den Gast: „Gebucht: UG Desk 5 für Max Muster, …“.
@@ -87,8 +98,9 @@ NEUE_TABELLE
 @@ S6
 **Was, in beiden Verlängern-Knöpfen gleich:**
 1. Die Bestätigung wird am Anfang verbraucht.
-2. Eigene andere Buchungen zur selben Zeit: Gast-Buchungen zählen nicht. Eine Gast-Buchung wird ohne diese Prüfung verlängert.
-3. Statt „Du hast in dieser Zeit schon einen anderen Tisch gebucht.“ (Sperre) kommt der Hinweis mit „Trotzdem verlängern“.
+2. Eigene andere Buchungen zur selben Zeit: Gast-Buchungen zählen nicht. Eine Gast-Buchung wird ohne diese Prüfung verlängert. `colVerlIch` wird wie oben mit genannten Spalten geladen.
+3. Statt „Du hast in dieser Zeit schon einen anderen Tisch gebucht.“ (Sperre) kommt der Hinweis mit „Trotzdem verlängern“. Er kommt erst **nach** der Prüfung „Tisch inzwischen belegt“, damit niemand etwas bestätigt, das danach doch scheitert.
+4. Ist der Hinweis offen, bleibt die gewählte Dauer stehen (`If(!varFbZeige; Set(varAusgewaehltePlusDauer; Blank()))`). Sonst wäre der Knopf beim „Trotzdem“ gesperrt und meldete „Bitte eine Dauer auswählen“ (Befund B1).
 - Verkürzen, 22:00, „Tisch inzwischen belegt“ und verfallene Buchung bleiben wie heute.
 
 **Rückfall:** beide Properties aus Anhang A.
@@ -102,8 +114,12 @@ NEUE_TABELLE
 
 @@ S8
 **Was:** Gastname in der Anzeige. Jede Formel hat die Form `If(IsBlank(….GastName); <alte Formel>; <neu>)`. Altbestand sieht also exakt aus wie heute.
-- Im Popup wird `lblPerson` nur bei Gast-Buchungen breiter (bis vor das Bild) und zweizeilig. Die Zeitzeile `lblZeit2` rückt dann 12 nach unten, sonst würde die zweite Zeile sie berühren.
-- Im Tab-Verwalten-Dialog wird der Titel nur bei Gast-Buchungen breiter.
+Was sich nur bei Gast-Buchungen ändert:
+- **Popup:** `lblPerson` ist breiter (bis vor das Bild), Größe 11, Höhe 46, zweizeilig. Die Zeitzeile `lblZeit2` rückt nach unten (Y 118).
+- **„My personal desk“ und Tab „Buchungen“:** Die Zeitzeile bekommt eine zweite Zeile „für <Name>“, die Zeile wird doppelt so hoch. Der Name steht unter der Zeit, nicht daneben. Daneben läge sonst der Status bzw. das Auswahlkästchen.
+- **Verwalten (Dashboard):** Zeit plus zweite Zeile „für <Name>“ in Größe 10, breiter bis vor „+1Std“.
+- **Verwalten (Tab):** Titel „Tisch X · für <Name>“ in Größe 15 statt „Verwalten: Tisch X“ in 18, breiter.
+- **Lange Namen** (ab etwa 15 Zeichen) können in Popup und Verwalten (Dashboard) abgeschnitten sein, die Liste zeigt sie ganz.
 
 **Rückfall:** alle Properties aus Anhang A.
 
@@ -122,8 +138,9 @@ Alle Testbuchungen für **morgen**, damit keine Vergangenheits- oder Check-in-Re
 | ☐ | 6 | Wie 5 mit Name „Test Gast“ | gebucht **ohne Hinweis**, Meldung „… für Test Gast …“. Popup der Kachel: „Test Gast“, darunter „gebucht von <dir>“. Liste/Tab/Verwalten: „für Test Gast“ |
 | ☐ | 7 | UG Desk 5, morgen 18:00–19:00 „Für andere“ (Name „Gast 2“), dann UG Desk 6, morgen 18:00–19:00 „Für mich“ | beide ohne Hinweis (Gast-Buchung zählt nicht) |
 | ☐ | 8 | Panel: Serie „Für andere“ (Name „Serie Gast“), Mo–Fr nächste Woche, 09:00–10:00; vorher eine eigene Buchung Mo 09:00–10:00 anlegen | Serie ohne Hinweis gebucht, alle Termine mit Gastname |
-| ☐ | 9 | Panel: Serie „Für mich“ über dieselbe Woche 09:00–10:00 auf anderem Tisch | Hinweis „An x von y Terminen …“; Abbrechen → nichts; Trotzdem → alle Termine gebucht |
-| ☐ | 10 | Tab „Buchungen“ → UG Desk 1 (morgen 14–15) verwalten → +2 Std (überschneidet eigene Desk 2 16–17) → Speichern | Hinweis „Trotzdem verlängern“; Abbrechen → unverändert; Trotzdem → 14–17 |
+| ☐ | 9 | Panel: Serie „Für mich“ über dieselbe Woche 09:00–10:00 auf anderem Tisch | Hinweis „An 1 von 5 Terminen …“; Abbrechen → nichts; Trotzdem → alle 5 gebucht |
+| ☐ | 9b | Gemischte Serie: vorher einen Termin der Woche 11:00–12:00 auf UG Desk 8 von **jemand anderem** buchen lassen (oder als Gast „Belegt Test“). Dann Serie „Für mich“ 11:00–12:00 auf UG Desk 8 Mo–Fr, mit einer eigenen Buchung Di 11:00–12:00 auf einem anderen Tisch | Hinweis (Di); Trotzdem → 4 von 5 gebucht, Meldung „1× war der Tisch schon belegt“ |
+| ☐ | 10 | Tab „Buchungen“ → UG Desk 1 (morgen 14–15) verwalten → +2 Std (überschneidet eigene Desk 2 16–17) → Speichern | Hinweis „Trotzdem verlängern“; **Abbrechen** → unverändert, die Dauer +2 Std bleibt gewählt; Speichern → Hinweis → **Trotzdem verlängern** → 14–17 |
 | ☐ | 11 | Tab „Buchungen“ → Gast-Buchung UG Desk 5 (18–19) +1 Std, obwohl Desk 6 (18–19) dir gehört | verlängert, kein Hinweis |
 | ☐ | 12 | Gast-Buchung stornieren (Verwalten → Stornieren), eine weitere über Mehrfachauswahl im Tab | beides geht wie bei eigenen |
 | ☐ | 13 | Einchecken: eine Gast-Buchung für **heute** in der nächsten halben Stunde anlegen, dann im Dashboard einchecken | Check-in geht durch dich (Gast hat kein Konto) |
@@ -141,11 +158,28 @@ Alle Testbuchungen für **morgen**, damit keine Vergangenheits- oder Check-in-Re
 | Nr | Was | Prüfen |
 |---|---|---|
 | U1 | `Select(btnSpeichern)` usw. aus dem Hinweis führt den Knopf im Container aus | Test 4, 9, 10. Passiert bei „Trotzdem“ nichts: mir melden. Notweg: Hinweis per „Abbrechen“ schließen geht immer |
-| U2 | `GastName` kommt in den Sammlungen `colNeuIch`/`colVerlIch` an (Studio lädt nur benutzte Spalten) | Test 7 und 11. Wenn nicht, erscheint der Hinweis bei Gast-Überschneidung unnötig, gebucht werden kann trotzdem. Kein falscher Datensatz |
+| U2 | `GastName` in `varSelectedBuchung`/`varVerlBuchung` (aus `LookUp`): Studio lädt nur benutzte Spalten. In den Sammlungen ist es jetzt per `ForAll` abgesichert | Test 6 (Popup und Verwalten zeigen den Namen) und 11. Fehlt er, zeigen die Anzeigen den Buchenden wie bisher, bzw. der Hinweis erscheint unnötig. Kein falscher Datensatz |
 | U3 | Der klassische Umschalter zeigt „Für mich“/„Für andere“ neben dem Schalter in Breite 165 | Sichtprüfung. Sonst `Width` auf 180 |
 | U4 | Panel bei Fensterhöhe unter etwa 720: „Speichern“ kann unten abgeschnitten sein | Fenster verkleinern |
-| U5 | Rolle von Axel Krägelius und Norman Horn im Hinweistext (Frage 5 offen) | Text in `lblFbHinweis.Text` anpassen |
+| U5 | Rolle von Axel Krägelius und Norman Horn im Hinweistext (Frage 5 offen; NHN ist laut Projektwissen der GoBright-Dienstleister) | Text in `lblFbHinweis.Text` anpassen |
+| U6 | Textbreiten sind geschätzt (Open Sans je Zeichenart) | Test 6 mit einem langen Namen ansehen |
 
 @@ pruefung_unabh
 ## 6. Unabhängige Prüfung
 PRUEFUNG_PLATZHALTER
+
+### Was aus den Befunden wurde
+| Nr | Befund | Umsetzung |
+|---|---|---|
+| B1 | „Trotzdem verlängern“ fand die Dauer gelöscht | behoben: Dauer bleibt bei offenem Hinweis stehen, Prüfung im Generator |
+| B2 | Mehrzeilige Texte in festen Höhen abgeschnitten | behoben: Größe und Höhe nur bei Gast angepasst, Höhen gerechnet, Hinweis 500 × 280 |
+| B3 | Überlappungen, zu lange Texte, falsche Schätzung | behoben: Name in zweiter Zeile unter der Zeit, Tab-Titel kürzer, Knöpfe Größe 13. Schätzung je Zeichenart in Pixeln, Prüfungen an den gelieferten Werten (Mutation erkennt falsche Größe/Höhe) |
+| B4 | `GastName` in Sammlungen evtl. nicht geladen | behoben für `colNeuIch`/`colVerlIch` (Projektion). Für Datensatz-Variablen bleibt U2 mit Test |
+| B5 | Hinweis vor „Tisch belegt“ beim Verlängern | behoben: Reihenfolge getauscht, Prüfung im Generator |
+| B6 | `lblPerson.Width` ist bestehend (Standard 150) | behoben: als „bisher Standard“ mit Rückfallwert ausgewiesen, Zählung korrigiert |
+| B7 | Ebenen | steht in Abschnitt 1 (Einfügen, Ganz nach vorne, `conLadeOverlay` zuletzt) |
+| B8 | Nachtrag 6 ändert auch `btnHitArea.OnSelect` | in der Kurzfassung: N6 wird danach neu erzeugt |
+| B9 | Check-in-Dialog ohne Gastnamen | nach der Abnahme, kein Muss (der Buchende sieht Tisch und Zeit) |
+| B10 | Handy: auch eigene Doppelbuchungen per „Trotzdem“ sperren dort das Verlängern | Josias zur Kenntnis, Handy-Anpassung nach der Abnahme |
+| B11 | Testliste unvollständig | ergänzt: Abbrechen im Verlängern-Hinweis, gemischte Serie (9b), Anzeige des Namens (6) |
+| B12 | Kontaktzeile unbestätigt | U5 |

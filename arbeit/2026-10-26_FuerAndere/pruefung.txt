@@ -1,13 +1,33 @@
-Für andere buchen: 129 Properties (14 bestehende geändert, 115 an 9 neuen Steuerelementen). Grundlage: Export 25.10. 20:09.
-Geänderte bestehende Properties: btnHitArea.OnSelect, btnSpeichern.OnSelect, btnSpeichernTischePanel.OnSelect, btnSpeichernTischePanel.Y, btnTischHinzufügen.OnSelect, btnVerlängern.OnSelect, btnVerlängern_1.OnSelect, lblPerson.Text, lblRaumZeit.Text, lblTitel3_1.Text, lblTitel3_1.Width, lblZeit2.Y, lblZeit3.Text, lblZeitHeute.Text
+Für andere buchen: 137 Properties: 17 bestehende ersetzt, 6 an bestehenden Steuerelementen neu gesetzt (bisher Standard), 114 an 9 neuen Steuerelementen. Grundlage: Export 25.10. 20:09.
+Bisher Standard: lblPerson.Height (40), lblPerson.Size (13), lblPerson.Width (150), lblZeit3.Height (40), lblZeit3.Size (13), lblZeit3.Width (150)
+Geänderte bestehende Properties: btnHitArea.OnSelect, btnSpeichern.OnSelect, btnSpeichernTischePanel.OnSelect, btnSpeichernTischePanel.Y, btnTischHinzufügen.OnSelect, btnVerlängern.OnSelect, btnVerlängern_1.OnSelect, lblPerson.Text, lblRaumZeit.Height, lblRaumZeit.Text, lblTitel3_1.Size, lblTitel3_1.Text, lblTitel3_1.Width, lblZeit2.Y, lblZeit3.Text, lblZeitHeute.Height, lblZeitHeute.Text
 neue Variablen: varFbBestaetigt, varFbFuerAndere, varFbGast, varFbQuelle, varFbText, varFbTrotzdem, varFbZeige
-Textbreite Schalter: „Für andere“ ca. 73 von 105
-Textbreite Schalter: „Für mich“ ca. 58 von 105
-Textbreite btnFbTrotzdem: „Trotzdem verlängern“ ca. 160 von 178
-Textbreite btnFbAbbrechen: „Abbrechen“ ca. 76 von 178
-Textbreite lblPerson: „gebucht von Josias Semeraf“ ca. 189 von 215
-Textbreite lblZeit3: „für Max Mustermann“ ca. 131 von 140
-Textbreite lblZeitHeute: „08:00 – 12:00  ·  für Max Mustermann“ ca. 242 von 285
-Panel: Zeile „Für andere“ Y 531–571, Speichern Y 591–631, Panelhöhe bei 768 = 678
-Dialog: Schalter X 270–435, Y 122–162, Namensfeld Y 186–226; frei zwischen Image2 (bis 245) und Eingaben (ab 448); Wochentage erst ab Y 290
+Textbreite tglFuerAndere Text: „Für andere“ ca. 97 von 110
+Textbreite btnFbTrotzdem: „Trotzdem verlängern“ ca. 187 von 200
+Textbreite btnFbAbbrechen: „Abbrechen“ ca. 92 von 200
+Textbreite lblPerson Zeile 2: „gebucht von Josias Semeraf“ ca. 211 von 215
+Textbreite lblZeit3 Zeile 2 (bis btnPlus1Std X 175): „für Max Mustermann“ ca. 138 von 152
+Textbreite lblZeitHeute Zeile 1 (bis lblStatusHeute X 270): „08:00 – 12:00“ ca. 101 von 158
+Textbreite lblZeitHeute Zeile 2: „für Max Mustermann“ ca. 166 von 285
+Textbreite lblRaumZeit Zeile 2 (bis chkAuswahl): „für Max Mustermann“ ca. 166 von 353
+Textbreite lblTitel3_1 Gast: „Tisch UG Desk 14  ·  für Max Mustermann“ ca. 408 von 516
+Höhe lblPerson (Gast): 2 Zeilen ca. 45 von 46
+Höhe lblZeit3 (Gast): 2 Zeilen ca. 42 von 50
+Höhe lblZeitHeute (Gast): 2 Zeilen ca. 38 von 43
+Lage Popup lblPerson bis lblZeit2: 117 ≤ 118
+Lage Popup lblZeit2 Textmitte: 148 ≤ 154
+Lage Verwalten lblZeit3 bis Knöpfe: 100 ≤ 100
+Lage Karte lblZeitHeute 2 Zeilen: 95 ≤ 104
+Höhe lblFbHinweis: längster Text 6 Zeilen ca. 135 von 180
+lblPerson.Width: Altbestand 150 (Standard, im Export nicht gesetzt)
+lblPerson.Size: Altbestand 13 (Standard, im Export nicht gesetzt)
+lblPerson.Height: Altbestand 40 (Standard, im Export nicht gesetzt)
+lblZeit2.Y: Altbestand 100
+lblZeit3.Size: Altbestand 13 (Standard, im Export nicht gesetzt)
+lblZeit3.Width: Altbestand 150 (Standard, im Export nicht gesetzt)
+lblZeit3.Height: Altbestand 40 (Standard, im Export nicht gesetzt)
+lblTitel3_1.Size: Altbestand 18
+lblTitel3_1.Width: Altbestand 400
+lblZeitHeute.Height: Altbestand Self.Size * 1.8
+lblRaumZeit.Height: Altbestand Self.Size * 1.8
 Prüfung: 0 Fehler

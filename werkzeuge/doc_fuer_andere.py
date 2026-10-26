@@ -17,7 +17,8 @@ T = {x: "\n".join(v).strip() for x, v in T.items()}
 pp = os.path.join(Z, "pruefung_fuer_andere.md")
 geprueft = os.path.exists(pp)
 T["kopf"] = T["kopf"].replace("PRUEFSTATUS", "Unabhängig geprüft, Befunde in Abschnitt 6" if geprueft else "**Noch nicht unabhängig geprüft**")
-T["pruefung_unabh"] = T["pruefung_unabh"].replace("PRUEFUNG_PLATZHALTER", open(pp, encoding="utf-8").read().strip() if geprueft else "Läuft noch.")
+bericht = "\n".join(("##" + z if z.startswith("#") else z) for z in open(pp, encoding="utf-8").read().strip().split("\n")) if geprueft else "Läuft noch."
+T["pruefung_unabh"] = T["pruefung_unabh"].replace("PRUEFUNG_PLATZHALTER", bericht)
 schritt_von = {}
 for s in D["app"]:
     schritt_von.setdefault(s["control"], s["schritt"])
@@ -39,7 +40,8 @@ for sid in ["S2", "S3", "S4", "S5", "S6", "S7", "S8"]:
         for s in lang:
             out += [f"`{c}.{s['prop']}`:", "", "```", s["de"], "```", ""]
     for s in [s for s in bl if s["art"] == "neu" and s["control"] not in D["neue"]]:
-        out += [f"#### `{s['control']}.{s['prop']}`", "", f"Ort: `{s['pfad']}` · **neu setzen** (im Export nicht gesetzt, Standardwert)", "",
+        std = D.get("standard", {}).get(f"{s['control']}.{s['prop']}")
+        out += [f"#### `{s['control']}.{s['prop']}`", "", f"Ort: `{s['pfad']}` · **neu setzen** (im Export nicht gesetzt, Standard `{std}`, Rückfall: `{std}`)", "",
                 "Vollständiger Block:", "", "```", s["de"], "```", ""]
     for s in [s for s in bl if s["art"] == "ersetzen"]:
         out += [f"#### `{s['control']}.{s['prop']}`", "", f"Ort: `{s['pfad']}` · **ganze Property ersetzen**", "",
@@ -51,8 +53,9 @@ for s in D["app"]:
     if s["vorher_de"] is not None:
         out += [f"**`{s['control']}.{s['prop']}`**", "", "```", s["vorher_de"], "```", ""]
 out += ["## Anhang B: Maschinelle Prüfung", "", "```", open(os.path.join(Z, "pruefung.txt"), encoding="utf-8").read().strip(), "```", "",
-        "Mutationstest: 8 von 8 absichtlich eingebauten Fehlern erkannt (GastName nicht gespeichert, Altbestand verändert, Panel liest Dialog-Schalter, "
-        "Verlängern ohne Bestätigung, unbekannter Knopf im Select, Variable ohne Präfix, Trotzdem blendet selbst aus, Altbestand-Breite fehlt).", ""]
+        "Mutationstest: 13 von 13 absichtlich eingebauten Fehlern erkannt (GastName nicht gespeichert, Altbestand verändert, Panel liest Dialog-Schalter, "
+        "Verlängern ohne Bestätigung, unbekannter Knopf im Select, Variable ohne Präfix, Trotzdem blendet selbst aus, Altbestand-Breite fehlt, "
+        "Dauer gelöscht bei offenem Hinweis, Sammlung ohne GastName-Spalte, zu große Schrift, zu kleine Höhe, zu schmaler Hinweis).", ""]
 p = os.path.join(Z, "UEBERGABE_FuerAndere.md")
 open(p, "w", encoding="utf-8").write("\n".join(out))
 print(p, sum(1 for _ in open(p, encoding="utf-8")), "Zeilen")

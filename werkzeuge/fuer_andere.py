@@ -41,6 +41,9 @@ for k, tgl, txt, quelle in [("btnSpeichern.OnSelect", "tglFuerAndere", "txtGastN
                 'IsBlank(varNeuTischTitel) || IsBlank(varNeuTischID),\n    Notify("Bitte einen Tisch auswählen.", NotificationType.Warning),\n'
                 '    varFbFuerAndere && IsBlank(varFbGast),\n'
                 '    Notify("Bitte den Namen der Person eingeben, für die du buchst.", NotificationType.Warning),\n', k)
+    v = ersetze(v, "ClearCollect(colNeuIch, Filter(Tischbuchungen, Person.Email = varNeuEmail && Startzeit < varNeuSpanEnde && Endzeit > varNeuSpanStart));",
+                "ClearCollect(colNeuIch, ForAll(Filter(Tischbuchungen, Person.Email = varNeuEmail && Startzeit < varNeuSpanEnde && Endzeit > varNeuSpanStart) As B, "
+                "{ID: B.ID, Startzeit: B.Startzeit, Endzeit: B.Endzeit, CheckedIn: B.CheckedIn, Erstellt: B.Erstellt, GastName: B.GastName}));", k)
     v = ersetze(v, "RemoveIf(colNeuIch, !CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze);",
                 "RemoveIf(colNeuIch, varFbFuerAndere || !IsBlank(GastName) || (!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze));", k)
     v = ersetze(v, "            !IsBlank(LookUp(colNeuIch, Startzeit < T.Ende && Endzeit > T.Start).ID),",
@@ -65,12 +68,19 @@ for k, quelle in [("btnVerlängern.OnSelect", "verl"), ("btnVerlängern_1.OnSele
                 "Set(varIsLoading, true);\n  Set(varFbBestaetigt, varFbTrotzdem);\n  Set(varFbTrotzdem, false);\n  Set(varFbZeige, false);\n", k)
     v = ersetze(v, "RemoveIf(colVerlIch, ID = varVerlBuchung.ID || (",
                 "RemoveIf(colVerlIch, ID = varVerlBuchung.ID || !IsBlank(GastName) || !IsBlank(varVerlBuchung.GastName) || (", k)
+    v = ersetze(v, "ClearCollect(colVerlIch, Filter(Tischbuchungen, Person.Email = User().Email && Startzeit < varVerlEndeNeu && Endzeit > varVerlEndeAlt));",
+                "ClearCollect(colVerlIch, ForAll(Filter(Tischbuchungen, Person.Email = User().Email && Startzeit < varVerlEndeNeu && Endzeit > varVerlEndeAlt) As B, "
+                "{ID: B.ID, Startzeit: B.Startzeit, Endzeit: B.Endzeit, CheckedIn: B.CheckedIn, Erstellt: B.Erstellt, GastName: B.GastName}));", k)
     v = ersetze(v, '      varAusgewaehltePlusDauer > 0 && !IsEmpty(colVerlIch),\n'
-                   '      Notify("Du hast in dieser Zeit schon einen anderen Tisch gebucht.", NotificationType.Warning),\n',
+                   '      Notify("Du hast in dieser Zeit schon einen anderen Tisch gebucht.", NotificationType.Warning),\n', "", k)
+    v = ersetze(v, "),\n      IfError(\n        Patch(Tischbuchungen, varVerlBuchung, {Endzeit: varVerlEndeNeu}),",
+                "),\n"
                 '      varAusgewaehltePlusDauer > 0 && !IsEmpty(colVerlIch) && !varFbBestaetigt,\n'
                 f'      Set(varFbQuelle, "{quelle}");\n'
                 '      Set(varFbText, "Du hast in dieser Zeit schon einen anderen Tisch gebucht. Trotzdem verlängern?");\n'
-                '      Set(varFbZeige, true),\n', k)
+                '      Set(varFbZeige, true),\n'
+                "      IfError(\n        Patch(Tischbuchungen, varVerlBuchung, {Endzeit: varVerlEndeNeu}),", k)
+    v = ersetze(v, "  Set(varAusgewaehltePlusDauer, Blank());\n", "  If(!varFbZeige, Set(varAusgewaehltePlusDauer, Blank()));\n", k)
     final[k] = v
     herkunft[k] = "S6"
 
@@ -93,17 +103,26 @@ def gast(rec, orig, neu_ausdruck):
 o = ist["lblPerson.Text"]
 final["lblPerson.Text"] = gast("varSelectedBuchung", o, 'varSelectedBuchung.GastName & Char(10) & "gebucht von " & varSelectedBuchung.Person.DisplayName')
 final["lblPerson.Width"] = "If(IsBlank(varSelectedBuchung.GastName), 150, Image7.X - Self.X - 6)"
-final["lblZeit2.Y"] = "If(IsBlank(varSelectedBuchung.GastName), 100, 112)"
+final["lblPerson.Size"] = "If(IsBlank(varSelectedBuchung.GastName), 13, 11)"
+final["lblPerson.Height"] = "If(IsBlank(varSelectedBuchung.GastName), 40, 46)"
+final["lblZeit2.Y"] = "If(IsBlank(varSelectedBuchung.GastName), 100, 118)"
 o = ist["lblZeitHeute.Text"]
-final["lblZeitHeute.Text"] = gast("ThisItem", o, o + ' & "  ·  für " & ThisItem.GastName')
+final["lblZeitHeute.Text"] = gast("ThisItem", o, o + ' & Char(10) & "für " & ThisItem.GastName')
+final["lblZeitHeute.Height"] = "If(IsBlank(ThisItem.GastName), Self.Size * 1.8, Self.Size * 3.6)"
 o = ist["lblRaumZeit.Text"]
-final["lblRaumZeit.Text"] = gast("ThisItem", o, o + ' & "  ·  für " & ThisItem.GastName')
+final["lblRaumZeit.Text"] = gast("ThisItem", o, o + ' & Char(10) & "für " & ThisItem.GastName')
+final["lblRaumZeit.Height"] = "If(IsBlank(ThisItem.GastName), Self.Size * 1.8, Self.Size * 3.6)"
 o = ist["lblZeit3.Text"]
 final["lblZeit3.Text"] = gast("varSelectedBuchung", o, o + ' & Char(10) & "für " & varSelectedBuchung.GastName')
+final["lblZeit3.Size"] = "If(IsBlank(varSelectedBuchung.GastName), 13, 10)"
+final["lblZeit3.Width"] = "If(IsBlank(varSelectedBuchung.GastName), 150, btnPlus1Std.X - Self.X - 1)"
+final["lblZeit3.Height"] = "If(IsBlank(varSelectedBuchung.GastName), 40, 50)"
 o = ist["lblTitel3_1.Text"]
-final["lblTitel3_1.Text"] = gast("varSelectedBuchungTab", o, o + ' & "  ·  für " & varSelectedBuchungTab.GastName')
+final["lblTitel3_1.Text"] = gast("varSelectedBuchungTab", o, '"Tisch " & varSelectedBuchungTab.Tisch.Value & "  ·  für " & varSelectedBuchungTab.GastName')
+final["lblTitel3_1.Size"] = "If(IsBlank(varSelectedBuchungTab.GastName), 18, 15)"
 final["lblTitel3_1.Width"] = "If(IsBlank(varSelectedBuchungTab.GastName), 400, Parent.Width - 24)"
-for k in ["lblPerson.Text", "lblPerson.Width", "lblZeit2.Y", "lblZeitHeute.Text", "lblRaumZeit.Text", "lblZeit3.Text", "lblTitel3_1.Text", "lblTitel3_1.Width"]:
+for k in ["lblPerson.Text", "lblPerson.Width", "lblPerson.Size", "lblPerson.Height", "lblZeit2.Y", "lblZeitHeute.Text", "lblZeitHeute.Height", "lblRaumZeit.Text", "lblRaumZeit.Height",
+          "lblZeit3.Text", "lblZeit3.Size", "lblZeit3.Width", "lblZeit3.Height", "lblTitel3_1.Text", "lblTitel3_1.Size", "lblTitel3_1.Width"]:
     herkunft[k] = "S8"
 
 # --- S3/S4 Schalter und Namensfeld ------------------------------------------------------------------------------------
@@ -159,23 +178,23 @@ dlg = {
     "btnFbHintergrund.RadiusTopLeft": "0", "btnFbHintergrund.RadiusTopRight": "0", "btnFbHintergrund.RadiusBottomLeft": "0", "btnFbHintergrund.RadiusBottomRight": "0",
     "btnFbHintergrund.TabIndex": "-1", "btnFbHintergrund.Visible": "varFbZeige", "btnFbHintergrund.OnSelect": "false",
     "btnFbHintergrund.AccessibleLabel": '"Hinweis offen"',
-    "conFbHinweis.Width": "440", "conFbHinweis.Height": "230",
+    "conFbHinweis.Width": "500", "conFbHinweis.Height": "280",
     "conFbHinweis.X": "(Parent.Width - Self.Width) / 2", "conFbHinweis.Y": "(Parent.Height - Self.Height) / 2",
     "conFbHinweis.Fill": "Color.White", "conFbHinweis.RadiusTopLeft": "16", "conFbHinweis.RadiusTopRight": "16",
     "conFbHinweis.RadiusBottomLeft": "16", "conFbHinweis.RadiusBottomRight": "16", "conFbHinweis.Visible": "varFbZeige",
-    "lblFbHinweis.X": "20", "lblFbHinweis.Y": "20", "lblFbHinweis.Width": "Parent.Width - 40", "lblFbHinweis.Height": "130",
+    "lblFbHinweis.X": "20", "lblFbHinweis.Y": "20", "lblFbHinweis.Width": "Parent.Width - 40", "lblFbHinweis.Height": "Parent.Height - 100",
     "lblFbHinweis.Text": f'varFbText & Char(10) & Char(10) & "{KONTAKT}"',
     "lblFbHinweis.Font": "Font.'Open Sans'", "lblFbHinweis.Size": "13", "lblFbHinweis.Color": "RGBA(50, 49, 48, 1)",
     "lblFbHinweis.VerticalAlign": "VerticalAlign.Top",
     "btnFbAbbrechen.X": "20", "btnFbAbbrechen.Y": "Parent.Height - 60", "btnFbAbbrechen.Width": "(Parent.Width - 60) / 2", "btnFbAbbrechen.Height": "40",
-    "btnFbAbbrechen.Text": '"Abbrechen"', "btnFbAbbrechen.Font": "Font.'Open Sans'", "btnFbAbbrechen.Size": "15",
+    "btnFbAbbrechen.Text": '"Abbrechen"', "btnFbAbbrechen.Font": "Font.'Open Sans'", "btnFbAbbrechen.Size": "13",
     "btnFbAbbrechen.Fill": "Color.Black", "btnFbAbbrechen.Color": "RGBA(255, 255, 255, 1)",
     "btnFbAbbrechen.HoverFill": "ColorFade(Self.Fill, 30%)", "btnFbAbbrechen.PressedFill": "ColorFade(Color.Black, 30%)", "btnFbAbbrechen.PressedColor": "Color.White",
     "btnFbAbbrechen.AccessibleLabel": '"Abbrechen, nichts buchen"',
     "btnFbAbbrechen.OnSelect": "Set(varFbZeige, false);\nSet(varFbTrotzdem, false)",
     "btnFbTrotzdem.X": "Parent.Width - Self.Width - 20", "btnFbTrotzdem.Y": "btnFbAbbrechen.Y", "btnFbTrotzdem.Width": "btnFbAbbrechen.Width", "btnFbTrotzdem.Height": "40",
     "btnFbTrotzdem.Text": 'If(varFbQuelle = "verl" || varFbQuelle = "verltab", "Trotzdem verlängern", "Trotzdem buchen")',
-    "btnFbTrotzdem.Font": "Font.'Open Sans'", "btnFbTrotzdem.Size": "15",
+    "btnFbTrotzdem.Font": "Font.'Open Sans'", "btnFbTrotzdem.Size": "13",
     "btnFbTrotzdem.Fill": 'ColorValue("#171496")', "btnFbTrotzdem.Color": "RGBA(255, 255, 255, 1)",
     "btnFbTrotzdem.HoverFill": "ColorFade(Self.Fill, -20%)", "btnFbTrotzdem.PressedFill": "ColorFade(Self.Fill, -20%)", "btnFbTrotzdem.PressedColor": "Color.White",
     "btnFbTrotzdem.DisplayMode": "If(varIsLoading, DisplayMode.Disabled, DisplayMode.Edit)",
@@ -208,7 +227,7 @@ for k, v in final.items():
             fehler.append(f"{k}: {c} unbekannt")
     if re.search(r"(?<![\w.])GastName\b|\.GastName\b", o) and not re.search(r"\b(ThisItem|varSelectedBuchung|varSelectedBuchungTab|varVerlBuchung)\.GastName|GastName: varFbGast|IsBlank\(GastName\)", o):
         fehler.append(f"{k}: GastName ohne Bezug")
-    if re.search(r'DropColumns\([^;]*"', v) or re.search(r"\bFilter\(Tischbuchungen[^;]*GastName", v):
+    if re.search(r'DropColumns\([^;]*"', v) or re.search(r"\bFilter\(Tischbuchungen,[^)]*GastName", v):
         fehler.append(f"{k}: GastName im Server-Filter (nicht delegierbar)")
 # neue Variablen alle mit Präfix varFb, keine neuen Variablen ohne Präfix
 alt_vars = {m.group(1) for v in ist.values() for m in re.finditer(r"Set\(\s*(var\w+)", v)}
@@ -228,9 +247,10 @@ for k in ["btnSpeichern.OnSelect", "btnSpeichernTischePanel.OnSelect", "btnVerl�
                "    RemoveIf(colNeuIch, !CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze);",
                "            !IsBlank(LookUp(colNeuIch, Startzeit < T.Ende && Endzeit > T.Start).ID),",
                "      varAusgewaehltePlusDauer > 0 && !IsEmpty(colVerlIch),",
-               '      Notify("Du hast in dieser Zeit schon einen anderen Tisch gebucht.", NotificationType.Warning),'}
+               '      Notify("Du hast in dieser Zeit schon einen anderen Tisch gebucht.", NotificationType.Warning),',
+               "  Set(varAusgewaehltePlusDauer, Blank());"}
     for z in weg:
-        if z not in erlaubt and "Gebucht: " not in z and "RemoveIf(colVerlIch" not in z:
+        if z not in erlaubt and "Gebucht: " not in z and "RemoveIf(colVerlIch" not in z and "ClearCollect(colNeuIch" not in z and "ClearCollect(colVerlIch" not in z:
             fehler.append(f"{k}: Zeile unerwartet weg: {z.strip()[:60]}")
 # Dialog und Panel gleich behandelt
 a = final["btnSpeichern.OnSelect"].replace("tglFuerAndere", "T").replace("txtGastName", "X").replace('"dialog"', "Q")
@@ -239,6 +259,15 @@ da = [z for z in difflib.ndiff(ist["btnSpeichern.OnSelect"].split("\n"), a.split
 db = [z for z in difflib.ndiff(ist["btnSpeichernTischePanel.OnSelect"].split("\n"), b.split("\n")) if z[:1] in "+-"]
 if da != db:
     fehler.append("Dialog und Panel unterschiedlich geändert")
+for ctrl in ["btnVerlängern", "btnVerlängern_1"]:
+    v = final[f"{ctrl}.OnSelect"]
+    if "!IsEmpty(colVerlIch) && !varFbBestaetigt" not in v or not (v.index("!IsEmpty(colVerlKonflikt)") < v.index("!IsEmpty(colVerlIch) && !varFbBestaetigt")):
+        fehler.append(f"{ctrl}: Hinweis vor der Tischkonflikt-Prüfung")
+    if "If(!varFbZeige, Set(varAusgewaehltePlusDauer, Blank()))" not in v:
+        fehler.append(f"{ctrl}: Dauer wird trotz offenem Hinweis gelöscht")
+for ctrl, col in [("btnSpeichern", "colNeuIch"), ("btnSpeichernTischePanel", "colNeuIch"), ("btnVerlängern", "colVerlIch"), ("btnVerlängern_1", "colVerlIch")]:
+    if f"ClearCollect({col}, ForAll(" not in final[f"{ctrl}.OnSelect"] or "GastName: B.GastName" not in final[f"{ctrl}.OnSelect"]:
+        fehler.append(f"{ctrl}: {col} ohne Projektion mit GastName")
 # Altbestand: Originaltext steckt unverändert im Zweig IsBlank(GastName)
 for k in ["lblPerson.Text", "lblZeitHeute.Text", "lblRaumZeit.Text", "lblZeit3.Text", "lblTitel3_1.Text"]:
     if f",\n  {ist[k]},\n" not in final[k] or not final[k].startswith("If(\n  IsBlank("):
@@ -268,24 +297,89 @@ for ctrl in ["btnSpeichern", "btnSpeichernTischePanel"]:
 for ctrl in ["btnVerlängern", "btnVerlängern_1"]:
     if "!IsEmpty(colVerlIch) && !varFbBestaetigt" not in final[f"{ctrl}.OnSelect"]:
         fehler.append(f"{ctrl}: Bestätigung wird nicht beachtet")
-# Layout (Schätzung Textbreite: Größe * 0,56 je Zeichen)
-def breite(t, size):
-    return len(t) * size * 0.56
-for t, s, w, wo in [("Für andere", 13, 165 - 60, "Schalter"), ("Für mich", 13, 165 - 60, "Schalter"), ("Trotzdem verlängern", 15, (440 - 60) / 2 - 12, "btnFbTrotzdem"),
-                    ("Abbrechen", 15, (440 - 60) / 2 - 12, "btnFbAbbrechen"), ("gebucht von Josias Semeraf", 13, 256 - 25 - 6 - 10, "lblPerson"),
-                    ("für Max Mustermann", 13, 150 - 10, "lblZeit3"), ("08:00 – 12:00  ·  für Max Mustermann", 12, 470 - 173 - 12, "lblZeitHeute")]:
-    if breite(t, s) > w:
-        fehler.append(f"{wo}: „{t}“ ca. {breite(t, s):.0f} > {w:.0f}")
-    notiz.append(f"Textbreite {wo}: „{t}“ ca. {breite(t, s):.0f} von {w:.0f}")
-# Lage Panel: Schalterzeile und Speichern innerhalb 678 (conDashboard bei 768 Höhe)
-y_fr = 320 + 50 / 2 - 28 / 2 + 4 * (28 + 10)
-y_row = y_fr + 28 + 20
-y_btn = y_row + 40 + 20
-notiz.append(f"Panel: Zeile „Für andere“ Y {y_row:g}–{y_row + 40:g}, Speichern Y {y_btn:g}–{y_btn + 40:g}, Panelhöhe bei 768 = 678")
-if y_btn + 40 > 678:
-    fehler.append("Panel: Speichern ragt heraus")
-notiz.append("Dialog: Schalter X 270–435, Y 122–162, Namensfeld Y 186–226; frei zwischen Image2 (bis 245) und Eingaben (ab 448); Wochentage erst ab Y 290")
+# Layout: Textbreite je Zeichenart (Open Sans, Punkt -> Pixel 1,333, wie handy_tisch_zeigen.py), Zeilenhöhe 1,2 x Größe
+def textpx(text, size):
+    em = 0
+    for ch in text:
+        if ch.isdigit(): em += 0.572
+        elif ch == " ": em += 0.26
+        elif ch in ":.·,–-": em += 0.3
+        elif ch in "il": em += 0.26
+        elif ch in "mw": em += 0.85
+        elif ch.isupper(): em += 0.68
+        else: em += 0.55
+    return em * 1.05 * size * 1.333
 
+
+def zeilen(text, size, breite):
+    import math
+    return sum(max(1, math.ceil(textpx(t, size) / breite)) for t in text.split("\n"))
+
+
+ZEILE = lambda size: size * 1.333 * 1.2
+NAME, BUCHER = "Max Mustermann", "gebucht von Josias Semeraf"
+
+
+def gw(k):
+    """Wert im Gast-Zweig von If(IsBlank(…GastName), alt, gast) bzw. feste Zahl."""
+    m = re.fullmatch(r"If\(IsBlank\([\w.]+\), [^,]+, (\d+)\)", final[k]) or re.fullmatch(r"(\d+)", final[k])
+    return int(m.group(1)) if m else None
+
+
+BW = int(final["conFbHinweis.Width"]); BS = int(final["btnFbTrotzdem.Size"])
+pruef = [  # (wo, Text, Größe, verfügbare Breite)
+    ("tglFuerAndere Text", "Für andere", int(final["tglFuerAndere.Size"]), int(final["tglFuerAndere.Width"]) - 55),
+    ("btnFbTrotzdem", "Trotzdem verlängern", BS, (BW - 60) / 2 - 20),
+    ("btnFbAbbrechen", "Abbrechen", int(final["btnFbAbbrechen.Size"]), (BW - 60) / 2 - 20),
+    ("lblPerson Zeile 2", BUCHER, gw("lblPerson.Size"), 256 - 25 - 6 - 10),
+    ("lblZeit3 Zeile 2 (bis btnPlus1Std X 175)", "für " + NAME, gw("lblZeit3.Size"), 175 - 12 - 1 - 10),
+    ("lblZeitHeute Zeile 1 (bis lblStatusHeute X 270)", "08:00 – 12:00", 12, 270 - 100 - 12),
+    ("lblZeitHeute Zeile 2", "für " + NAME, 12, 470 - 173 - 12),
+    ("lblRaumZeit Zeile 2 (bis chkAuswahl)", "für " + NAME, 12, (600 - 75 - 60) - 100 - 12),
+    ("lblTitel3_1 Gast", "Tisch UG Desk 14  ·  für " + NAME, gw("lblTitel3_1.Size"), 550 - 24 - 10),
+]
+for wo, t, size, w in pruef:
+    px = textpx(t, size)
+    notiz.append(f"Textbreite {wo}: „{t}“ ca. {px:.0f} von {w:.0f}")
+    if px > w:
+        fehler.append(f"{wo}: „{t}“ ca. {px:.0f} > {w:.0f}")
+hoehen = [  # (wo, Zeilen, Größe, Höhe)
+    ("lblPerson (Gast)", 2, gw("lblPerson.Size"), gw("lblPerson.Height")), ("lblZeit3 (Gast)", 2, gw("lblZeit3.Size"), gw("lblZeit3.Height")),
+    ("lblZeitHeute (Gast)", 2, 12, 12 * 3.6),
+]
+for wo, n, size, h in hoehen:
+    bedarf = n * ZEILE(size) + (0 if "Zeit" in wo and "lblZeit3" not in wo else 10)
+    notiz.append(f"Höhe {wo}: {n} Zeilen ca. {bedarf:.0f} von {h:.0f}")
+    if bedarf > h + 1:
+        fehler.append(f"{wo}: {bedarf:.0f} > {h}")
+for wo, unten, grenze in [("Popup lblPerson bis lblZeit2", 71 + gw("lblPerson.Height"), gw("lblZeit2.Y")), ("Popup lblZeit2 Textmitte", 118 + 20 + ZEILE(13) / 2, 154),
+                          ("Verwalten lblZeit3 bis Knöpfe", 50 + gw("lblZeit3.Height"), 100), ("Karte lblZeitHeute 2 Zeilen", 27 + 14 * 1.8 + 12 * 3.6, 104)]:
+    notiz.append(f"Lage {wo}: {unten:.0f} ≤ {grenze}")
+    if unten > grenze:
+        fehler.append(f"Lage {wo}: {unten:.0f} > {grenze}")
+lang = max(['"An 10 von 11 Terminen hast du zu dieser Zeit schon einen Tisch gebucht. Trotzdem einen weiteren Tisch buchen?"',
+            '"Du hast in dieser Zeit schon einen anderen Tisch gebucht. Trotzdem verlängern?"'], key=len).strip('"') + "\n\n" + KONTAKT
+n = zeilen(lang, 13, BW - 40 - 10)
+notiz.append(f"Höhe lblFbHinweis: längster Text {n} Zeilen ca. {n * ZEILE(13) + 10:.0f} von {280 - 100}")
+if n * ZEILE(13) + 10 > 280 - 100:
+    fehler.append("lblFbHinweis zu niedrig")
+# Altbestand-Werte der neu gesetzten oder geänderten Maße (Standard aus den Rohdaten)
+import glob as _g
+roh = {}
+for fn in _g.glob(os.path.join(A.ENTPACKT, "desktop_2026-10-25", "Controls", "*.json")):
+    def _walk(n):
+        for r in n.get("Rules", []):
+            roh[f"{n['Name']}.{r['Property']}"] = r["InvariantScript"]
+        for c in n.get("Children", []):
+            _walk(c)
+    _walk(json.load(open(fn, encoding="utf-8-sig"))["TopParent"])
+for k in ["lblPerson.Width", "lblPerson.Size", "lblPerson.Height", "lblZeit2.Y", "lblZeit3.Size", "lblZeit3.Width", "lblZeit3.Height", "lblTitel3_1.Size",
+          "lblTitel3_1.Width", "lblZeitHeute.Height", "lblRaumZeit.Height"]:
+    alt = ist.get(k, roh.get(k))
+    if alt is None or f"GastName), {alt}," not in final[k]:
+        fehler.append(f"{k}: Altbestand-Wert {alt} fehlt")
+    notiz.append(f"{k}: Altbestand {alt}" + ("" if k in ist else " (Standard, im Export nicht gesetzt)"))
+ALT_STANDARD = {k: roh.get(k) for k in final if k not in ist and k.split(".")[0] in f.typ}
 # --- Ausgabe ----------------------------------------------------------------------------------------------------------------
 def diff(x, y):
     return "\n".join(list(difflib.unified_diff(x.split("\n"), y.split("\n"), lineterm="", n=1))[2:])
@@ -312,9 +406,12 @@ for sid, titel in SCHRITTE:
                         pfad=f.pfad(c) if c in f.typ else f"(neu) {NEU[c][1]} > {c}"))
 if sorted(k for k in final) != sorted(f"{o['control']}.{o['prop']}" for o in out):
     fehler.append("Schritte decken nicht alle Properties ab")
-json.dump(dict(app=out, neue={k: list(v) for k, v in NEU.items()}), open(os.path.join(ZIEL, "bloecke.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+json.dump(dict(app=out, neue={k: list(v) for k, v in NEU.items()}, standard=ALT_STANDARD), open(os.path.join(ZIEL, "bloecke.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 geaendert = sorted(k for k in final if k in ist)
-z = [f"Für andere buchen: {len(out)} Properties ({len(geaendert)} bestehende geändert, {len(out) - len(geaendert)} an {len(NEU)} neuen Steuerelementen). Grundlage: Export 25.10. 20:09.",
+std = sorted(k for k in final if k not in ist and k.split(".")[0] in f.typ)
+z = [f"Für andere buchen: {len(out)} Properties: {len(geaendert)} bestehende ersetzt, {len(std)} an bestehenden Steuerelementen neu gesetzt (bisher Standard), "
+     f"{len(out) - len(geaendert) - len(std)} an {len(NEU)} neuen Steuerelementen. Grundlage: Export 25.10. 20:09.",
+     "Bisher Standard: " + ", ".join(f"{k} ({ALT_STANDARD.get(k)})" for k in std),
      "Geänderte bestehende Properties: " + ", ".join(geaendert)] + notiz
 z += ["FEHLER: " + x for x in fehler] if fehler else ["Prüfung: 0 Fehler"]
 open(os.path.join(ZIEL, "pruefung.txt"), "w", encoding="utf-8").write("\n".join(z) + "\n")
