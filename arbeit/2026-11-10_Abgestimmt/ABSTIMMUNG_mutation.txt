@@ -1,0 +1,12 @@
+MUTATION ohne_L5 erkannt ["varNeuBuchenTisch liest aus ['Tische'], Gallery1 aus TischeLokal"]
+MUTATION neu_buchen_ohne_gastreset erkannt ['btnNeuBuchenHeute.OnSelect: öffnet den Buchungsdialog ohne Reset(tglFuerAndere)']
+MUTATION n5_vorher_anders erkannt ['P2 btnStornieren.OnSelect: Vorher passt nicht auf den Stand davor']
+MUTATION speichern_ohne_sperre erkannt ['btnSpeichern.OnSelect: Schreibstelle ohne Zweifach-Sperre']
+MUTATION colneuich_ohne_gastname erkannt ['btnSpeichern.OnSelect: colNeuIch wird ohne GastName gefüllt, aber mit GastName gelesen']
+MUTATION ladezeile_abweichend erkannt ['Ladezeile in 2 Fassungen']
+MUTATION panel_feld_fehlt erkannt ["btnSpeichernTischePanel.OnSelect: liest ddTischePanel.Selected.['Nummer'], nicht in Items"]
+MUTATION doppelter_name erkannt ['P3: neues Steuerelement tglFuerAndere gibt es schon (P1)', 'P3 btnNeuBuchenHeute.Text: Steuerelement fehlt']
+MUTATION positionen_noch_sammlung erkannt ['App.OnStart: füllt colTischPositionen noch als Sammlung', 'App.OnStart: füllt colTischPositionenUG noch als Sammlung']
+MUTATION freigabe_60 erkannt ['Timer1.OnTimerEnd: Freigabe-Grenze 60']
+MUTATION buchung_aus_sammlung erkannt ['btnVerwalten.OnSelect: setzt varSelectedBuchung mit First (kein Datensatz aus Tischbuchungen, GastName fehlt evtl.)']
+11 von 11 erkannt

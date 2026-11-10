@@ -1,0 +1,4 @@
+P0 Design-Korrektur: 7 Properties, kein neues Steuerelement. Grundlage: Export 10.11. 08:13 (echt).
+„Tisch Buchen“: Text ca. 158 px in Breite 160; Kontrast weiße Schrift alt 1.5:1, neu 13.3:1.
+Breite von btnTischHinzufügen liest keine andere Formel (nur Y/Height, unverändert).
+Prüfung: 0 Fehler

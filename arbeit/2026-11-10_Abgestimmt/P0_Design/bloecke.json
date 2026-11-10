@@ -1,0 +1,89 @@
+{
+ "app": [
+  {
+   "schritt": "P0",
+   "titel": "Design-Korrektur",
+   "control": "btnHeuteDatum",
+   "prop": "PressedColor",
+   "neu": "RGBA(255, 255, 255, 1)",
+   "de": "RGBA(255; 255; 255; 1)",
+   "vorher_de": "RGBA(23; 20; 150; 0,16)",
+   "diff": "@@ -1 +1 @@\n-RGBA(23; 20; 150; 0,16)\n+RGBA(255; 255; 255; 1)",
+   "art": "ersetzen",
+   "pfad": "Screen1 > conDashboard > btnHeuteDatum"
+  },
+  {
+   "schritt": "P0",
+   "titel": "Design-Korrektur",
+   "control": "btnTischHinzufügen",
+   "prop": "Fill",
+   "neu": "ColorValue(\"#171496\")",
+   "de": "ColorValue(\"#171496\")",
+   "vorher_de": "ColorValue(\"#D0D0D0\")",
+   "diff": "@@ -1 +1 @@\n-ColorValue(\"#D0D0D0\")\n+ColorValue(\"#171496\")",
+   "art": "ersetzen",
+   "pfad": "Screen1 > conDashboard > btnTischHinzufügen"
+  },
+  {
+   "schritt": "P0",
+   "titel": "Design-Korrektur",
+   "control": "btnTischHinzufügen",
+   "prop": "HoverFill",
+   "neu": "ColorFade(Self.Fill, -20%)",
+   "de": "ColorFade(Self.Fill; -20%)",
+   "vorher_de": "RGBA(0; 0; 0; 0,2)",
+   "diff": "@@ -1 +1 @@\n-RGBA(0; 0; 0; 0,2)\n+ColorFade(Self.Fill; -20%)",
+   "art": "ersetzen",
+   "pfad": "Screen1 > conDashboard > btnTischHinzufügen"
+  },
+  {
+   "schritt": "P0",
+   "titel": "Design-Korrektur",
+   "control": "btnTischHinzufügen",
+   "prop": "PressedFill",
+   "neu": "ColorFade(Self.Fill, -20%)",
+   "de": "ColorFade(Self.Fill; -20%)",
+   "vorher_de": "",
+   "diff": "@@ -1 +1 @@\n-\n+ColorFade(Self.Fill; -20%)",
+   "art": "ersetzen",
+   "pfad": "Screen1 > conDashboard > btnTischHinzufügen"
+  },
+  {
+   "schritt": "P0",
+   "titel": "Design-Korrektur",
+   "control": "btnTischHinzufügen",
+   "prop": "PressedColor",
+   "neu": "Color.White",
+   "de": "Color.White",
+   "vorher_de": "Self.Fill",
+   "diff": "@@ -1 +1 @@\n-Self.Fill\n+Color.White",
+   "art": "ersetzen",
+   "pfad": "Screen1 > conDashboard > btnTischHinzufügen"
+  },
+  {
+   "schritt": "P0",
+   "titel": "Design-Korrektur",
+   "control": "btnTischHinzufügen",
+   "prop": "Size",
+   "neu": "15",
+   "de": "15",
+   "vorher_de": "11",
+   "diff": "@@ -1 +1 @@\n-11\n+15",
+   "art": "ersetzen",
+   "pfad": "Screen1 > conDashboard > btnTischHinzufügen"
+  },
+  {
+   "schritt": "P0",
+   "titel": "Design-Korrektur",
+   "control": "btnTischHinzufügen",
+   "prop": "Width",
+   "neu": "160",
+   "de": "160",
+   "vorher_de": "80",
+   "diff": "@@ -1 +1 @@\n-80\n+160",
+   "art": "ersetzen",
+   "pfad": "Screen1 > conDashboard > btnTischHinzufügen"
+  }
+ ],
+ "neue": {}
+}
