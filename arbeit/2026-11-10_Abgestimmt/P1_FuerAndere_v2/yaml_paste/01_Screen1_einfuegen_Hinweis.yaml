@@ -1,0 +1,167 @@
+- btnFbHintergrund:
+    Control: Classic/Button@2.2.0
+    Properties:
+      BorderThickness: =0
+      Fill: |-
+        =RGBA(0, 0, 0, 0.4)
+      FocusedBorderThickness: =0
+      Height: =Parent.Height
+      HoverFill: |-
+        =RGBA(0, 0, 0, 0.4)
+      OnSelect: =false
+      PressedFill: |-
+        =RGBA(0, 0, 0, 0.4)
+      RadiusBottomLeft: =0
+      RadiusBottomRight: =0
+      RadiusTopLeft: =0
+      RadiusTopRight: =0
+      TabIndex: =-1
+      Text: |-
+        =""
+      Visible: =varFbZeige
+      Width: =Parent.Width
+      X: =0
+      Y: =0
+- conFbHinweis:
+    Control: GroupContainer@1.5.0
+    Variant: ManualLayout
+    Properties:
+      DropShadow: =DropShadow.Light
+      Fill: =Color.White
+      Height: =280
+      RadiusBottomLeft: =16
+      RadiusBottomRight: =16
+      RadiusTopLeft: =16
+      RadiusTopRight: =16
+      Visible: =varFbZeige
+      Width: =580
+      X: |-
+        =(Parent.Width - Self.Width) / 2
+      Y: |-
+        =(Parent.Height - Self.Height) / 2
+    Children:
+      - lblFbTitel:
+          Control: Label@2.5.1
+          Properties:
+            Color: |-
+              =RGBA(0, 0, 0, 1)
+            Font: |-
+              =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            Height: =40
+            Size: =17
+            Text: |-
+              ="Zur selben Zeit schon gebucht"
+            Width: |-
+              =Parent.Width - 40
+            X: =20
+            Y: =20
+      - lblFbHinweis:
+          Control: Label@2.5.1
+          Properties:
+            Color: |-
+              =RGBA(0, 0, 0, 1)
+            Font: |-
+              =Font.'Open Sans'
+            Height: |-
+              =Parent.Height - 150
+            Size: =13
+            Text: |-
+              =varFbText & Char(10) & Char(10) & "Fragen: Axel Krägelius (PC-Admin) oder Norman Horn (Admin, NHN IT)."
+            VerticalAlign: =VerticalAlign.Top
+            Width: |-
+              =Parent.Width - 40
+            X: =20
+            Y: =70
+      - btnFbAbbrechen:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: |-
+              =ColorFade(Self.Fill, -15%)
+            BorderThickness: =2
+            Color: |-
+              =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: |-
+              =RGBA(166, 166, 166, 1)
+            Fill: =Color.Black
+            Font: |-
+              =Font.'Open Sans'
+            FontWeight: =FontWeight.Semibold
+            Height: =40
+            HoverBorderColor: |-
+              =ColorFade(Self.BorderColor, 20%)
+            HoverColor: |-
+              =RGBA(255, 255, 255, 1)
+            HoverFill: |-
+              =ColorFade(Self.Fill, 30%)
+            OnSelect: |-
+              =Set(varFbZeige, false);
+              Set(varFbTrotzdem, false)
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Color.White
+            PressedFill: |-
+              =ColorFade(Color.Black, 30%)
+            RadiusBottomLeft: =10
+            RadiusBottomRight: =10
+            RadiusTopLeft: =10
+            RadiusTopRight: =10
+            Size: =15
+            Text: |-
+              ="Abbrechen"
+            Width: |-
+              =(Parent.Width - 60) / 2
+            X: =20
+            Y: |-
+              =Parent.Height - 60
+      - btnFbTrotzdem:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: |-
+              =ColorFade(Self.Fill, -15%)
+            BorderThickness: =2
+            Color: |-
+              =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: |-
+              =RGBA(166, 166, 166, 1)
+            DisplayMode: |-
+              =If(varIsLoading, DisplayMode.Disabled, DisplayMode.Edit)
+            Fill: |-
+              =ColorValue("#171496")
+            Font: |-
+              =Font.'Open Sans'
+            FontWeight: =FontWeight.Semibold
+            Height: =40
+            HoverBorderColor: |-
+              =ColorFade(Self.BorderColor, 20%)
+            HoverColor: |-
+              =RGBA(255, 255, 255, 1)
+            HoverFill: |-
+              =ColorFade(Self.Fill, -20%)
+            OnSelect: |-
+              =If(
+                !varIsLoading && varFbZeige,
+                Set(varFbTrotzdem, true);
+                Set(varSperreBis, Blank());
+                Switch(
+                  varFbQuelle,
+                  "panel", Select(btnSpeichernTischePanel),
+                  "verl", Select(btnVerlängern),
+                  "verltab", Select(btnVerlängern_1),
+                  Select(btnSpeichern)
+                )
+              )
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Color.White
+            PressedFill: |-
+              =ColorFade(Self.Fill, -20%)
+            RadiusBottomLeft: =10
+            RadiusBottomRight: =10
+            RadiusTopLeft: =10
+            RadiusTopRight: =10
+            Size: =15
+            Text: |-
+              =If(varFbQuelle = "verl" || varFbQuelle = "verltab", "Trotzdem verlängern", "Trotzdem buchen")
+            Width: =btnFbAbbrechen.Width
+            X: |-
+              =Parent.Width - Self.Width - 20
+            Y: =btnFbAbbrechen.Y
