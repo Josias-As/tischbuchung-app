@@ -1,0 +1,95 @@
+- btnNeuBuchenHeute:
+    Control: Classic/Button@2.2.0
+    Properties:
+      BorderColor: =ColorValue("#171496")
+      BorderThickness: =1
+      Color: =ColorValue("#171496")
+      DisabledBorderColor: |-
+        =ColorFade(ColorValue("#171496"), 60%)
+      DisabledColor: |-
+        =ColorFade(ColorValue("#171496"), 60%)
+      DisabledFill: |-
+        =RGBA(255, 255, 255, 1)
+      DisplayMode: |-
+        =If(varIsLoading, DisplayMode.Disabled, DisplayMode.Edit)
+      Fill: |-
+        =RGBA(255, 255, 255, 1)
+      Font: =Font.'Open Sans'
+      FontWeight: =FontWeight.Semibold
+      Height: =28
+      HoverBorderColor: =ColorValue("#171496")
+      HoverColor: =ColorValue("#171496")
+      HoverFill: |-
+        =RGBA(23, 20, 150, 0.08)
+      OnSelect: |-
+        =If(
+          !varIsLoading && (IsBlank(varSperreBis) || Now() >= varSperreBis),
+          Set(varIsLoading, true);
+          Set(varFreigabeGrenze, DateAdd(Now(), -Coalesce(varFreigabeMinuten, 30), TimeUnit.Minutes));
+          Set(varRbAlt, LookUp(Tischbuchungen, ID = ThisItem.ID));
+          Set(varRbTisch, LookUp(Tische, Titel = ThisItem.Tisch.Value));
+          ClearCollect(colRbBelegt, Filter(Tischbuchungen, Tisch.Value = ThisItem.Tisch.Value && Startzeit < ThisItem.Endzeit && Endzeit > Now()));
+          RemoveIf(colRbBelegt, ID = ThisItem.ID || (!CheckedIn && Startzeit <= varFreigabeGrenze && Erstellt <= varFreigabeGrenze));
+          If(
+            IsBlank(varRbAlt.ID),
+            Notify("Diese Buchung gibt es nicht mehr. Bitte aktualisieren.", NotificationType.Warning),
+            IsBlank(varRbTisch.ID),
+            Notify("Diesen Tisch gibt es nicht mehr.", NotificationType.Warning),
+            varRbTisch.Gesperrt,
+            Notify("Dieser Tisch ist zurzeit gesperrt.", NotificationType.Warning),
+            varRbAlt.Endzeit <= Now(),
+            Notify("Diese Buchung ist schon zu Ende.", NotificationType.Warning),
+            !IsEmpty(colRbBelegt),
+            Notify("Der Tisch ist inzwischen von jemand anderem gebucht. Bitte über „Tisch Buchen“ einen anderen Tisch wählen.", NotificationType.Warning),
+            IfError(
+              Patch(
+                Tischbuchungen,
+                Defaults(Tischbuchungen),
+                {
+                  Tisch: {Id: varRbTisch.ID, Value: varRbTisch.Titel},
+                  Startzeit: varRbAlt.Startzeit,
+                  Endzeit: varRbAlt.Endzeit,
+                  Person: {
+                    Claims: "i:0#.f|membership|" & Lower(User().Email),
+                    Department: "",
+                    DisplayName: User().FullName,
+                    Email: User().Email,
+                    JobTitle: "",
+                    Picture: ""
+                  },
+                  SerienID: varRbAlt.SerienID,
+                  GastName: varRbAlt.GastName
+                }
+              ),
+              Notify("Rebuchen fehlgeschlagen. Es wurde nichts geändert. Bitte erneut versuchen.", NotificationType.Error),
+              IfError(
+                Remove(Tischbuchungen, varRbAlt),
+                Notify("Wieder gebucht. Die alte verfallene Buchung konnte nicht entfernt werden, bitte im Tab Buchungen stornieren.", NotificationType.Warning),
+                Notify("Wieder gebucht: " & varRbTisch.Titel & ", " & Text(varRbAlt.Startzeit, "hh:mm") & " bis " & Text(varRbAlt.Endzeit, "hh:mm") & " Uhr. Bitte innerhalb von " & Coalesce(varFreigabeMinuten, 30) & " Minuten einchecken, sonst wird der Tisch freigegeben.", NotificationType.Success)
+              )
+            )
+          );
+          Refresh(Tischbuchungen);
+          Set(varFreigabeGrenze, DateAdd(Now(), -Coalesce(varFreigabeMinuten, 30), TimeUnit.Minutes));
+          With({neu: ForAll(Filter(Tischbuchungen, (Endzeit > varAnsichtsDatum && Startzeit < DateAdd(varAnsichtsDatum, 1, TimeUnit.Days)) || (Endzeit >= Now() && Startzeit <= DateAdd(Now(), 60, TimeUnit.Minutes))) As B, {TischName: B.Tisch.Value, Startzeit: B.Startzeit, Endzeit: B.Endzeit, Eingecheckt: B.CheckedIn, Name: B.Person.DisplayName, Erstellt: B.Erstellt})}, If(IsError(neu) || IsError(First(neu)), Notify("Grundriss konnte nicht aktualisiert werden. Bitte auf Aktualisieren tippen.", NotificationType.Warning), ClearCollect(colGrundriss, DropColumns(Filter(neu, Eingecheckt || Startzeit > varFreigabeGrenze || Erstellt > varFreigabeGrenze), Erstellt)); Set(varGrundrissStand, Now())));
+          Set(varSperreBis, DateAdd(Now(), 2, TimeUnit.Seconds));
+          Set(varIsLoading, false)
+        )
+      PressedBorderColor: =ColorValue("#171496")
+      PressedColor: =ColorValue("#171496")
+      PressedFill: |-
+        =RGBA(23, 20, 150, 0.16)
+      RadiusBottomLeft: =14
+      RadiusBottomRight: =14
+      RadiusTopLeft: =14
+      RadiusTopRight: =14
+      Size: =12
+      Text: |-
+        ="Rebuchen"
+      Visible: |-
+        =varAnsichtsDatum = Today() && !ThisItem.CheckedIn && ThisItem.Startzeit <= DateAdd(Coalesce(varJetztTakt, Now()), -Coalesce(varFreigabeMinuten, 30), TimeUnit.Minutes) && ThisItem.Erstellt <= DateAdd(Coalesce(varJetztTakt, Now()), -Coalesce(varFreigabeMinuten, 30), TimeUnit.Minutes) &&
+        Hour(ThisItem.Endzeit) * 60 + Minute(ThisItem.Endzeit) > 30 * RoundUp((Hour(Coalesce(varJetztTakt, Now())) * 60 + Minute(Coalesce(varJetztTakt, Now()))) / 30, 0)
+      Width: =100
+      X: =lblStatusHeute.X
+      Y: |-
+        =lblStatusHeute.Y + 7

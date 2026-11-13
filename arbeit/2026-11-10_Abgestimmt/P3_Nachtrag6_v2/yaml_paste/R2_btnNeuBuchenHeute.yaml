@@ -1,0 +1,76 @@
+- btnNeuBuchenHeute:
+    Control: Classic/Button@2.2.0
+    Properties:
+      BorderColor: |-
+        =ColorFade(Self.Fill, -15%)
+      BorderThickness: =2
+      Color: |-
+        =RGBA(255, 255, 255, 1)
+      DisabledBorderColor: |-
+        =RGBA(166, 166, 166, 1)
+      DisplayMode: |-
+        =If(varIsLoading, DisplayMode.Disabled, DisplayMode.Edit)
+      Fill: |-
+        =ColorValue("#171496")
+      Font: |-
+        =Font.'Open Sans'
+      FontWeight: =FontWeight.Semibold
+      Height: =32
+      HoverBorderColor: |-
+        =ColorFade(Self.BorderColor, 20%)
+      HoverColor: |-
+        =RGBA(255, 255, 255, 1)
+      HoverFill: |-
+        =ColorFade(Self.Fill, -20%)
+      OnSelect: |-
+        =If(
+          !varIsLoading,
+          Set(varNeuBuchenTisch, LookUp(Tische, Titel = ThisItem.Tisch.Value));
+          If(
+            IsBlank(varNeuBuchenTisch.ID),
+            Notify("Diesen Tisch gibt es nicht mehr.", NotificationType.Warning),
+            varNeuBuchenTisch.Gesperrt,
+            Notify("Dieser Tisch ist zurzeit gesperrt.", NotificationType.Warning),
+            Set(varSelectedTisch, varNeuBuchenTisch);
+            Set(varDialogJetzt, Now());
+            Reset(tglFuerAndere);
+            Reset(txtGastName);
+            Set(varFbTrotzdem, false);
+            Set(varEndeOverride, Text(ThisItem.Endzeit, "hh:mm"));
+            Reset(dpDatum);
+            Reset(ddStart);
+            Reset(ddEnde);
+            Reset(dpWiederholenBis);
+            Set(varZeigeDialog, true);
+            Set(varZeigeDetails, false);
+            Set(varZeigeCheckin, false);
+            Set(varZeigeVerwalten, false);
+            Set(varWiederholen, false);
+            Set(varWiederholenModus, "Wochentage");
+            Set(varTagMo, false);
+            Set(varTagDi, false);
+            Set(varTagMi, false);
+            Set(varTagDo, false);
+            Set(varTagFr, false);
+            Set(varTagSa, false);
+            Set(varTagSo, false)
+          )
+        )
+      PressedBorderColor: =Self.Fill
+      PressedColor: =Color.White
+      PressedFill: |-
+        =ColorFade(Self.Fill, -20%)
+      RadiusBottomLeft: =10
+      RadiusBottomRight: =10
+      RadiusTopLeft: =10
+      RadiusTopRight: =10
+      Size: =12
+      Text: |-
+        ="Neu buchen"
+      Visible: |-
+        =varAnsichtsDatum = Today() && !ThisItem.CheckedIn && ThisItem.Startzeit <= DateAdd(Coalesce(varJetztTakt, Now()), -Coalesce(varFreigabeMinuten, 30), TimeUnit.Minutes) && ThisItem.Erstellt <= DateAdd(Coalesce(varJetztTakt, Now()), -Coalesce(varFreigabeMinuten, 30), TimeUnit.Minutes) &&
+        Hour(ThisItem.Endzeit) * 60 + Minute(ThisItem.Endzeit) > 30 * RoundUp((Hour(Coalesce(varJetztTakt, Now())) * 60 + Minute(Coalesce(varJetztTakt, Now()))) / 30, 0)
+      Width: =120
+      X: =lblStatusHeute.X
+      Y: |-
+        =lblStatusHeute.Y + 5
